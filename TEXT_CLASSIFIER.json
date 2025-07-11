@@ -6,10 +6,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
       "typeVersion": 1,
       "position": [
-        -900,
-        -620
+        -420,
+        -140
       ],
-      "id": "738437ff-b940-4544-92e5-3337f9344269",
+      "id": "834cc65b-b1a5-40d9-8afc-d07f48ea9f86",
       "name": "Calculator"
     },
     {
@@ -28,10 +28,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        -1340,
-        -600
+        -860,
+        -120
       ],
-      "id": "2d3ebbe2-03b2-4fbb-8c7e-2b332f6a58aa",
+      "id": "4593471c-0b78-49c0-b4a8-d8dc9982f7e4",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
@@ -59,13 +59,13 @@
           ]
         }
       },
-      "id": "f638be56-18cb-45f0-a26b-15bff26eb94f",
+      "id": "dcab552e-14e9-45d9-9664-01f0fe156bf5",
       "typeVersion": 1.1,
       "name": "Start",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "position": [
-        -3020,
-        -80
+        -2540,
+        400
       ]
     },
     {
@@ -107,10 +107,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -580,
-        -820
+        -100,
+        -340
       ],
-      "id": "cad93bb4-61c3-45e4-bcc8-43234a0c84b4",
+      "id": "d8173a71-e5be-4c6a-8581-8c48e95f104c",
       "name": "Send Text"
     },
     {
@@ -130,10 +130,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -840,
-        -820
+        -360,
+        -340
       ],
-      "id": "708df6a2-0840-44a2-961d-4c7cab519079",
+      "id": "ffd6bbeb-925e-4205-aceb-df6cc46fd1bc",
       "name": "Delay Text"
     },
     {
@@ -149,10 +149,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        -1240,
-        -820
+        -760,
+        -340
       ],
-      "id": "5a503707-6fcd-4b8e-9910-923e386ba071",
+      "id": "4fb41065-585e-4ed8-b68b-2b384c4acff6",
       "name": "AI Agent"
     },
     {
@@ -164,10 +164,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        -1200,
-        -600
+        -720,
+        -120
       ],
-      "id": "9aeab4ad-1bd4-49a7-ab63-134b9c116dcd",
+      "id": "55bb4d9a-e5b9-4832-96a3-0c9e86c34a50",
       "name": "Postgres Chat Memory",
       "credentials": {
         "postgres": {
@@ -197,10 +197,10 @@
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.6,
       "position": [
-        -1060,
-        -600
+        -580,
+        -120
       ],
-      "id": "c27d15b9-2816-4496-8a57-22a1fad3047d",
+      "id": "4fb66765-4504-4f4a-a10a-16ed0f173c8c",
       "name": "Get row(s) in sheet in Google Sheets",
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -233,35 +233,11 @@
       "type": "@n8n/n8n-nodes-langchain.textClassifier",
       "typeVersion": 1.1,
       "position": [
-        -2040,
-        -80
+        -1560,
+        400
       ],
-      "id": "eada61f5-d909-429f-9daf-0cf669853a60",
+      "id": "f0f8755a-d3d7-4704-894d-8e3d7b7b7913",
       "name": "Text Classifier"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-4.1-mini"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [
-        -2040,
-        140
-      ],
-      "id": "c217114e-dd72-4299-863e-afe8261ac6f7",
-      "name": "OpenAI Chat Model1",
-      "credentials": {
-        "openAiApi": {
-          "id": "4I5hY4XwoALE8VJS",
-          "name": "OpenAi account"
-        }
-      }
     },
     {
       "parameters": {
@@ -309,32 +285,11 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -1400,
-        -80
+        -920,
+        400
       ],
       "name": "Call MSG SALUDO",
-      "id": "c6bedb3b-6861-4c26-87cf-0d5e373752db"
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT * FROM obtener_crear_estado_cliente(\n    SPLIT_PART('{{ $json.sender_split }}', '@', 1)\n);",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -2800,
-        -80
-      ],
-      "id": "35db9bf0-0e3f-4588-b3c9-f39043a3ffe9",
-      "name": "Execute a SQL query",
-      "credentials": {
-        "postgres": {
-          "id": "8JM5p3eqNiJuC8uB",
-          "name": "Postgres account"
-        }
-      }
+      "id": "83da8506-efca-483e-a750-9396144ba981"
     },
     {
       "parameters": {
@@ -421,26 +376,48 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -2560,
-        -80
+        -2080,
+        400
       ],
-      "id": "5e33859f-f5b5-44ed-89b9-759c4f8ed974",
+      "id": "49ea414e-c9b0-4e6b-a4db-798cb5aa1ac3",
       "name": "Switch"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -920,
+        720
+      ],
+      "id": "98ebf73d-f711-44f6-83cf-205034016309",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1560,
+        700
+      ],
+      "id": "f687ff9c-d03e-4f06-b21d-190cbed3ef10",
+      "name": "No Operation, do nothing1"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT actualizar_estado_cliente(\n    SPLIT_PART('{{ $json.sender_split }}', '@', 1),\n    'ventas'\n);",
+        "query": "SELECT actualizar_estado_cliente(\n    SPLIT_PART('{{ $('Start').item.json.sender_split }}', '@', 1),\n    'ventas'\n);",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1400,
-        -240
+        -920,
+        240
       ],
-      "id": "b053c8e8-1baf-4f3c-8c14-04d559c35c3a",
-      "name": "Execute a SQL query1",
+      "id": "1119183d-06b7-447e-bf2e-c862247c2d30",
+      "name": "Update Ventas",
       "credentials": {
         "postgres": {
           "id": "8JM5p3eqNiJuC8uB",
@@ -451,21 +428,66 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT * FROM obtener_crear_estado_cliente('{{ $json.sender_split.split(\"@\")[0] }}');",
+        "query": "SELECT actualizar_estado_cliente(\n    SPLIT_PART('{{ $('Start').item.json.sender_split }}', '@', 1),\n    'soporte'\n);",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1400,
-        80
+        -920,
+        560
       ],
-      "id": "6f04a6ab-033d-442a-b35e-cf23cb1f603f",
-      "name": "Execute a SQL query2",
+      "id": "bad21c6e-09c2-49b9-9b56-2c232e661398",
+      "name": "Update Soporte",
       "credentials": {
         "postgres": {
           "id": "8JM5p3eqNiJuC8uB",
           "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_crear_estado_cliente(\n    SPLIT_PART('{{ $json.sender_split }}', '@', 1)\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2320,
+        400
+      ],
+      "id": "b5f93bd9-7fb6-4d40-bee4-8b4c6d88803d",
+      "name": "Estatus",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1560,
+        560
+      ],
+      "id": "ff6c6085-41f9-4408-8443-bda11585022d",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
         }
       }
     }
@@ -476,7 +498,7 @@
       "main": [
         [
           {
-            "node": "Execute a SQL query",
+            "node": "Estatus",
             "type": "main",
             "index": 0
           }
@@ -553,7 +575,7 @@
       "main": [
         [
           {
-            "node": "Execute a SQL query1",
+            "node": "Update Ventas",
             "type": "main",
             "index": 0
           },
@@ -572,29 +594,12 @@
         ],
         [
           {
-            "node": "Execute a SQL query2",
+            "node": "Update Soporte",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "OpenAI Chat Model1": {
-      "ai_languageModel": [
-        [
+          },
           {
-            "node": "Text Classifier",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Execute a SQL query": {
-      "main": [
-        [
-          {
-            "node": "Switch",
+            "node": "No Operation, do nothing",
             "type": "main",
             "index": 0
           }
@@ -616,6 +621,35 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estatus": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
         ]
       ]
     }
@@ -624,7 +658,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1b97c030-a5fd-4cf8-a6f7-85153b41ecbc",
+  "versionId": "68929c10-6ed8-4d1b-8f23-be7a23a56af5",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
