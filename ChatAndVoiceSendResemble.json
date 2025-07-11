@@ -6,10 +6,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        320,
-        -240
+        620,
+        -100
       ],
-      "id": "cddd97f7-3760-4cf0-aee5-f3eb0c33e617",
+      "id": "0127300a-6d5e-49e3-bbde-9fc8dc660583",
       "name": "No Operation, do nothing1"
     },
     {
@@ -17,10 +17,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        320,
-        280
+        620,
+        420
       ],
-      "id": "dcc04dc3-c438-44b1-aac9-52ce42a24452",
+      "id": "238f2816-c93c-4bb7-a679-d71cb1eeba79",
       "name": "No Operation, do nothing3"
     },
     {
@@ -28,10 +28,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        540,
-        -160
+        840,
+        -20
       ],
-      "id": "5d6f6b85-7f05-49c8-a693-89b64adfbba9",
+      "id": "f2f34d80-e668-4ea6-a35a-b10b3378d2f8",
       "name": "No Operation, do nothing2"
     },
     {
@@ -55,6 +55,12 @@
               "name": "instance",
               "value": "={{ $('Buffer').item.json.instance }}",
               "type": "string"
+            },
+            {
+              "id": "34c8053e-60c0-464d-b590-50b55393ad99",
+              "name": "data_time",
+              "value": "={{ $json.message.map(m => JSON.parse(m).date_time)[0] }}",
+              "type": "string"
             }
           ]
         },
@@ -63,10 +69,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2540,
-        80
+        2840,
+        220
       ],
-      "id": "c11eed40-c9fd-4efe-ad5d-2af0b47f77d2",
+      "id": "9639f429-9cc4-40be-b1e2-e9e883355157",
       "name": "Edit Fields"
     },
     {
@@ -77,10 +83,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        2320,
-        80
+        2620,
+        220
       ],
-      "id": "33917774-f95d-4086-bfb4-20ef068bdf4c",
+      "id": "2f8872de-f2ec-464d-a449-37e766226759",
       "name": "Delete Bufer",
       "credentials": {
         "redis": {
@@ -94,10 +100,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2320,
-        -60
+        2620,
+        80
       ],
-      "id": "ef87f60e-ac35-42c3-aff8-7a3b1269bcdf",
+      "id": "9a96a3c3-8f3c-4e25-9053-3a56b40ec71b",
       "name": "No Operation, do nothing"
     },
     {
@@ -107,10 +113,10 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1980,
-        360
+        2280,
+        500
       ],
-      "id": "df498188-4b84-410f-ba85-86b6b0edeb26",
+      "id": "031f1e14-b62c-4997-8416-3fda40349b6c",
       "name": "Wait",
       "webhookId": "af103ce3-c0d9-4f2a-a094-75cc30056d01"
     },
@@ -154,7 +160,7 @@
                   {
                     "id": "d9f25adc-6bf4-4e1b-83f1-04991279c52b",
                     "leftValue": "={{ JSON.parse($json.message?.last() || '{}').date_time }}",
-                    "rightValue": "={{ $now.minus(15, 'second').toLocal() }}",
+                    "rightValue": "={{ $now.minus(15, 'second').setZone('America/Bogota') }}",
                     "operator": {
                       "type": "dateTime",
                       "operation": "before"
@@ -176,10 +182,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        2100,
-        80
+        2400,
+        220
       ],
-      "id": "0177d549-8d37-4325-9130-02fd8362a26f",
+      "id": "62949c33-d965-40c3-85f6-8dda667f89d5",
       "name": "Switch"
     },
     {
@@ -192,10 +198,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        1880,
-        80
+        2180,
+        220
       ],
-      "id": "1022f4f2-85ca-49d0-b30c-c6b7f8a8a309",
+      "id": "a0bec317-060c-489e-a0f4-94cd94688fb3",
       "name": "Get Buffer Data",
       "credentials": {
         "redis": {
@@ -214,10 +220,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        1660,
-        80
+        1960,
+        220
       ],
-      "id": "99020dc4-385e-462f-922e-4f44b7b832ca",
+      "id": "323f11c3-cb65-489d-803b-6b6590242748",
       "name": "Buffer",
       "credentials": {
         "redis": {
@@ -231,10 +237,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
       "position": [
-        1420,
-        80
+        1720,
+        220
       ],
-      "id": "edbe0050-855a-4280-a9f5-0b739ec2b8f1",
+      "id": "f038f8a6-c0f4-461d-8382-538c37e1c421",
       "name": "Merge Messages"
     },
     {
@@ -284,10 +290,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1080,
-        100
+        1380,
+        240
       ],
-      "id": "2a47f920-3975-4476-b500-e69380f43dea",
+      "id": "b5f861ee-1a96-469f-a74d-baf10fba45ae",
       "name": "Text Processed"
     },
     {
@@ -337,10 +343,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1200,
-        -60
+        1500,
+        80
       ],
-      "id": "ae676806-31bc-47b4-bc9e-1c0b71dcdfa7",
+      "id": "0679ae51-e97a-4001-bc80-8ae8364e95eb",
       "name": "Voice Transcribed"
     },
     {
@@ -355,10 +361,10 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        940,
-        -60
+        1240,
+        80
       ],
-      "id": "bf859007-02db-49f0-9028-bdb6e86d08c9",
+      "id": "44999696-f160-4c95-a2f5-2dff0a2386dc",
       "name": "Transcribe a recording",
       "credentials": {
         "openAiApi": {
@@ -408,10 +414,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        700,
-        100
+        1000,
+        240
       ],
-      "id": "404c0742-4a4c-44df-b956-0763a659ed8c",
+      "id": "161ef63d-440b-4aab-88bc-2158118e957a",
       "name": "Text Message"
     },
     {
@@ -571,10 +577,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -20,
-        20
+        280,
+        160
       ],
-      "id": "fa719fcd-be3f-4a40-998a-88d66727e024",
+      "id": "61c9dbf1-7fb3-4aaa-a9a0-5d4d61afa362",
       "name": "Check Message Type"
     },
     {
@@ -620,7 +626,7 @@
             {
               "id": "c5781775-3177-4292-a756-183a664cfdd2",
               "name": "data_time",
-              "value": "={{ $json.body.data.messageTimestamp.toDateTime('s').toLocal() }}",
+              "value": "={{ $json.body.data.messageTimestamp.toDateTime('s').setZone('America/Bogota') }}",
               "type": "string"
             },
             {
@@ -666,10 +672,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -240,
-        80
+        60,
+        220
       ],
-      "id": "ce0c6c13-8043-474e-a886-752f3117c410",
+      "id": "6dbb77ad-0b3e-452f-bd47-e773b0ce4ec2",
       "name": "Data msg extraction"
     },
     {
@@ -681,10 +687,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -480,
-        80
+        -180,
+        220
       ],
-      "id": "01aa6954-df7a-492a-9f0e-4dac4fa8a9d0",
+      "id": "1da45b16-7c89-48af-865a-8c1a31a344a2",
       "name": "Webhook",
       "webhookId": "61a6cad6-29b9-4682-9ee7-da531f4e638a"
     },
@@ -709,6 +715,12 @@
               "name": "instance",
               "value": "={{ $json.instance }}",
               "type": "string"
+            },
+            {
+              "id": "8f4cd316-47b0-466e-84f4-f6d088557e90",
+              "name": "data_time",
+              "value": "={{ $json.data_time }}",
+              "type": "string"
             }
           ]
         },
@@ -717,10 +729,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2720,
-        80
+        3020,
+        220
       ],
-      "id": "7371835b-ea8c-4aaa-a64d-0be4abb88c73",
+      "id": "96778afb-3bbd-45f1-a40a-f05b8f8a4cb1",
       "name": "Message Validator"
     },
     {
@@ -736,7 +748,8 @@
           "value": {
             "sender_split": "={{ $json.sender }}",
             "concat_message": "={{ $json.concat_message }}",
-            "instance": "={{ $('Message Validator').item.json.instance }}"
+            "instance": "={{ $('Message Validator').item.json.instance }}",
+            "data_time": "={{ $json.data_time }}"
           },
           "matchingColumns": [
             "sender_split",
@@ -770,6 +783,16 @@
               "display": true,
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "data_time",
+              "displayName": "data_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -780,11 +803,11 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        3020,
-        80
+        3320,
+        220
       ],
       "name": "Call MSG IA",
-      "id": "f60ebf0a-214b-4d7d-a671-b800f99238d7"
+      "id": "2b9d8605-c6f6-4a37-9ce6-694f2cb2effc"
     },
     {
       "parameters": {
@@ -803,10 +826,10 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        940,
-        260
+        1240,
+        400
       ],
-      "id": "b12db99c-36ff-4968-8a6b-8ea47e6ad985",
+      "id": "d50bf09f-2ea4-4891-b92a-551c351c1fb0",
       "name": "Analyze image",
       "credentials": {
         "openAiApi": {
@@ -862,10 +885,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1200,
-        260
+        1500,
+        400
       ],
-      "id": "d8f0a7d0-c3eb-4c92-85c1-66021c74fb07",
+      "id": "1160f943-b56d-4b2a-9f75-4fabadffb78d",
       "name": "Imagen Transcribed"
     },
     {
@@ -879,10 +902,10 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        700,
-        260
+        1000,
+        400
       ],
-      "id": "d5803a1c-85dd-4a86-9087-a51b52c23e4e",
+      "id": "1fd1cc2b-07ce-4fb3-9ec0-d7563877ed75",
       "name": "Convert to Imagen"
     },
     {
@@ -896,10 +919,10 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        700,
-        -60
+        1000,
+        80
       ],
-      "id": "aa01c198-9a1e-43ec-8ef5-ef63276e1890",
+      "id": "438ab9c1-81ed-4237-9874-d61763b8a27c",
       "name": "Convert to Audio"
     }
   ],
@@ -1164,11 +1187,11 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "7b587ca2-18a8-4999-948f-ab70b1344294",
+  "versionId": "571d3681-d887-4f66-9d4b-2ef753b295f8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
