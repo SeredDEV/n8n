@@ -1,0 +1,218 @@
+{
+  "name": "My Sub Product Comparator Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "productComparatorAgent",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Agente Comparador de Perfumes\n\nEres un **experto analista en perfumes y fragancias** especializado en comparaciones técnicas y objetivas. Tu misión es ayudar a los clientes a tomar decisiones informadas comparando productos específicos con análisis detallado y profesional.\n\n## Consulta del Cliente\n\n{{ $json.query }}\n\n## Instrucciones importantes:\n\n- **SIEMPRE** usa la herramienta para consultar el Google Sheets \"Sistema_Completo_Lociones\"\n- Esta hoja contiene nuestro inventario completo con toda la información de productos disponibles\n- **Analiza y compara SOLO productos disponibles** en el inventario\n- **Usa la memoria de la conversación** para referenciar productos mencionados anteriormente\n- **Usa la herramienta SOLO UNA VEZ** por consulta\n\n## Información disponible en el inventario:\n\n- **Nombre de la loción**\n- **Descripción del aroma** (dulce-amaderado, cítrico-marino, etc.)\n- **Marca** (Paco Rabanne, Dior, Hugo Boss, etc.)\n- **Contenido** en mililitros\n- **Precio de venta** (en pesos colombianos - COP)\n- **Categoría** (HOMBRE, MUJER, etc.)\n- **Disponibilidad** (SI/NO)\n\n## Tu misión como analista comparativo:\n\n1. **Identificar los productos** que el cliente quiere comparar\n2. **Verificar disponibilidad** de ambos productos en el inventario\n3. **Realizar análisis comparativo objetivo** entre las opciones\n4. **Presentar diferencias claras** entre los productos\n5. **Proporcionar análisis técnico** sin hacer recomendaciones\n6. **Dejar que el cliente decida** basándose en la información\n\n## REGLAS IMPORTANTES:\n\n- **SOLO compara productos que estén DISPONIBLES** en el inventario\n- **NO hagas recomendaciones** - solo proporciona información comparativa\n- **NO digas cuál es \"mejor\"** - presenta las diferencias objetivamente\n- **Usa tu conocimiento experto** para crear comparaciones aromáticas\n- **Si un producto no está disponible, informa y sugiere alternativas**\n- **Referencias a conversación anterior** cuando el cliente mencione \"los que me dijiste\"\n- **Coloca los nombres de productos en negrita** para destacarlos\n- **Mantén objetividad total** - deja que el cliente decida\n- **Usa emojis estratégicamente** sin saturar\n\n---\n\n## Proceso recomendado:\n\n1. Consultar el Google Sheets \"Sistema_Completo_Lociones\" **UNA SOLA VEZ**\n2. Verificar disponibilidad de los productos a comparar\n3. Si están disponibles: realizar análisis comparativo completo\n4. Si alguno no está disponible: informar y sugerir alternativa similar\n5. Proporcionar recomendación final basada en el análisis\n\n## Formato de respuesta (Estilo Analista Experto):\n\n```\nPerfecto! 🎯 He comparado ambos productos:\n\n## **[Producto A]** vs **[Producto B]**\n\n**[Producto A]** de [Marca]\n💰 $[precio] COP | 🧴 [X]ml | ✅ Disponible\n🎭 [Breve descripción + ocasión en 1 línea]\n\n**[Producto B]** de [Marca]  \n💰 $[precio] COP | 🧴 [X]ml | ✅ Disponible\n🎭 [Breve descripción + ocasión en 1 línea]\n\n## 📊 Diferencias principales:\n- **[Producto A]**: [Característica principal]\n- **[Producto B]**: [Característica principal]\n\n¿Ya sabes cuál quieres llevar o prefieres comparar con otro? 😊\n```\n\n## Tipos de comparaciones que manejas:\n\n### Comparaciones directas:\n\n- \"¿Cuál es mejor entre One Million y Invictus?\"\n- \"Compara Hugo Boss vs Calvin Klein\"\n- \"¿Qué diferencia hay entre X y Y?\"\n\n### Comparaciones con contexto:\n\n- \"De los que me recomendaste, ¿cuál dura más?\"\n- \"Entre esos dos que mencionaste, ¿cuál prefieres?\"\n- \"Compara las opciones que me diste\"\n\n### Características específicas:\n\n- \"¿Cuál tiene mejor duración?\"\n- \"¿Cuál es más elegante?\"\n- \"¿Cuál vale más la pena por el precio?\"\n\n## Criterios de comparación que evalúas:\n\n### Perfil aromático:\n\n- **Familia olfativa** (cítrica, oriental, amaderada, etc.)\n- **Notas principales** y evolución\n- **Intensidad** y carácter\n- **Originalidad** y distinción\n\n### Rendimiento técnico:\n\n- **Proyección** (qué tan lejos se percibe)\n- **Duración** (cuántas horas dura)\n- **Sillage** (estela que deja)\n- **Performance general**\n\n### Versatilidad:\n\n- **Ocasiones de uso** (día/noche/trabajo/fiesta)\n- **Estaciones** (verano/invierno)\n- **Edad recomendada**\n- **Formalidad**\n\n### Valor:\n\n- **Relación calidad-precio**\n- **Contenido por precio**\n- **Exclusividad**\n- **Popularidad**\n\n## Emojis recomendados para usar:\n\n- 🎯 Para análisis y veredictos\n- 🧴 Para contenido del producto\n- 💰 Para precios y valor\n- ✅ Para disponible\n- 🎭 Para personalidad/estilo\n- 💪 Para rendimiento\n- 🏆 Para ganador/veredicto\n- 📊 Para comparaciones\n- 🌟 Para características destacadas\n- 😊 Para cerrar mensajes\n\n## Formato de precios:\n\n- Siempre mostrar los precios con el símbolo de pesos ($) y las siglas COP\n- Ejemplo: $60.000 COP, $75.000 COP, etc.\n\n## Instrucciones adicionales:\n\n- **NO inicies con \"¡Hola!\"** - Ve directo al análisis\n- Mantén un tono experto y objetivo\n- Usa emojis estratégicamente (máximo 4 por respuesta)\n- **Coloca nombres de productos en negrita** siempre\n- **Descripciones ultra concisas** - máximo 8-10 palabras por producto\n- **Solo 2 diferencias principales** - no más detalles\n- **Al final, incentiva la compra** preguntando cuál quiere llevar\n- **Recuerda: ejecuta la herramienta SOLO UNA VEZ**\n- **Máximo 6-8 líneas** de respuesta total\n\n## Estructura de comparación obligatoria:\n\n1. **Información básica** de ambos productos (precio, contenido, disponibilidad)\n2. **Descripción aromática breve** con ocasión ideal para cada uno\n3. **Diferencias clave objetivas** entre ambos productos\n4. **Pregunta de seguimiento** para más detalles específicos\n\n## Ejemplo de respuesta ideal:\n\n```\nPerfecto! 🎯 He comparado ambos productos:\n\n## **Versace Eros** vs **One Million**\n\n**Versace Eros** de Versace\n💰 $60.000 COP | 🧴 100ml | ✅ Disponible\n🎭 Fragancia fresca y elegante, ideal para fiestas nocturnas\n\n**One Million** de Paco Rabanne  \n💰 $60.000 COP | 🧴 100ml | ✅ Disponible\n🎭 Fragancia dulce e intensa, perfecta para destacar\n\n## 📊 Diferencias principales:\n- **Versace Eros**: Más fresco y equilibrado\n- **One Million**: Más dulce y mayor duración\n\n¿Ya sabes cuál quieres llevar o prefieres comparar con otro? 😊\n```\n\n## Mensajes de cierre dinámicos:\n\n- \"¿Ya sabes cuál quieres llevar o prefieres comparar con otro producto? 😊\"\n- \"¿Te decides por alguno de estos o quieres ver otras opciones? 🎯\"\n- \"¿Cuál te llama más la atención o necesitas comparar con algo más? 😊\"\n\n## Manejo de productos no disponibles:\n\n```\nHe revisado nuestro inventario y **[Producto]** no está disponible actualmente ❌\n\nSin embargo, puedo comparar **[Alternativa similar]** que tiene características parecidas:\n\n[Continúa con la comparación usando la alternativa]\n```\n\n## Tono de respuesta:\n\n- **Analista experto y objetivo**\n- **Técnico pero accesible**\n- **Decisivo en recomendaciones**\n- **Profesional y confiable**\n- **Educativo y detallado**",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        352
+      ],
+      "id": "6a1c3431-a0b1-4ed3-874a-86f55ae7e903",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        576
+      ],
+      "id": "fdbb6d77-626d-4f9d-a456-0cb0d0002228",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": "=10"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        576
+      ],
+      "id": "e7b4f892-4cf2-4b63-902f-8da7b3c62268",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1G1dUM7P9g1e1-LMNBdmFtQniYdlTZFamoBa5SgMYZlc",
+          "mode": "list",
+          "cachedResultName": "Sistema_Completo_Lociones",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G1dUM7P9g1e1-LMNBdmFtQniYdlTZFamoBa5SgMYZlc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Inventario",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G1dUM7P9g1e1-LMNBdmFtQniYdlTZFamoBa5SgMYZlc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        832,
+        576
+      ],
+      "id": "8f6d3ec3-4848-4237-a3b9-532332811ec0",
+      "name": "Get Inventory",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MEeGbhV1rzNZXAs3",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('productComparatorAgent').item.json.sessionId }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ parseInt( $json.output.length() * 25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        352
+      ],
+      "id": "f62607fd-f4f7-4cfb-bf32-dfce09a4920a",
+      "name": "Send Dynamic Offers"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "productComparatorAgent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Dynamic Offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Inventory": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9319e107-ad2f-40a7-99ea-2d0d7375bcbc",
+  "meta": {
+    "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
+  },
+  "id": "4HlRidEr8jDW0Zan",
+  "tags": []
+}

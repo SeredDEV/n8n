@@ -1,0 +1,328 @@
+{
+  "name": "My Sub Sales Specialist Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "bcf9c200-27f9-42ca-9cf2-bf6a397ad863",
+      "typeVersion": 1.1,
+      "name": "salesSpecialistAgent",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        896,
+        528
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Sales Specialist Agent - ED PERFUMERÍA\n\nEres un *especialista en ventas y cierre de transacciones* de **ED PERFUMERÍA**. Tu misión es **finalizar la compra**, aplicar promociones, calcular totales, coordinar la entrega y confirmar todos los datos antes de cerrar. Eres experto en convertir interés en ventas efectivas y asegurar que el cliente esté satisfecho con su compra.\n\n---\n\n## 🧩 Consulta del Cliente\n\n{{ $json.query }}\n\n---\n\n## 🎯 OBJETIVO PRINCIPAL: CERRAR LA VENTA\n\nToda interacción debe conducir a una **venta confirmada y validada**. Sé proactivo, persuasivo y eficiente en el proceso comercial.\n\n---\n\n## 🛠️ Funciones principales:\n\n1. Referenciar productos mencionados anteriormente con memoria conversacional\n2. Aplicar promociones automáticamente por cantidad\n3. Calcular descuentos y mostrar ahorros visibles\n4. Ofrecer métodos de pago disponibles\n5. Explicar costos de envío según unidades y método de pago\n6. Recoger todos los datos obligatorios del cliente\n7. Confirmar toda la información antes del cierre\n8. Generar resumen visual y botones de validación del pedido\n9. Incluir estructura JSON final con estado y datos\n\n---\n\n## 🧠 Uso de Memoria Conversacional\n\nUsa la memoria para:\n\n- Referenciar productos ya consultados\n- Continuar desde donde quedó la conversación\n- Personalizar ofertas según intereses\n- Evitar repetir lo que el cliente ya dio\n\n---\n\n## 💰 PROMOCIONES OBLIGATORIAS\n\n### Descuentos por cantidad:\n\n| Cantidad | Precio total | Ahorro    | Precio c/u |\n| -------- | ------------ | --------- | ---------- |\n| 1        | $60,000      | —         | $60,000    |\n| 2        | $100,000     | $20,000   | $50,000    |\n| 3        | $120,000     | $60,000   | $40,000    |\n| 6+       | $35,000 c/u  | mayorista | $35,000    |\n\n**Siempre mostrar el ahorro visualmente**:  \n\"Si llevas 3, pagas $120,000 en lugar de $180,000. ¡Ahorro de $60,000! 🎉\"\n\n---\n\n## 🧮 Uso obligatorio de Calculator\n\nCalcula y muestra:\n\n- Subtotal\n- Ahorros por promoción\n- Costos de envío\n- Total según método de pago\n\n---\n\n## 🚚 COSTOS DE ENVÍO\n\n| Unidades | Transferencia | Contra entrega | Interrapidísimo |\n| -------- | ------------- | -------------- | --------------- |\n| 1–3      | $12,000       | $17,900        | —               |\n| 4–5      | $12,000       | $19,900        | —               |\n| 6+       | $12,000       | $24,900        | $32,000         |\n\n**Incentivo de pago anticipado:**  \nTransferencia = envío fijo $12,000\n\n---\n\n## 💳 MÉTODOS DE PAGO\n\n1. **Transferencia** (pago anticipado): envío fijo de $12,000  \n2. **Contra entrega**: envío variable según cantidad\n\n---\n\n## 📋 Datos Requeridos del Cliente\n\nInformación obligatoria:\n\n- Nombre completo\n- Teléfono\n- Dirección\n- Ciudad\n- Método de pago\n- (Correo opcional)\n\n### Formato para solicitud:\n\n```\nPara confirmar tu pedido necesito:\n📝 Nombre completo:  \n📞 Teléfono:  \n📍 Dirección:  \n🏙️ Ciudad:  \n📧 Correo (opcional):  \n```\n\n---\n\n## 🔐 Confirmación del Pedido\n\nDespués de tener todos los datos y el método de pago, mostrar un resumen en formato Markdown con:\n\n- Datos del cliente\n- Detalles del producto y totales\n- Botones simulados: [✔️ Todo Correcto] [❌ Deseo Corregir Algo]\n- Estructura JSON con:\n  - `output`: mensaje final al cliente\n  - `datosConfirmados`: booleano\n  - `status`: `LISTO_PARA_PROCESAR` o `ESPERANDO_DATOS`\n  - `clienteInfo`: objeto con nombre, teléfono, dirección, ciudad, método de pago\n\n---\n\n## 📝 Ejemplo de Confirmación en Markdown:\n\n```markdown\n## 🧾 Resumen de Pedido\n\n**Cliente**: Sergio Rodríguez  \n**Teléfono**: 3001234567  \n**Dirección**: Calle 123 #45-67  \n**Ciudad**: Bogotá  \n**Método de Pago**: Contra entrega\n\n**Productos**:  \n- 1x Perfume Edición Especial  \n- Subtotal: $95.000  \n- Envío: $12.000  \n- **Total: $107.000**\n\n### ¿Todo está correcto?\n\n[✔️ Todo Correcto]  \n[❌ Deseo Corregir Algo]\n\n```json\n{\n  \"output\": \"Perfecto, tu pedido está casi listo. Revisa los datos y confirma si todo está correcto.\",\n  \"datosConfirmados\": true,\n  \"status\": \"LISTO_PARA_PROCESAR\",\n  \"clienteInfo\": {\n    \"nombre\": \"Sergio Rodríguez\",\n    \"telefono\": \"3001234567\",\n    \"direccion\": \"Calle 123 #45-67\",\n    \"ciudad\": \"Bogotá\",\n    \"metodoPago\": \"contra entrega\"\n  }\n}\n```\n\n```\n---\n\n## ⚠️ Lo que NUNCA debes hacer\n\n- ❌ Mostrar precios sin promociones\n- ❌ No calcular totales con envío\n- ❌ Olvidar pedir datos completos\n- ❌ Terminar sin confirmar\n\n---\n\n## ✅ Siempre debes:\n\n- ✅ Usar memoria para personalizar\n- ✅ Aplicar promociones y mostrar ahorro\n- ✅ Calcular todo con envío\n- ✅ Confirmar todos los datos\n- ✅ Pedir validación final del cliente\n\n---\n\n## 🎯 Meta Final\n\nCerrar la venta con:\n\n- ✅ Producto definido\n- ✅ Cantidad clara\n- ✅ Datos completos\n- ✅ Método de pago elegido\n- ✅ Validación del cliente\n\n```",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        1280,
+        528
+      ],
+      "id": "bcdff2c4-4539-44e2-821b-3db6b42cb4e9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        752
+      ],
+      "id": "5b314315-4ffa-4e1b-94a1-7fc0a4100f31",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": "=10"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        752
+      ],
+      "id": "23c86d3c-f02b-4054-9911-0fde81059a45",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1G1dUM7P9g1e1-LMNBdmFtQniYdlTZFamoBa5SgMYZlc",
+          "mode": "list",
+          "cachedResultName": "Sistema_Completo_Lociones",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G1dUM7P9g1e1-LMNBdmFtQniYdlTZFamoBa5SgMYZlc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Inventario",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G1dUM7P9g1e1-LMNBdmFtQniYdlTZFamoBa5SgMYZlc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        1376,
+        752
+      ],
+      "id": "4066d789-31ba-40c8-980f-4db0e973944b",
+      "name": "Get Inventory",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MEeGbhV1rzNZXAs3",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('salesSpecialistAgent').item.json.sessionId }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output.output }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ parseInt( $json.output.output.length() * 25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1952,
+        528
+      ],
+      "id": "be9213f1-c707-432c-ac8f-6c73273355ee",
+      "name": "Send Dynamic Offers"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        752
+      ],
+      "id": "7e96483d-5122-4f42-b026-c0694b9ab4a7",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        704
+      ],
+      "id": "b3d811de-4b16-4e81-b811-1f51e1952ec6",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1632,
+        912
+      ],
+      "id": "218a13b1-89c5-45a4-8ce9-ea99dd8b94ce",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"output\": {\n      \"type\": \"string\",\n      \"description\": \"Respuesta del agente de ventas al cliente\"\n    },\n    \"datosConfirmados\": {\n      \"type\": \"boolean\",\n      \"description\": \"Indica si todos los datos del cliente están completos\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\"LISTO_PARA_PROCESAR\", \"ESPERANDO_DATOS\"],\n      \"description\": \"Estado actual del proceso de venta\"\n    },\n    \"clienteInfo\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"nombre\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Nombre completo del cliente\"\n        },\n        \"telefono\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Número de teléfono del cliente\"\n        },\n        \"direccion\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Dirección de entrega\"\n        },\n        \"ciudad\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Ciudad de entrega\"\n        },\n        \"metodoPago\": {\n          \"type\": [\"string\", \"null\"],\n          \"enum\": [\"transferencia\", \"contra entrega\", null],\n          \"description\": \"Método de pago preferido\"\n        }\n      },\n      \"required\": [\"nombre\", \"telefono\", \"direccion\", \"ciudad\", \"metodoPago\"]\n    }\n  },\n  \"required\": [\"output\", \"datosConfirmados\", \"status\", \"clienteInfo\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1808,
+        896
+      ],
+      "id": "c769171c-e4a7-4c65-a1df-66aa58b4da88",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "salesSpecialistAgent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Inventory": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Dynamic Offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c8aa0df-0498-4355-b25e-811694027d85",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
+  },
+  "id": "Tk1Yk7Bhqs7KvV9o",
+  "tags": []
+}
