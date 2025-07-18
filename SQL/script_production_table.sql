@@ -7,18 +7,15 @@
 DROP TABLE IF EXISTS n8n_pro_conversation_states CASCADE;
 DROP FUNCTION IF EXISTS actualizar_estado_pro(VARCHAR, VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_estado_ventas_pro(VARCHAR, VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS actualizar_datos_completos_pro(VARCHAR, JSONB, JSONB) CASCADE;
 DROP FUNCTION IF EXISTS estado_saludo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_catalogo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_ofertas_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_consulta_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_ventas_pro(VARCHAR) CASCADE;
-DROP FUNCTION IF EXISTS estado_venta_si_pro(VARCHAR) CASCADE;
-DROP FUNCTION IF EXISTS estado_venta_no_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_soporte_pro(VARCHAR) CASCADE;
-DROP FUNCTION IF EXISTS estado_soporte_si_pro(VARCHAR) CASCADE;
-DROP FUNCTION IF EXISTS estado_soporte_no_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_ventas_esperando_pro(VARCHAR) CASCADE;
-DROP FUNCTION IF EXISTS estado_ventas_recolectando_pro(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS estado_ventas_fin_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_ventas_listo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_ventas_limpiar_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS obtener_estado_pro(VARCHAR) CASCADE;
@@ -39,6 +36,10 @@ CREATE TABLE n8n_pro_conversation_states (
     telefono VARCHAR(20) NULL,
     direccion TEXT NULL,
     email VARCHAR(150) NULL,
+    guia VARCHAR(100) NULL,
+    
+    -- Información de productos (como JSON)
+    productos_info JSONB NULL,
     
     -- Estado del proceso de ventas (NULL por defecto)
     estado_ventas VARCHAR(20) NULL,
@@ -62,11 +63,11 @@ CREATE INDEX idx_n8n_pro_conversation_actividad ON n8n_pro_conversation_states(u
 -- 3. RESTRICCIONES DE VALIDACIÓN
 ALTER TABLE n8n_pro_conversation_states 
 ADD CONSTRAINT chk_pro_estado_actual 
-CHECK (estado_actual IN ('saludo', 'catalogo', 'ofertas', 'consulta', 'ventas', 'venta_si', 'venta_no', 'soporte', 'soporte_si', 'soporte_no'));
+CHECK (estado_actual IN ('saludo', 'catalogo', 'ofertas', 'consulta', 'ventas', 'soporte'));
 
 ALTER TABLE n8n_pro_conversation_states 
 ADD CONSTRAINT chk_pro_estado_ventas 
-CHECK (estado_ventas IS NULL OR estado_ventas IN ('ESPERANDO', 'RECOLECTANDO', 'LISTO'));
+CHECK (estado_ventas IS NULL OR estado_ventas IN ('ESPERANDO', 'FIN', 'LISTO'));
 
 ALTER TABLE n8n_pro_conversation_states 
 ADD CONSTRAINT chk_pro_session_id_not_empty 
@@ -107,6 +108,35 @@ BEGIN
     -- Actualizar solo el estado de ventas
     UPDATE n8n_pro_conversation_states 
     SET estado_ventas = nuevo_estado_ventas,
+        ultima_actividad = CURRENT_TIMESTAMP
+    WHERE session_id = session_id_param;
+    
+    GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
+    RETURN filas_afectadas > 0;
+END;
+';
+
+-- FUNCIÓN ESPECÍFICA: Actualizar datos completos (cliente + productos)
+CREATE OR REPLACE FUNCTION actualizar_datos_completos_pro(
+    session_id_param VARCHAR,
+    cliente_info JSONB DEFAULT NULL,
+    productos_info JSONB DEFAULT NULL
+)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+DECLARE
+    filas_afectadas INTEGER;
+BEGIN
+    -- Actualizar datos del cliente y productos
+    UPDATE n8n_pro_conversation_states 
+    SET 
+        nombre_cliente = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''nombre'', nombre_cliente) ELSE nombre_cliente END,
+        ciudad = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''ciudad'', ciudad) ELSE ciudad END,
+        producto_interes = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''producto_interes'', producto_interes) ELSE producto_interes END,
+        telefono = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''telefono'', telefono) ELSE telefono END,
+        direccion = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''direccion'', direccion) ELSE direccion END,
+        email = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''correo'', cliente_info->>''email'', email) ELSE email END,
+        guia = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''guia'', guia) ELSE guia END,
+        productos_info = COALESCE(productos_info, productos_info),
         ultima_actividad = CURRENT_TIMESTAMP
     WHERE session_id = session_id_param;
     
@@ -157,43 +187,11 @@ BEGIN
 END;
 ';
 
--- Estado: venta_si (compró)
-CREATE OR REPLACE FUNCTION estado_venta_si_pro(session_id_param VARCHAR)
-RETURNS BOOLEAN LANGUAGE plpgsql AS '
-BEGIN
-    RETURN actualizar_estado_pro(session_id_param, ''venta_si'');
-END;
-';
-
--- Estado: venta_no (no compró)
-CREATE OR REPLACE FUNCTION estado_venta_no_pro(session_id_param VARCHAR)
-RETURNS BOOLEAN LANGUAGE plpgsql AS '
-BEGIN
-    RETURN actualizar_estado_pro(session_id_param, ''venta_no'');
-END;
-';
-
 -- Estado: soporte
 CREATE OR REPLACE FUNCTION estado_soporte_pro(session_id_param VARCHAR)
 RETURNS BOOLEAN LANGUAGE plpgsql AS '
 BEGIN
     RETURN actualizar_estado_pro(session_id_param, ''soporte'');
-END;
-';
-
--- Estado: soporte_si (resuelto)
-CREATE OR REPLACE FUNCTION estado_soporte_si_pro(session_id_param VARCHAR)
-RETURNS BOOLEAN LANGUAGE plpgsql AS '
-BEGIN
-    RETURN actualizar_estado_pro(session_id_param, ''soporte_si'');
-END;
-';
-
--- Estado: soporte_no (no resuelto)
-CREATE OR REPLACE FUNCTION estado_soporte_no_pro(session_id_param VARCHAR)
-RETURNS BOOLEAN LANGUAGE plpgsql AS '
-BEGIN
-    RETURN actualizar_estado_pro(session_id_param, ''soporte_no'');
 END;
 ';
 
@@ -209,11 +207,11 @@ BEGIN
 END;
 ';
 
--- Estado ventas: RECOLECTANDO (cliente envió algunos datos)
-CREATE OR REPLACE FUNCTION estado_ventas_recolectando_pro(session_id_param VARCHAR)
+-- Estado ventas: FIN (proceso de venta finalizado)
+CREATE OR REPLACE FUNCTION estado_ventas_fin_pro(session_id_param VARCHAR)
 RETURNS BOOLEAN LANGUAGE plpgsql AS '
 BEGIN
-    RETURN actualizar_estado_ventas_pro(session_id_param, ''RECOLECTANDO'');
+    RETURN actualizar_estado_ventas_pro(session_id_param, ''FIN'');
 END;
 ';
 
@@ -267,6 +265,8 @@ RETURNS TABLE (
     telefono VARCHAR,
     direccion TEXT,
     email VARCHAR,
+    guia VARCHAR,
+    productos_info JSONB,
     contexto JSONB,
     conversacion_activa BOOLEAN
 ) LANGUAGE plpgsql AS '
@@ -285,6 +285,8 @@ BEGIN
         cs.telefono,
         cs.direccion,
         cs.email,
+        cs.guia,
+        cs.productos_info,
         cs.contexto,
         cs.conversacion_activa
     FROM n8n_pro_conversation_states cs
@@ -297,46 +299,45 @@ END;
 -- ========================================
 
 /*
--- FUNCIÓN GENERAL:
-SELECT actualizar_estado_pro('573011284297', 'catalogo');
+-- ========================================
+-- EJEMPLOS DE USO:
+-- ========================================
 
--- FUNCIONES ESPECÍFICAS DE ESTADOS PRINCIPALES:
+-- Estados principales disponibles:
+-- ✅ saludo - Estado inicial de saludo
+-- ✅ catalogo - Mostrar catálogo de productos
+-- ✅ ofertas - Mostrar ofertas especiales
+-- ✅ consulta - Cliente hace consulta específica
+-- ✅ ventas - Iniciar proceso de ventas
+-- ✅ soporte - Cliente necesita soporte técnico
+
 SELECT estado_saludo_pro('573011284297');
 SELECT estado_catalogo_pro('573011284297');
 SELECT estado_ofertas_pro('573011284297');
 SELECT estado_consulta_pro('573011284297');
 SELECT estado_ventas_pro('573011284297');
-SELECT estado_venta_si_pro('573011284297');
-SELECT estado_venta_no_pro('573011284297');
 SELECT estado_soporte_pro('573011284297');
-SELECT estado_soporte_si_pro('573011284297');
-SELECT estado_soporte_no_pro('573011284297');
 
--- FUNCIONES ESPECÍFICAS DE ESTADOS DE VENTAS:
-SELECT estado_ventas_esperando_pro('573011284297');     -- Cliente recibió formulario de datos
-SELECT estado_ventas_recolectando_pro('573011284297');  -- Cliente envió algunos datos
-SELECT estado_ventas_listo_pro('573011284297');         -- Todos los datos completos
-SELECT estado_ventas_limpiar_pro('573011284297');       -- Volver estado_ventas a NULL
+-- Estados de ventas disponibles:
+-- ✅ ESPERANDO - Cliente recibió formulario de datos
+-- ✅ FIN - Proceso de venta finalizado
+-- ✅ LISTO - Todos los datos completos
+-- ✅ NULL - Sin estado de ventas (limpiado)
 
--- ACTUALIZAR SOLO ESTADO DE VENTAS:
-SELECT actualizar_estado_ventas_pro('573011284297', 'ESPERANDO');
+SELECT estado_ventas_esperando_pro('573011284297');
+SELECT estado_ventas_fin_pro('573011284297');
+SELECT estado_ventas_listo_pro('573011284297');
+SELECT estado_ventas_limpiar_pro('573011284297');
 
--- CONSULTAR ESTADO (incluye estado_ventas):
-SELECT * FROM obtener_estado_pro('573011284297');
+-- ACTUALIZAR DATOS COMPLETOS (CLIENTE + PRODUCTOS):
+SELECT actualizar_datos_completos_pro(
+    '573011284297', 
+    '{"nombre": "Sergio", "telefono": "30112842597", "direccion": "Cl. 7 Sur #50GG-13", "ciudad": "Guayabal, Medellín"}',
+    '[{"nombre": "One Million EDT 100ML", "cantidad": 10, "precio": 35000, "total": 350000}]'
+);
 
 -- CONSULTAR SOLO ESTADO DE VENTAS:
 SELECT obtener_estado_ventas_pro('573011284297');
-
--- CONSULTAR SESIONES POR ESTADO DE VENTAS:
-SELECT session_id, estado_actual, estado_ventas, nombre_cliente 
-FROM n8n_pro_conversation_states 
-WHERE estado_ventas = 'ESPERANDO';
-
-SELECT session_id, estado_actual, estado_ventas, nombre_cliente 
-FROM n8n_pro_conversation_states 
-WHERE estado_ventas = 'RECOLECTANDO';
-
-SELECT session_id, estado_actual, estado_ventas, nombre_cliente 
-FROM n8n_pro_conversation_states 
-WHERE estado_ventas = 'LISTO';
 */
+
+
