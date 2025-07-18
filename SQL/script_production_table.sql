@@ -6,6 +6,7 @@
 -- 0. LIMPIAR TODO
 DROP TABLE IF EXISTS n8n_pro_conversation_states CASCADE;
 DROP FUNCTION IF EXISTS actualizar_estado_pro(VARCHAR, VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS actualizar_estado_ventas_pro(VARCHAR, VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_saludo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_catalogo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_ofertas_pro(VARCHAR) CASCADE;
@@ -16,7 +17,12 @@ DROP FUNCTION IF EXISTS estado_venta_no_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_soporte_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_soporte_si_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_soporte_no_pro(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS estado_ventas_esperando_pro(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS estado_ventas_recolectando_pro(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS estado_ventas_listo_pro(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS estado_ventas_limpiar_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS obtener_estado_pro(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS obtener_estado_ventas_pro(VARCHAR) CASCADE;
 
 -- 1. CREAR LA TABLA PRINCIPAL
 CREATE TABLE n8n_pro_conversation_states (
@@ -34,6 +40,9 @@ CREATE TABLE n8n_pro_conversation_states (
     direccion TEXT NULL,
     email VARCHAR(150) NULL,
     
+    -- Estado del proceso de ventas (NULL por defecto)
+    estado_ventas VARCHAR(20) NULL,
+    
     -- Contexto como JSON para flexibilidad
     contexto JSONB DEFAULT '{}',
     
@@ -46,6 +55,7 @@ CREATE TABLE n8n_pro_conversation_states (
 -- 2. CREAR ÍNDICES BÁSICOS
 CREATE INDEX idx_n8n_pro_conversation_session ON n8n_pro_conversation_states(session_id);
 CREATE INDEX idx_n8n_pro_conversation_estado ON n8n_pro_conversation_states(estado_actual);
+CREATE INDEX idx_n8n_pro_conversation_estado_ventas ON n8n_pro_conversation_states(estado_ventas);
 CREATE INDEX idx_n8n_pro_conversation_activa ON n8n_pro_conversation_states(conversacion_activa);
 CREATE INDEX idx_n8n_pro_conversation_actividad ON n8n_pro_conversation_states(ultima_actividad);
 
@@ -53,6 +63,10 @@ CREATE INDEX idx_n8n_pro_conversation_actividad ON n8n_pro_conversation_states(u
 ALTER TABLE n8n_pro_conversation_states 
 ADD CONSTRAINT chk_pro_estado_actual 
 CHECK (estado_actual IN ('saludo', 'catalogo', 'ofertas', 'consulta', 'ventas', 'venta_si', 'venta_no', 'soporte', 'soporte_si', 'soporte_no'));
+
+ALTER TABLE n8n_pro_conversation_states 
+ADD CONSTRAINT chk_pro_estado_ventas 
+CHECK (estado_ventas IS NULL OR estado_ventas IN ('ESPERANDO', 'RECOLECTANDO', 'LISTO'));
 
 ALTER TABLE n8n_pro_conversation_states 
 ADD CONSTRAINT chk_pro_session_id_not_empty 
@@ -75,6 +89,26 @@ BEGIN
     ON CONFLICT (session_id) DO UPDATE SET 
         estado_actual = nuevo_estado,
         ultima_actividad = CURRENT_TIMESTAMP;
+    
+    GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
+    RETURN filas_afectadas > 0;
+END;
+';
+
+-- FUNCIÓN ESPECÍFICA: Actualizar estado de ventas
+CREATE OR REPLACE FUNCTION actualizar_estado_ventas_pro(
+    session_id_param VARCHAR,
+    nuevo_estado_ventas VARCHAR
+)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+DECLARE
+    filas_afectadas INTEGER;
+BEGIN
+    -- Actualizar solo el estado de ventas
+    UPDATE n8n_pro_conversation_states 
+    SET estado_ventas = nuevo_estado_ventas,
+        ultima_actividad = CURRENT_TIMESTAMP
+    WHERE session_id = session_id_param;
     
     GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
     RETURN filas_afectadas > 0;
@@ -163,12 +197,68 @@ BEGIN
 END;
 ';
 
+-- ========================================
+-- FUNCIONES PARA ESTADOS DE VENTAS
+-- ========================================
+
+-- Estado ventas: ESPERANDO (se enviaron datos al cliente)
+CREATE OR REPLACE FUNCTION estado_ventas_esperando_pro(session_id_param VARCHAR)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+BEGIN
+    RETURN actualizar_estado_ventas_pro(session_id_param, ''ESPERANDO'');
+END;
+';
+
+-- Estado ventas: RECOLECTANDO (cliente envió algunos datos)
+CREATE OR REPLACE FUNCTION estado_ventas_recolectando_pro(session_id_param VARCHAR)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+BEGIN
+    RETURN actualizar_estado_ventas_pro(session_id_param, ''RECOLECTANDO'');
+END;
+';
+
+-- Estado ventas: LISTO (todos los datos completos)
+CREATE OR REPLACE FUNCTION estado_ventas_listo_pro(session_id_param VARCHAR)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+BEGIN
+    RETURN actualizar_estado_ventas_pro(session_id_param, ''LISTO'');
+END;
+';
+
+-- Limpiar estado de ventas (volver a NULL)
+CREATE OR REPLACE FUNCTION estado_ventas_limpiar_pro(session_id_param VARCHAR)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+BEGIN
+    RETURN actualizar_estado_ventas_pro(session_id_param, NULL);
+END;
+';
+
+-- FUNCIÓN PARA CONSULTAR SOLO ESTADO DE VENTAS
+CREATE OR REPLACE FUNCTION obtener_estado_ventas_pro(session_id_param VARCHAR)
+RETURNS VARCHAR LANGUAGE plpgsql AS '
+DECLARE
+    estado_ventas_resultado VARCHAR;
+BEGIN
+    SELECT estado_ventas INTO estado_ventas_resultado
+    FROM n8n_pro_conversation_states
+    WHERE session_id = session_id_param;
+    
+    -- Si no encuentra la sesión, retornar NULL
+    IF NOT FOUND THEN
+        RETURN NULL;
+    END IF;
+    
+    RETURN estado_ventas_resultado;
+END;
+';
+
 -- FUNCIÓN PARA CONSULTAR ESTADO ACTUAL
 CREATE OR REPLACE FUNCTION obtener_estado_pro(session_id_param VARCHAR)
 RETURNS TABLE (
     id INTEGER,
     session_id VARCHAR,
     estado VARCHAR,
+    estado_ventas VARCHAR,
     fecha_inicio TIMESTAMP,
     ultima_actividad TIMESTAMP,
     nombre_cliente VARCHAR,
@@ -186,6 +276,7 @@ BEGIN
         cs.id,
         cs.session_id,
         cs.estado_actual,
+        cs.estado_ventas,
         cs.fecha_inicio,
         cs.ultima_actividad,
         cs.nombre_cliente,
@@ -209,7 +300,7 @@ END;
 -- FUNCIÓN GENERAL:
 SELECT actualizar_estado_pro('573011284297', 'catalogo');
 
--- FUNCIONES ESPECÍFICAS:
+-- FUNCIONES ESPECÍFICAS DE ESTADOS PRINCIPALES:
 SELECT estado_saludo_pro('573011284297');
 SELECT estado_catalogo_pro('573011284297');
 SELECT estado_ofertas_pro('573011284297');
@@ -221,6 +312,31 @@ SELECT estado_soporte_pro('573011284297');
 SELECT estado_soporte_si_pro('573011284297');
 SELECT estado_soporte_no_pro('573011284297');
 
--- CONSULTAR ESTADO:
+-- FUNCIONES ESPECÍFICAS DE ESTADOS DE VENTAS:
+SELECT estado_ventas_esperando_pro('573011284297');     -- Cliente recibió formulario de datos
+SELECT estado_ventas_recolectando_pro('573011284297');  -- Cliente envió algunos datos
+SELECT estado_ventas_listo_pro('573011284297');         -- Todos los datos completos
+SELECT estado_ventas_limpiar_pro('573011284297');       -- Volver estado_ventas a NULL
+
+-- ACTUALIZAR SOLO ESTADO DE VENTAS:
+SELECT actualizar_estado_ventas_pro('573011284297', 'ESPERANDO');
+
+-- CONSULTAR ESTADO (incluye estado_ventas):
 SELECT * FROM obtener_estado_pro('573011284297');
+
+-- CONSULTAR SOLO ESTADO DE VENTAS:
+SELECT obtener_estado_ventas_pro('573011284297');
+
+-- CONSULTAR SESIONES POR ESTADO DE VENTAS:
+SELECT session_id, estado_actual, estado_ventas, nombre_cliente 
+FROM n8n_pro_conversation_states 
+WHERE estado_ventas = 'ESPERANDO';
+
+SELECT session_id, estado_actual, estado_ventas, nombre_cliente 
+FROM n8n_pro_conversation_states 
+WHERE estado_ventas = 'RECOLECTANDO';
+
+SELECT session_id, estado_actual, estado_ventas, nombre_cliente 
+FROM n8n_pro_conversation_states 
+WHERE estado_ventas = 'LISTO';
 */
