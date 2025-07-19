@@ -10,8 +10,10 @@ DROP FUNCTION IF EXISTS actualizar_estado_ventas_pro(VARCHAR, VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_datos_completos_pro(VARCHAR, JSONB, JSONB) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_estado_principal_pro(VARCHAR, VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_estado_ventas_principal_pro(VARCHAR, VARCHAR) CASCADE;
-DROP FUNCTION IF EXISTS actualizar_totales_pro(VARCHAR, DECIMAL, DECIMAL) CASCADE;
+DROP FUNCTION IF EXISTS actualizar_totales_pro(VARCHAR, INTEGER, INTEGER) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_pago_pro(VARCHAR, VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS actualizar_pago_total_pro(VARCHAR, VARCHAR, INTEGER) CASCADE;
+DROP FUNCTION IF EXISTS actualizar_pago_envio_pro(VARCHAR, VARCHAR, INTEGER) CASCADE;
 DROP FUNCTION IF EXISTS estado_saludo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_catalogo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_ofertas_pro(VARCHAR) CASCADE;
@@ -51,8 +53,8 @@ CREATE TABLE n8n_pro_conversation_states (
     
     -- INFORMACIÓN DE VENTA
     pago VARCHAR(30) NULL,
-    total_producto DECIMAL(12,2) NULL,
-    total_envio DECIMAL(12,2) NULL,
+    total_producto INTEGER NULL,
+    total_envio INTEGER NULL,
     guia VARCHAR(100) NULL,
     
     -- DATOS DE PRODUCTOS (JSON)
@@ -215,8 +217,8 @@ BEGIN
         email = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''correo'', cliente_info->>''email'', email) ELSE email END,
         guia = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''guia'', guia) ELSE guia END,
         pago = CASE WHEN cliente_info IS NOT NULL THEN COALESCE(cliente_info->>''pago'', pago) ELSE pago END,
-        total_producto = CASE WHEN cliente_info IS NOT NULL THEN COALESCE((cliente_info->>''total_producto'')::DECIMAL(12,2), total_producto) ELSE total_producto END,
-        total_envio = CASE WHEN cliente_info IS NOT NULL THEN COALESCE((cliente_info->>''total_envio'')::DECIMAL(12,2), total_envio) ELSE total_envio END,
+        total_producto = CASE WHEN cliente_info IS NOT NULL THEN COALESCE((cliente_info->>''total_producto'')::INTEGER, total_producto) ELSE total_producto END,
+        total_envio = CASE WHEN cliente_info IS NOT NULL THEN COALESCE((cliente_info->>''total_envio'')::INTEGER, total_envio) ELSE total_envio END,
         productos_info = COALESCE(actualizar_datos_completos_pro.productos_info, n8n_pro_conversation_states.productos_info),
         ultima_actividad = CURRENT_TIMESTAMP
     WHERE session_id = session_id_param 
@@ -280,8 +282,8 @@ END;
 -- FUNCIÓN ESPECÍFICA: Actualizar campos de totales (opcionales)
 CREATE OR REPLACE FUNCTION actualizar_totales_pro(
     session_id_param VARCHAR,
-    total_producto_param DECIMAL(12,2) DEFAULT NULL,
-    total_envio_param DECIMAL(12,2) DEFAULT NULL
+    total_producto_param INTEGER DEFAULT NULL,
+    total_envio_param INTEGER DEFAULT NULL
 )
 RETURNS BOOLEAN LANGUAGE plpgsql AS '
 DECLARE
@@ -373,6 +375,64 @@ BEGIN
 END;
 ';
 
+-- FUNCIÓN ESPECÍFICA: Actualizar método de pago y total de envío
+CREATE OR REPLACE FUNCTION actualizar_pago_envio_pro(
+    session_id_param VARCHAR,
+    pago_param VARCHAR DEFAULT NULL,
+    total_envio_param INTEGER DEFAULT NULL
+)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+DECLARE
+    filas_afectadas INTEGER;
+    ultimo_registro_id INTEGER;
+    ultimo_estado_actual VARCHAR;
+    ultimo_estado_ventas VARCHAR;
+BEGIN
+    -- Verificar que al menos uno de los parámetros tenga valor
+    IF pago_param IS NULL AND total_envio_param IS NULL THEN
+        RAISE EXCEPTION ''Debe proporcionar al menos un valor: pago o total_envio'';
+    END IF;
+    
+    -- Validar que el método de pago sea válido (convertir a mayúscula)
+    IF pago_param IS NOT NULL AND UPPER(pago_param) NOT IN (''TRANSFERENCIA'', ''CONTRA ENTREGA'', ''INTERRAPIDÍSIMO'') THEN
+        RAISE EXCEPTION ''Método de pago no válido: %. Métodos permitidos: TRANSFERENCIA, CONTRA ENTREGA, INTERRAPIDÍSIMO'', UPPER(pago_param);
+    END IF;
+    
+    -- Obtener información del registro más reciente
+    SELECT id, estado_actual, estado_ventas 
+    INTO ultimo_registro_id, ultimo_estado_actual, ultimo_estado_ventas
+    FROM n8n_pro_conversation_states 
+    WHERE session_id = session_id_param 
+    ORDER BY ultima_actividad DESC 
+    LIMIT 1;
+    
+    -- Si no existe registro, no hacer nada
+    IF ultimo_registro_id IS NULL THEN
+        RETURN FALSE;
+    END IF;
+    
+    -- Si el registro está bloqueado (ventas + FIN), no actualizar
+    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
+        RETURN FALSE;
+    END IF;
+    
+    -- Actualizar los campos que tienen valor
+    UPDATE n8n_pro_conversation_states 
+    SET 
+        pago = CASE 
+            WHEN pago_param IS NULL THEN pago 
+            WHEN pago_param = '''' THEN NULL 
+            ELSE UPPER(pago_param) 
+        END,
+        total_envio = COALESCE(total_envio_param, total_envio),
+        ultima_actividad = CURRENT_TIMESTAMP
+    WHERE id = ultimo_registro_id;
+    
+    GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
+    RETURN filas_afectadas > 0;
+END;
+';
+
 -- FUNCIÓN PARA CONSULTAR SOLO ESTADO DE VENTAS
 CREATE OR REPLACE FUNCTION obtener_estado_ventas_pro(session_id_param VARCHAR)
 RETURNS VARCHAR LANGUAGE plpgsql AS '
@@ -410,8 +470,8 @@ RETURNS TABLE (
     email VARCHAR,
     guia VARCHAR,
     pago VARCHAR,
-    total_producto DECIMAL(12,2),
-    total_envio DECIMAL(12,2),
+    total_producto INTEGER,
+    total_envio INTEGER,
     productos_info JSONB,
     conversacion_activa BOOLEAN
 ) LANGUAGE plpgsql AS '
@@ -490,8 +550,8 @@ RETURNS TABLE (
     email VARCHAR,
     guia VARCHAR,
     pago VARCHAR,
-    total_producto DECIMAL(12,2),
-    total_envio DECIMAL(12,2),
+    total_producto INTEGER,
+    total_envio INTEGER,
     productos_info JSONB,
     conversacion_activa BOOLEAN
 ) LANGUAGE plpgsql AS '
@@ -572,13 +632,13 @@ SELECT actualizar_datos_completos_pro(
 
 -- ACTUALIZAR SOLO TOTALES (OPCIONALES):
 -- Solo total de producto:
-SELECT actualizar_totales_pro('573011284297', 450000.00, NULL);
+SELECT actualizar_totales_pro('573011284297', 450000, NULL);
 
 -- Solo total de envío:
-SELECT actualizar_totales_pro('573011284297', NULL, 25000.00);
+SELECT actualizar_totales_pro('573011284297', NULL, 25000);
 
 -- Ambos totales:
-SELECT actualizar_totales_pro('573011284297', 450000.00, 25000.00);
+SELECT actualizar_totales_pro('573011284297', 450000, 25000);
 
 -- ACTUALIZAR SOLO MÉTODO DE PAGO:
 -- Transferencia bancaria:
@@ -592,6 +652,22 @@ SELECT actualizar_pago_pro('573011284297', 'INTERRAPIDÍSIMO');
 
 -- Limpiar método de pago (poner NULL):
 SELECT actualizar_pago_pro('573011284297', NULL);
+
+-- ACTUALIZAR PAGO Y TOTAL DE ENVÍO:
+-- Solo método de pago:
+SELECT actualizar_pago_envio_pro('573011284297', 'TRANSFERENCIA', NULL);
+
+-- Solo total de envío:
+SELECT actualizar_pago_envio_pro('573011284297', NULL, 15000);
+
+-- Pago y total de envío:
+SELECT actualizar_pago_envio_pro('573011284297', 'CONTRA ENTREGA', 15000);
+
+-- Cambiar método de pago y total de envío:
+SELECT actualizar_pago_envio_pro('573011284297', 'INTERRAPIDÍSIMO', 25000);
+
+-- Limpiar solo el pago (mantener total de envío):
+SELECT actualizar_pago_envio_pro('573011284297', '', NULL);
 
 -- CONSULTAR SOLO ESTADO DE VENTAS:
 SELECT obtener_estado_ventas_pro('573011284297');
