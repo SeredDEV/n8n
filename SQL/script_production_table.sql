@@ -55,6 +55,7 @@ CREATE TABLE n8n_pro_conversation_states (
     pago VARCHAR(30) NULL,
     total_producto INTEGER NULL,
     total_envio INTEGER NULL,
+    cantidad_total INTEGER NULL,
     guia VARCHAR(100) NULL,
     
     -- DATOS DE PRODUCTOS (JSON)
@@ -76,6 +77,7 @@ CREATE INDEX idx_n8n_pro_conversation_estado_ventas ON n8n_pro_conversation_stat
 CREATE INDEX idx_n8n_pro_conversation_pago ON n8n_pro_conversation_states(pago);
 CREATE INDEX idx_n8n_pro_conversation_total_producto ON n8n_pro_conversation_states(total_producto);
 CREATE INDEX idx_n8n_pro_conversation_total_envio ON n8n_pro_conversation_states(total_envio);
+CREATE INDEX idx_n8n_pro_conversation_cantidad_total ON n8n_pro_conversation_states(cantidad_total);
 
 -- 3. RESTRICCIONES DE VALIDACIÓN (ordenadas por tipo)
 
@@ -283,7 +285,7 @@ END;
 CREATE OR REPLACE FUNCTION actualizar_totales_pro(
     session_id_param VARCHAR,
     total_producto_param INTEGER DEFAULT NULL,
-    total_envio_param INTEGER DEFAULT NULL
+    cantidad_total_param INTEGER DEFAULT NULL
 )
 RETURNS BOOLEAN LANGUAGE plpgsql AS '
 DECLARE
@@ -293,8 +295,8 @@ DECLARE
     ultimo_estado_ventas VARCHAR;
 BEGIN
     -- Verificar que al menos uno de los parámetros tenga valor
-    IF total_producto_param IS NULL AND total_envio_param IS NULL THEN
-        RAISE EXCEPTION ''Debe proporcionar al menos un valor: total_producto o total_envio'';
+    IF total_producto_param IS NULL AND cantidad_total_param IS NULL THEN
+        RAISE EXCEPTION ''Debe proporcionar al menos un valor: total_producto o cantidad_total'';
     END IF;
     
     -- Obtener información del registro más reciente
@@ -319,7 +321,7 @@ BEGIN
     UPDATE n8n_pro_conversation_states 
     SET 
         total_producto = COALESCE(total_producto_param, total_producto),
-        total_envio = COALESCE(total_envio_param, total_envio),
+        cantidad_total = COALESCE(cantidad_total_param, cantidad_total),
         ultima_actividad = CURRENT_TIMESTAMP
     WHERE id = ultimo_registro_id;
     
@@ -472,6 +474,7 @@ RETURNS TABLE (
     pago VARCHAR,
     total_producto INTEGER,
     total_envio INTEGER,
+    cantidad_total INTEGER,
     productos_info JSONB,
     conversacion_activa BOOLEAN
 ) LANGUAGE plpgsql AS '
@@ -493,6 +496,7 @@ BEGIN
         cs.pago,
         cs.total_producto,
         cs.total_envio,
+        cs.cantidad_total,
         cs.productos_info,
         cs.conversacion_activa
     FROM n8n_pro_conversation_states cs
@@ -552,6 +556,7 @@ RETURNS TABLE (
     pago VARCHAR,
     total_producto INTEGER,
     total_envio INTEGER,
+    cantidad_total INTEGER,
     productos_info JSONB,
     conversacion_activa BOOLEAN
 ) LANGUAGE plpgsql AS '
@@ -573,6 +578,7 @@ BEGIN
         cs.pago,
         cs.total_producto,
         cs.total_envio,
+        cs.cantidad_total,
         cs.productos_info,
         cs.conversacion_activa
     FROM n8n_pro_conversation_states cs
@@ -634,11 +640,11 @@ SELECT actualizar_datos_completos_pro(
 -- Solo total de producto:
 SELECT actualizar_totales_pro('573011284297', 450000, NULL);
 
--- Solo total de envío:
-SELECT actualizar_totales_pro('573011284297', NULL, 25000);
+-- Solo cantidad total:
+SELECT actualizar_totales_pro('573011284297', NULL, 15);
 
--- Ambos totales:
-SELECT actualizar_totales_pro('573011284297', 450000, 25000);
+-- Total de producto y cantidad:
+SELECT actualizar_totales_pro('573011284297', 450000, 15);
 
 -- ACTUALIZAR SOLO MÉTODO DE PAGO:
 -- Transferencia bancaria:
