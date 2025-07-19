@@ -108,10 +108,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        1136,
-        496
+        -5552,
+        -1312
       ],
-      "id": "31d235f7-a83c-409d-9a34-d24a6ab376f4",
+      "id": "3b24ae8f-9d03-4d4b-a476-0ef71799e971",
       "name": "Message Type Router"
     },
     {
@@ -203,10 +203,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        912,
-        528
+        -5776,
+        -1280
       ],
-      "id": "f1fd3e3f-8447-451c-be66-7636238bbbd9",
+      "id": "4d9f45da-5fac-4753-abfd-630916470f59",
       "name": "WhatsApp Message Parser"
     },
     {
@@ -218,10 +218,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        688,
-        528
+        -6000,
+        -1280
       ],
-      "id": "648e7c51-db60-447f-ad46-b7a840b83f33",
+      "id": "ef417d78-2c2a-4253-9b6f-9e0735044d6f",
       "name": "Webhook",
       "webhookId": "50a91089-2c34-4dd0-8896-2715bd6e9612"
     },
@@ -232,10 +232,10 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1360,
-        464
+        -5328,
+        -1336
       ],
-      "id": "01414131-114f-4035-85c1-decc56ea87e7",
+      "id": "f1a1ed57-1acd-464a-954d-001f137a4693",
       "name": "Pausa",
       "webhookId": "0bfa0972-a628-48bb-be5d-b3c30b33df0e"
     },
@@ -254,10 +254,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1360,
-        272
+        -5328,
+        -1528
       ],
-      "id": "1f6de0f9-1215-4a68-8835-ee24040e4996",
+      "id": "8c5fe8b4-a2f2-4ca8-a890-ae05f51e82c4",
       "name": "Download Audio File"
     },
     {
@@ -275,10 +275,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1360,
-        656
+        -5328,
+        -1144
       ],
-      "id": "b78b6ff9-5e57-437a-8e24-3854e04bae34",
+      "id": "4f0dbf32-d9a2-4c12-93b0-8aff2f456ee1",
       "name": "Download Image File"
     },
     {
@@ -298,10 +298,10 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        1584,
-        656
+        -5104,
+        -1144
       ],
-      "id": "5bcf0678-754c-43b6-84fe-627274499c65",
+      "id": "9d9e77de-87dd-4b28-80f3-4b91f04871fb",
       "name": "Analyze Image",
       "credentials": {
         "openAiApi": {
@@ -333,10 +333,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1360,
-        1632
+        -5328,
+        -176
       ],
-      "id": "16ee5e23-e2c4-4c6d-96db-40b8ea35e76b",
+      "id": "98747236-3178-45a2-ac7d-6c2823105739",
       "name": "Process Button Response"
     },
     {
@@ -521,10 +521,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        1584,
-        1552
+        -5104,
+        -256
       ],
-      "id": "a48ade31-5ed2-49a4-935e-5425f085d065",
+      "id": "49e949ae-866e-4448-9efd-073328b53d66",
       "name": "Button Response Router"
     },
     {
@@ -539,10 +539,10 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        1584,
-        272
+        -5104,
+        -1528
       ],
-      "id": "53133d98-8f44-4102-a887-72b7a604d615",
+      "id": "a2483733-2018-4c16-8bf9-78e66f9592a9",
       "name": "Transcribe a recording",
       "credentials": {
         "openAiApi": {
@@ -565,12 +565,12 @@
         },
         "options": {}
       },
-      "id": "bd4b65cc-5b81-4173-b73a-2c0722263905",
+      "id": "51cfc135-3ae8-43b9-bd95-826789a803d7",
       "name": "Extract Message Content",
       "type": "n8n-nodes-base.set",
       "position": [
-        1808,
-        464
+        -4880,
+        -1336
       ],
       "typeVersion": 3.4
     },
@@ -591,10 +591,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1584,
-        464
+        -5104,
+        -1336
       ],
-      "id": "632c951a-5b81-4fda-ae10-50a03eecf021",
+      "id": "5de31af5-9037-4533-a163-6c5e8f6d8b93",
       "name": "Obtener Texto"
     },
     {
@@ -607,10 +607,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        2032,
-        464
+        -4656,
+        -1336
       ],
-      "id": "3e32db4e-e10b-493e-badf-7783a474e4a3",
+      "id": "0c900635-73b7-49bf-93dc-291283efe8e5",
       "name": "Store Message in Buffer",
       "credentials": {
         "redis": {
@@ -624,10 +624,10 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        2256,
-        464
+        -4432,
+        -1336
       ],
-      "id": "d8b279af-6361-4651-9386-5a310ccedecd",
+      "id": "f74658a1-c701-4d97-adec-f5cb9d333110",
       "name": "Wait for Buffer",
       "webhookId": "05929f0b-cb6a-48f9-901e-bbefe359f336"
     },
@@ -640,10 +640,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        2480,
-        464
+        -4208,
+        -1336
       ],
-      "id": "91514472-9261-48dd-9119-84c782efc34f",
+      "id": "ba6cf364-464f-4057-adc9-87de9eae5358",
       "name": "Retrieve Messages from Buffer",
       "credentials": {
         "redis": {
@@ -680,10 +680,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2704,
-        464
+        -3984,
+        -1336
       ],
-      "id": "d0323d74-5baa-4736-b4f3-686ebaecec8d",
+      "id": "9df231cb-d383-47dd-8faa-47a4803b4045",
       "name": "Check for Duplicate Message"
     },
     {
@@ -694,10 +694,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        2928,
-        288
+        -3760,
+        -1520
       ],
-      "id": "cc3ef3ba-e701-4ec8-a76a-521ca971508b",
+      "id": "782061fb-f53a-45f5-a362-3fe37eed4333",
       "name": "Clear Buffer Cache",
       "credentials": {
         "redis": {
@@ -711,10 +711,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2928,
-        480
+        -3760,
+        -1328
       ],
-      "id": "64feabba-dcc6-439c-9b2f-1911ce5b565e",
+      "id": "824cde26-3b8d-4fb9-b081-2d56613f3614",
       "name": "Skip Duplicate Message"
     },
     {
@@ -734,10 +734,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        3152,
-        288
+        -3536,
+        -1520
       ],
-      "id": "f429bffa-cced-4313-8548-6407e81d45ab",
+      "id": "ddeeb330-fa4d-49ec-b821-080a8855996c",
       "name": "Format Final Output"
     },
     {
@@ -749,10 +749,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3376,
-        288
+        -3312,
+        -1520
       ],
-      "id": "9a5461ce-12d3-4dae-b35b-e65ccd290742",
+      "id": "201760ec-34a6-46b7-98d5-20f3bce64de6",
       "name": "Get session_id",
       "credentials": {
         "postgres": {
@@ -789,10 +789,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        3600,
-        288
+        -3088,
+        -1520
       ],
-      "id": "0d2abb4b-0f9b-4efc-af73-d849ef35727a",
+      "id": "c4fa697c-bc58-4447-b9f1-545253597183",
       "name": "If"
     },
     {
@@ -802,10 +802,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1808,
-        896
+        -4880,
+        -904
       ],
-      "id": "043a0cd7-7bc9-4ece-8029-b40c518fd869",
+      "id": "14fd6a47-0bdb-4977-af66-db48e1bf74d0",
       "name": "Dynamic Time Greeting"
     },
     {
@@ -815,10 +815,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3824,
-        -128
+        -2864,
+        -1824
       ],
-      "id": "bdd3160e-4cc2-4278-9614-e413343c9fa5",
+      "id": "aa7a07a5-a7f4-4655-87e7-78ea6ed49a52",
       "name": "Dynamic Greeting"
     },
     {
@@ -906,10 +906,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        2032,
-        880
+        -4656,
+        -920
       ],
-      "id": "6017e2e3-bea4-452d-8838-9e7efdac6067",
+      "id": "b1f175ae-2905-45ca-b002-de2376ed6dc2",
       "name": "Switch1"
     },
     {
@@ -947,10 +947,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        4048,
-        -128
+        -2640,
+        -1824
       ],
-      "id": "ba7eaa39-a8db-4620-9547-3e0c237cbb1a",
+      "id": "a9037f43-9ce2-463a-bd39-2d77a47c9952",
       "name": "Send Dynamic Greeting"
     },
     {
@@ -974,10 +974,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        4272,
-        -128
+        -2416,
+        -1824
       ],
-      "id": "8ca91a6d-4e06-4e78-86d7-e312e046e172",
+      "id": "085c5947-5174-4a1a-9eeb-57105c02f17f",
       "name": "Send Buttons"
     },
     {
@@ -987,10 +987,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2480,
-        928
+        -4208,
+        -872
       ],
-      "id": "6bffbb16-d359-4e06-9dcd-810af60b15ea",
+      "id": "c4f65787-0cf8-48b5-867d-8cafd18dcdd6",
       "name": "Merge Audio"
     },
     {
@@ -1032,10 +1032,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2704,
-        944
+        -3984,
+        -856
       ],
-      "id": "905bda8b-f8da-433b-8679-d24eec8c06bd",
+      "id": "6e871e48-f8ae-42fb-a0a8-494adc5b34ca",
       "name": "Send Audio"
     },
     {
@@ -1073,10 +1073,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2928,
-        944
+        -3760,
+        -856
       ],
-      "id": "8c3a00f4-a4ed-42b9-9335-1a889d914651",
+      "id": "ef64a448-8f17-4f26-a4ca-ad3fd7c29a42",
       "name": "Send Catalog Man"
     },
     {
@@ -1114,10 +1114,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3152,
-        944
+        -3536,
+        -856
       ],
-      "id": "c1ebb7b2-874d-4476-ad34-dd32c5c3231b",
+      "id": "83829030-4020-45e3-be6f-c6afb50b663c",
       "name": "Send Catalog Women"
     },
     {
@@ -1135,10 +1135,10 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        2256,
-        672
+        -4432,
+        -1136
       ],
-      "id": "55db0ee0-0840-4160-b4da-804107311381",
+      "id": "6b06d65b-85cb-4785-81ab-6c0ddfb86b98",
       "name": "Download Good Morning",
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -1162,10 +1162,10 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        2256,
-        864
+        -4432,
+        -944
       ],
-      "id": "72bb8f34-cf08-417b-8870-93c33a8a588a",
+      "id": "28a2e67b-f188-4451-bb0a-c58fbfd252eb",
       "name": "Download Good Afternoon",
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -1189,10 +1189,10 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        2256,
-        1056
+        -4432,
+        -752
       ],
-      "id": "69d003eb-1046-4ef2-b79f-abe190cd6d28",
+      "id": "b0c45064-dfd4-4326-a85b-c9512f664072",
       "name": "Download  Good Night",
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -1208,10 +1208,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1808,
-        1248
+        -4880,
+        -560
       ],
-      "id": "3058c6ae-5870-4716-8fa2-a25d8001819d",
+      "id": "f669fb4d-019d-4bad-a078-aa908def708b",
       "name": "Dynamic Offers"
     },
     {
@@ -1249,10 +1249,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2032,
-        1248
+        -4656,
+        -560
       ],
-      "id": "a3efa3d6-31c5-413c-83d8-3611c46fc1fa",
+      "id": "d350be76-e65c-4f3b-966e-f187eb9306fe",
       "name": "Send Dynamic Offers"
     },
     {
@@ -1262,10 +1262,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1808,
-        1440
+        -4880,
+        -368
       ],
-      "id": "e2c56032-fad3-4bb3-9baf-a3f7dd8a008a",
+      "id": "03388f5c-0bae-42e9-bb60-cfa98fb28181",
       "name": "Dynamic Buy"
     },
     {
@@ -1303,10 +1303,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2032,
-        1440
+        -4656,
+        -368
       ],
-      "id": "39f3cc84-1f05-4d3f-8e1b-63789d756776",
+      "id": "1ea2728f-f5c7-475b-baef-6ed86847454a",
       "name": "Send Dynamic Buy"
     },
     {
@@ -1316,10 +1316,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1808,
-        1632
+        -4880,
+        -176
       ],
-      "id": "5b965bd4-4280-4178-89f6-706465838e79",
+      "id": "81406dd9-1d43-48c3-9d13-462142767788",
       "name": "Dynamic Order"
     },
     {
@@ -1357,10 +1357,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2032,
-        1632
+        -4656,
+        -176
       ],
-      "id": "0ef6badf-822e-4721-96b2-601ab15b1a19",
+      "id": "d764e45e-e8de-45bc-a89b-6d8c21a8e5e1",
       "name": "Send Dynamic Order"
     },
     {
@@ -1372,10 +1372,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        4592,
-        -128
+        -2192,
+        -1824
       ],
-      "id": "e3940d0e-05a5-45e1-87d1-ed8220c05ab6",
+      "id": "ec6350a0-1f0f-415f-8d53-11efba56478d",
       "name": "Execute Status Greeting",
       "credentials": {
         "postgres": {
@@ -1393,10 +1393,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3376,
-        944
+        -3312,
+        -856
       ],
-      "id": "60098f2a-21e2-49fa-a8d8-065c09c7cc1f",
+      "id": "f284395d-6818-48be-8f28-b34fef520b64",
       "name": "Execute Status Catalog",
       "credentials": {
         "postgres": {
@@ -1414,10 +1414,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2256,
-        1248
+        -4432,
+        -560
       ],
-      "id": "f7b1dbe3-c13f-4858-b09f-4181515ae0b9",
+      "id": "61406e54-dac9-4055-9cb5-b54e60253a60",
       "name": "Execute Status Offers",
       "credentials": {
         "postgres": {
@@ -1435,10 +1435,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2256,
-        1440
+        -4432,
+        -368
       ],
-      "id": "59364a5e-6bb3-4fd4-908c-97dd582bc5b2",
+      "id": "121dce93-979c-48f6-8d68-0151e74696dd",
       "name": "Execute Status Buy",
       "credentials": {
         "postgres": {
@@ -1456,10 +1456,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2256,
-        1632
+        -4432,
+        -176
       ],
-      "id": "f3ad0352-704b-4c08-b666-0c8ab9fb848b",
+      "id": "861256bc-754a-41e9-9163-632b16a61005",
       "name": "Execute Status Order",
       "credentials": {
         "postgres": {
@@ -1477,10 +1477,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3824,
-        384
+        -2864,
+        -1408
       ],
-      "id": "4666e7e4-2a74-451b-85d9-177b8b2acf3b",
+      "id": "f3406030-3ce7-4206-8fbc-c90c976a2902",
       "name": "Execute a SQL query",
       "credentials": {
         "postgres": {
@@ -1550,10 +1550,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        4048,
-        368
+        -2640,
+        -1424
       ],
-      "id": "659df463-f638-46d8-b08c-455de2fe02a3",
+      "id": "f830f4f7-71da-4a09-abc6-081ec5241459",
       "name": "Status Response IA"
     },
     {
@@ -1561,10 +1561,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        4272,
-        480
+        -2416,
+        -1296
       ],
-      "id": "ba8e0cb5-885d-415e-b4a2-db93327a7bf3",
+      "id": "29542e27-8a0f-49f9-a63d-978c47b885e3",
       "name": "No Operation, do nothing"
     },
     {
@@ -1595,10 +1595,10 @@
       "type": "@n8n/n8n-nodes-langchain.textClassifier",
       "typeVersion": 1.1,
       "position": [
-        4496,
-        432
+        -1968,
+        -1284
       ],
-      "id": "336c20db-d1cd-4f8b-abf0-27735b4a192c",
+      "id": "21eee0a4-ea80-4e6c-a3db-dddb3cf10c51",
       "name": "Text Classifier"
     },
     {
@@ -1614,10 +1614,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        4592,
-        720
+        -1872,
+        -996
       ],
-      "id": "6ff3d0fd-4dc3-43fd-983e-e4e3b3344220",
+      "id": "33123740-de6c-413e-8277-a751da271266",
       "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
@@ -1665,10 +1665,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        4896,
-        720
+        -1568,
+        -996
       ],
-      "id": "5f2a18d4-ce85-4520-9def-f64c00dcefa6",
+      "id": "2a21887f-a1a6-4f86-8482-6822b848fc6a",
       "name": "COMPARACION"
     },
     {
@@ -1710,10 +1710,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        4896,
-        528
+        -1568,
+        -1188
       ],
-      "id": "d79507ae-ffed-42c0-84b7-e278bd4dda93",
+      "id": "d59d8968-7f7c-4457-9582-4afd064e5d57",
       "name": "RECOMENDACION"
     },
     {
@@ -1755,10 +1755,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        4896,
-        96
+        -1568,
+        -1616
       ],
-      "id": "99730b2c-e9b4-4fd8-bb1e-0becb8e18b34",
+      "id": "d5d81653-b01f-4cfe-b458-6da41cabd7d4",
       "name": "COMPRA"
     },
     {
@@ -1800,10 +1800,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        4896,
-        336
+        -1568,
+        -1380
       ],
-      "id": "88b45701-7b78-4524-88ad-07e71a3ab7d4",
+      "id": "86ae1266-ef96-4d21-bb10-0a09bf963e3f",
       "name": "INVENTARIO"
     },
     {
@@ -1854,10 +1854,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        4272,
-        288
+        -2192,
+        -1424
       ],
-      "id": "4dc6c5cd-09ad-47a5-b016-546e445c9afb",
+      "id": "e857dcdb-b912-4b38-b3a3-646d0eb6ee12",
       "name": "If1"
     },
     {
@@ -1891,10 +1891,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1808,
-        1824
+        -4880,
+        16
       ],
-      "id": "a1fdb8c1-8094-4b60-9d4d-01da5d94b8ec",
+      "id": "87c5323f-2dad-455a-b732-460e088c8716",
       "name": "Contra_Entrega"
     },
     {
@@ -1918,10 +1918,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1808,
-        2016
+        -4880,
+        208
       ],
-      "id": "51c032bd-617f-47c2-b77b-dadf99777be3",
+      "id": "30458c31-f5f7-4898-ace1-49f72447e404",
       "name": "Transferencia"
     },
     {
@@ -1945,11 +1945,131 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1808,
-        2208
+        -4880,
+        400
       ],
-      "id": "71f88123-0c21-4190-ba3b-8126d9e89099",
+      "id": "aa61f265-7148-4db5-9714-4580456eb06e",
       "name": "Modificar_Pedido"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.estado_ventas }}",
+                    "rightValue": "RECOLECTANDO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3e6fe2c2-595d-430e-8c1a-84645d16f022"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "RECOLECTANDO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "97d8f253-f9a1-44a3-a541-c674b5d11535",
+                    "leftValue": "={{ $json.estado_ventas }}",
+                    "rightValue": "ESPERANDO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ESPERANDO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "04ef01b1-f32f-49ce-9e76-1fb09e162083",
+                    "leftValue": "={{ $json.estado_ventas }}",
+                    "rightValue": "LISTO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LISTO"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -2416,
+        -1552
+      ],
+      "id": "a7937994-ed37-437c-9ab9-99bc2f3ed6c3",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "WVmEpKVLhRNt0mTP",
+          "mode": "list",
+          "cachedResultName": "My Sub-Validator-Data"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -2192,
+        -1616
+      ],
+      "id": "2d2944a7-2371-47da-8fdc-c4f33fc09a3b",
+      "name": "VALIDATOR DATA"
     }
   ],
   "pinData": {
@@ -1958,17 +2078,17 @@
         "json": {
           "headers": {
             "host": "n8n.srv895922.hstgr.cloud",
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13.2; rv:111.0) Gecko/20100101 Firefox/111.0",
-            "content-length": "875",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+            "content-length": "863",
             "content-type": "application/json",
             "origin": "https://api.z-api.io",
             "server": "Z-API",
-            "x-forwarded-for": "146.235.42.234",
+            "x-forwarded-for": "168.75.89.249",
             "x-forwarded-host": "n8n.srv895922.hstgr.cloud",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
             "x-forwarded-server": "22c5bda17b34",
-            "x-real-ip": "146.235.42.234",
+            "x-real-ip": "168.75.89.249",
             "z-api-token": "25512E9D7889005341E093C0",
             "accept-encoding": "gzip"
           },
@@ -1983,25 +2103,22 @@
             "isGroup": false,
             "isNewsletter": false,
             "instanceId": "3E437048CF3D40E574FE2EE02AE98ECC",
-            "messageId": "A40B49B281B571FB0B7911181A5F7AEA",
+            "messageId": "59E509655B10F317A98F7D98D87D34B7",
             "phone": "573011284297",
             "fromMe": false,
-            "momment": 1752897195000,
+            "momment": 1752908817000,
             "status": "RECEIVED",
             "chatName": "Sergio R.",
             "senderPhoto": null,
             "senderName": "Sergio R.",
-            "photo": "https://pps.whatsapp.net/v/t61.24694-24/518949464_1473845160724464_1356829479899435347_n.jpg?ccb=11-4&oh=01_Q5Aa2AFiRv2_T6cw6sV-gdTtiOHmoQIo5quBj78ZIstqqI8A-w&oe=688829CE&_nc_sid=5e03e0&_nc_cat=108",
+            "photo": "https://pps.whatsapp.net/v/t61.24694-24/518949464_1473845160724464_1356829479899435347_n.jpg?ccb=11-4&oh=01_Q5Aa2AH_hP0QI1JU-VW4ltPKneBiUq58I1WpLnMFIwxj7fdGVw&oe=6888620E&_nc_sid=5e03e0&_nc_cat=108",
             "broadcast": false,
             "participantLid": null,
-            "referenceMessageId": "3EB0A880E59CEB21F9F8ED",
-            "messageExpirationSeconds": 0,
             "forwarded": false,
             "type": "ReceivedCallback",
             "fromApi": false,
-            "buttonsResponseMessage": {
-              "buttonId": "contra_entrega",
-              "message": "🚚 Contra entrega"
+            "text": {
+              "message": "Sergio Eduardo Rodriguez Morales,  301 1284297,  Cl. 7 Sur #50GG-13, Guayabal, Medellín, Sistemasmi13@gmail.com, contra entrega"
             }
           },
           "webhookUrl": "https://n8n.srv895922.hstgr.cloud/webhook/50a91089-2c34-4dd0-8896-2715bd6e9612",
@@ -2535,7 +2652,7 @@
       "main": [
         [
           {
-            "node": "If1",
+            "node": "Switch",
             "type": "main",
             "index": 0
           }
@@ -2616,13 +2733,39 @@
           }
         ]
       ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "VALIDATOR DATA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "VALIDATOR DATA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "c2c7b24c-2c22-469a-9516-33c9d646e5cf",
+  "versionId": "9be6e6e2-cdbd-42d1-b55b-90bcef989999",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
