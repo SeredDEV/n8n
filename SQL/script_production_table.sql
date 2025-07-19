@@ -10,7 +10,8 @@ DROP FUNCTION IF EXISTS actualizar_estado_ventas_pro(VARCHAR, VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_datos_completos_pro(VARCHAR, JSONB, JSONB) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_estado_principal_pro(VARCHAR, VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_estado_ventas_principal_pro(VARCHAR, VARCHAR) CASCADE;
-DROP FUNCTION IF EXISTS actualizar_totales_pro(VARCHAR, INTEGER, INTEGER) CASCADE;
+DROP FUNCTION IF EXISTS actualizar_totales_pro(VARCHAR, INTEGER, INTEGER, JSONB) CASCADE;
+DROP FUNCTION IF EXISTS actualizar_datos_cliente_pro(VARCHAR, JSONB) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_pago_pro(VARCHAR, VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_pago_total_pro(VARCHAR, VARCHAR, INTEGER) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_pago_envio_pro(VARCHAR, VARCHAR, INTEGER) CASCADE;
@@ -285,7 +286,8 @@ END;
 CREATE OR REPLACE FUNCTION actualizar_totales_pro(
     session_id_param VARCHAR,
     total_producto_param INTEGER DEFAULT NULL,
-    cantidad_total_param INTEGER DEFAULT NULL
+    cantidad_total_param INTEGER DEFAULT NULL,
+    productos_info_param JSONB DEFAULT NULL
 )
 RETURNS BOOLEAN LANGUAGE plpgsql AS '
 DECLARE
@@ -295,8 +297,8 @@ DECLARE
     ultimo_estado_ventas VARCHAR;
 BEGIN
     -- Verificar que al menos uno de los parámetros tenga valor
-    IF total_producto_param IS NULL AND cantidad_total_param IS NULL THEN
-        RAISE EXCEPTION ''Debe proporcionar al menos un valor: total_producto o cantidad_total'';
+    IF total_producto_param IS NULL AND cantidad_total_param IS NULL AND productos_info_param IS NULL THEN
+        RAISE EXCEPTION ''Debe proporcionar al menos un valor: total_producto, cantidad_total o productos_info'';
     END IF;
     
     -- Obtener información del registro más reciente
@@ -322,6 +324,87 @@ BEGIN
     SET 
         total_producto = COALESCE(total_producto_param, total_producto),
         cantidad_total = COALESCE(cantidad_total_param, cantidad_total),
+        productos_info = COALESCE(productos_info_param, productos_info),
+        ultima_actividad = CURRENT_TIMESTAMP
+    WHERE id = ultimo_registro_id;
+    
+    GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
+    RETURN filas_afectadas > 0;
+END;
+';
+
+-- FUNCIÓN ESPECÍFICA: Actualizar datos del cliente
+CREATE OR REPLACE FUNCTION actualizar_datos_cliente_pro(
+    session_id_param VARCHAR,
+    datos_cliente_param JSONB
+)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+DECLARE
+    filas_afectadas INTEGER;
+    ultimo_registro_id INTEGER;
+    ultimo_estado_actual VARCHAR;
+    ultimo_estado_ventas VARCHAR;
+BEGIN
+    -- Verificar que se proporcionó información del cliente
+    IF datos_cliente_param IS NULL THEN
+        RAISE EXCEPTION ''Debe proporcionar los datos del cliente en formato JSON'';
+    END IF;
+    
+    -- Obtener información del registro más reciente
+    SELECT id, estado_actual, estado_ventas 
+    INTO ultimo_registro_id, ultimo_estado_actual, ultimo_estado_ventas
+    FROM n8n_pro_conversation_states 
+    WHERE session_id = session_id_param 
+    ORDER BY ultima_actividad DESC 
+    LIMIT 1;
+    
+    -- Si no existe registro, no hacer nada
+    IF ultimo_registro_id IS NULL THEN
+        RETURN FALSE;
+    END IF;
+    
+    -- Si el registro está bloqueado (ventas + FIN), no actualizar
+    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
+        RETURN FALSE;
+    END IF;
+    
+    -- Actualizar los datos del cliente que no sean NULL en el JSON
+    UPDATE n8n_pro_conversation_states 
+    SET 
+        nombre_cliente = CASE 
+            WHEN datos_cliente_param->''nombre'' IS NOT NULL AND datos_cliente_param->>''nombre'' != '''' THEN 
+                datos_cliente_param->>''nombre'' 
+            ELSE nombre_cliente 
+        END,
+        telefono = CASE 
+            WHEN datos_cliente_param->''telefono'' IS NOT NULL AND datos_cliente_param->>''telefono'' != '''' THEN 
+                datos_cliente_param->>''telefono'' 
+            ELSE telefono 
+        END,
+        email = CASE 
+            WHEN datos_cliente_param->''correo'' IS NOT NULL AND datos_cliente_param->>''correo'' != '''' THEN 
+                datos_cliente_param->>''correo'' 
+            WHEN datos_cliente_param->''email'' IS NOT NULL AND datos_cliente_param->>''email'' != '''' THEN 
+                datos_cliente_param->>''email''
+            ELSE email 
+        END,
+        direccion = CASE 
+            WHEN datos_cliente_param->''direccion'' IS NOT NULL AND datos_cliente_param->>''direccion'' != '''' THEN 
+                datos_cliente_param->>''direccion'' 
+            ELSE direccion 
+        END,
+        ciudad = CASE 
+            WHEN datos_cliente_param->''ciudad'' IS NOT NULL AND datos_cliente_param->>''ciudad'' != '''' THEN 
+                datos_cliente_param->>''ciudad'' 
+            ELSE ciudad 
+        END,
+        pago = CASE 
+            WHEN datos_cliente_param->''metodoPago'' IS NOT NULL AND datos_cliente_param->>''metodoPago'' != '''' THEN 
+                UPPER(datos_cliente_param->>''metodoPago'')
+            WHEN datos_cliente_param->''pago'' IS NOT NULL AND datos_cliente_param->>''pago'' != '''' THEN 
+                UPPER(datos_cliente_param->>''pago'')
+            ELSE pago 
+        END,
         ultima_actividad = CURRENT_TIMESTAMP
     WHERE id = ultimo_registro_id;
     
@@ -638,13 +721,35 @@ SELECT actualizar_datos_completos_pro(
 
 -- ACTUALIZAR SOLO TOTALES (OPCIONALES):
 -- Solo total de producto:
-SELECT actualizar_totales_pro('573011284297', 450000, NULL);
+SELECT actualizar_totales_pro('573011284297', 450000, NULL, NULL);
 
 -- Solo cantidad total:
-SELECT actualizar_totales_pro('573011284297', NULL, 15);
+SELECT actualizar_totales_pro('573011284297', NULL, 15, NULL);
 
 -- Total de producto y cantidad:
-SELECT actualizar_totales_pro('573011284297', 450000, 15);
+SELECT actualizar_totales_pro('573011284297', 450000, 15, NULL);
+
+-- Solo productos_info:
+SELECT actualizar_totales_pro('573011284297', NULL, NULL, '{"productos": [{"id": 1, "nombre": "Producto 1", "precio": 25000, "cantidad": 2}]}');
+
+-- Total, cantidad y productos_info:
+SELECT actualizar_totales_pro('573011284297', 450000, 15, '{"productos": [{"id": 1, "nombre": "Producto 1", "precio": 25000, "cantidad": 2}]}');
+
+-- ACTUALIZAR SOLO DATOS DEL CLIENTE:
+-- Ejemplo con datos completos del cliente:
+SELECT actualizar_datos_cliente_pro('573011284297', '{"nombre":"Sergio Eduardo Rodriguez","telefono":"30112842597","direccion":"Cl. 7 Sur #50GG-13","ciudad":"Medellín","metodoPago":"CONTRA ENTREGA","correo":"sergio@email.com"}');
+
+-- Ejemplo con datos parciales (algunos null):
+SELECT actualizar_datos_cliente_pro('573011284297', '{"nombre":null,"telefono":null,"direccion":"Cl. 7 Sur #50GG-13","ciudad":"Medellín","metodoPago":"CONTRA ENTREGA","correo":null}');
+
+-- Solo actualizar dirección y ciudad:
+SELECT actualizar_datos_cliente_pro('573011284297', '{"direccion":"Cra 50 #7-25","ciudad":"Guayabal, Medellín"}');
+
+-- Solo actualizar método de pago:
+SELECT actualizar_datos_cliente_pro('573011284297', '{"metodoPago":"TRANSFERENCIA"}');
+
+-- Actualizar email usando 'correo':
+SELECT actualizar_datos_cliente_pro('573011284297', '{"correo":"cliente@example.com"}');
 
 -- ACTUALIZAR SOLO MÉTODO DE PAGO:
 -- Transferencia bancaria:
