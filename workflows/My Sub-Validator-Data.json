@@ -1,0 +1,456 @@
+{
+  "name": "My Sub-Validator-Data",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "Validator Data",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        624,
+        576
+      ],
+      "id": "97574fe8-1a28-4188-a4f3-ce9ef9b07f48",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# PROMPT PARA EXTRAER DATOS DEL CLIENTE\n\nEres un asistente experto en extraer y validar datos de clientes. Tu tarea es analizar el mensaje del cliente y extraer la siguiente información:\n\n**DATOS REQUERIDOS:**\n\n- 👤 Nombre completo\n- 📞 Teléfono (10 dígitos)\n- 📍 Dirección completa\n- 🏙️ Ciudad\n- 📧 Correo electrónico (OPCIONAL)\n\n**MENSAJE DEL CLIENTE:**\n{{ $json.message }}\n\n**INFORMACIÓN DEL CLIENTE EXISTENTE:**\n\n- Nombre: {{ $json.nombre_cliente }}\n- Teléfono: {{ $json.telefono }}\n- Dirección: {{ $json.direccion }}\n- Ciudad: {{ $json.ciudad }}\n- Correo: {{ $json.email }}\n\n**INFORMACIÓN DEL PEDIDO EXISTENTE:**\n\n- Productos: {{ $json.productos_info }}\n- Cantidad total: {{ $json.cantidad_total }}\n- Total productos: {{ $json.total_producto }}\n- Total envío: {{ $json.total_envio }}\n- Total final: {{ $json.total_producto }} + {{ $json.total_envio }}\n- Método de pago: {{ $json.pago }}\n\n**INSTRUCCIONES CRÍTICAS:**\n\n1. **USA EXACTAMENTE LOS DATOS QUE VIENEN EN productos_info** - NO inventes productos nuevos\n2. PRIMERO verifica si ya existen datos del cliente en las variables \n3. Si algún dato del cliente es null o está vacío, analiza el {{ $json.message }} para extraer esa información faltante\n4. Si ya tienes todos los datos del cliente completos, confirma y procede\n5. El teléfono debe tener exactamente 10 dígitos\n6. El correo es opcional\n7. La dirección debe incluir detalles específicos\n8. Si todos los datos están completos, cambia el status a \"LISTO\"\n9. Si aún faltan datos, mantén el status en \"ESPERANDO\"\n10. **IMPORTANTE: Usa los productos EXACTOS de {{ $json.productos_info }}**\n11. **IMPORTANTE: Usa las cantidades EXACTAS de {{ $json.cantidad_total }}**\n12. **IMPORTANTE: Usa los totales EXACTOS de {{ $json.total_producto }} y {{ $json.total_envio }}**\n\n**RESPONDE ÚNICAMENTE CON EL SIGUIENTE JSON:**\n\n```json\n{\n  \"output\": \"mensaje de respuesta al cliente\",\n  \"status\": \"ESPERANDO\" | \"LISTO\",\n  \"metodoPago\": \"{{ $json.pago }}\",\n  \"datosConfirmados\": true/false,\n  \"calculationsVerified\": true,\n  \"clienteInfo\": {\n    \"nombre\": \"{{ $json.nombre_cliente }}\",\n    \"telefono\": \"{{ $json.telefono }}\",\n    \"direccion\": \"{{ $json.direccion }}\",\n    \"ciudad\": \"{{ $json.ciudad }}\",\n    \"metodoPago\": \"{{ $json.pago }}\",\n    \"correo\": \"{{ $json.email }}\"\n  },\n  \"pedidoInfo\": {\n    \"productos\": {{ $json.productos_info }},\n    \"cantidad_total\": {{ $json.cantidad_total }},\n    \"total_producto\": {{ $json.total_producto }},\n    \"total_envio\": {{ $json.total_envio }},\n    \"total\": {{ $json.total_producto }} + {{ $json.total_envio }}\n  }\n}\n```\n\n**REGLAS DE VALIDACIÓN:**\n\n- **NO CAMBIES LOS PRODUCTOS** - Usa exactamente {{ $json.productos_info }}\n- **NO CAMBIES LAS CANTIDADES** - Usa exactamente {{ $json.cantidad_total }}\n- **NO CAMBIES LOS PRECIOS** - Usa exactamente {{ $json.total_producto }} y {{ $json.total_envio }}\n- Combina datos existentes con datos extraídos del mensaje\n- Prioriza datos ya guardados, solo completa los que falten\n- Nombre: Mínimo 2 palabras, solo letras y espacios\n- Teléfono: Exactamente 10 dígitos numéricos\n- Dirección: Debe incluir al menos calle/carrera y número\n- Ciudad: Solo letras y espacios, mínimo 3 caracteres\n- Correo: Formato válido de email (si está presente)\n\n**EJEMPLO CON LOS DATOS REALES:**\n\n```json\n{\n  \"output\": \"¡Perfecto! Todos tus datos están completos y válidos. Procederemos con tu pedido.\",\n  \"status\": \"LISTO\",\n  \"metodoPago\": \"CONTRA ENTREGA\",\n  \"datosConfirmados\": true,\n  \"calculationsVerified\": true,\n  \"clienteInfo\": {\n    \"nombre\": \"Sergio Eduardo Rodriguez Morales\",\n    \"telefono\": \"3011284297\",\n    \"direccion\": \"Cl. 7 Sur #50GG-13, Guayabal, Medellín\",\n    \"ciudad\": \"Medellín\",\n    \"metodoPago\": \"CONTRA ENTREGA\",\n    \"correo\": \"Sistemasmi13@gmail.com\"\n  },\n  \"pedidoInfo\": {\n    \"productos\": [\n      {\n        \"total\": 350000,\n        \"nombre\": \"Lociones One Million\",\n        \"precio\": 35000,\n        \"cantidad\": 10\n      },\n      {\n        \"total\": 140000,\n        \"nombre\": \"Lociones Versace Eros\", \n        \"precio\": 35000,\n        \"cantidad\": 4\n      },\n      {\n        \"total\": 210000,\n        \"nombre\": \"Lociones 212\",\n        \"precio\": 35000,\n        \"cantidad\": 6\n      }\n    ],\n    \"cantidad_total\": 20,\n    \"total_producto\": 700000,\n    \"total_envio\": 24900,\n    \"total\": 724900\n  }\n}\n```\n\n**FLUJO DE STATUS:**\n\n- Si TODOS los datos están completos → status: \"LISTO\"\n- Si AÚN faltan datos → status: \"ESPERANDO\"\n\n**RECORDATORIO FINAL:**\n\n- ❌ NO inventes productos como \"Perfume A, B, C\"\n- ✅ USA los productos reales de {{ $json.productos_info }}\n- ❌ NO cambies precios, cantidades o totales\n- ✅ CONSERVA todos los datos exactos del pedido existente",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        592,
+        352
+      ],
+      "id": "8cd785a5-f9fa-49aa-b7be-0cb07477a167",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {
+          "frequencyPenalty": 0,
+          "maxTokens": 2000,
+          "presencePenalty": 0,
+          "temperature": 0.1,
+          "maxRetries": 3,
+          "topP": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        496,
+        576
+      ],
+      "id": "308499f8-6c6f-40eb-8738-eae94d202cd5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        880,
+        576
+      ],
+      "id": "17c977cc-7fd5-4abe-b8cd-b3c465fc3cb5",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        784
+      ],
+      "id": "b8703363-9fe9-4354-8b38-69269998267f",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"output\": {\n      \"type\": \"string\",\n      \"description\": \"Mensaje final que se enviará al cliente\"\n    },\n    \"datosConfirmados\": {\n      \"type\": \"boolean\",\n      \"description\": \"Indica si todos los datos del cliente están completos y confirmados\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\"COTIZANDO\", \"LISTO\", \"ESPERANDO\", \"RECOLECTANDO\", \"FIN\"],\n      \"description\": \"Estado actual del proceso de venta\"\n    },\n    \"clienteInfo\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"nombre\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Nombre completo del cliente\"\n        },\n        \"telefono\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Número de teléfono del cliente\"\n        },\n        \"direccion\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Dirección completa con todos los detalles de entrega\"\n        },\n        \"ciudad\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Ciudad de destino para la entrega\"\n        },\n        \"metodoPago\": {\n          \"type\": [\"string\", \"null\"],\n          \"enum\": [\"TRANSFERENCIA\", \"CONTRA ENTREGA\", \"INTERRAPIDÍSIMO\", null],\n          \"description\": \"Método de pago seleccionado por el cliente\"\n        },\n        \"correo\": {\n          \"type\": [\"string\", \"null\"],\n          \"description\": \"Email del cliente (opcional)\"\n        }\n      },\n      \"required\": [\"nombre\", \"telefono\", \"direccion\", \"ciudad\", \"metodoPago\", \"correo\"],\n      \"description\": \"Información personal del cliente\"\n    },\n    \"pedidoInfo\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"productos\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"nombre\": {\n                \"type\": \"string\",\n                \"description\": \"Nombre del producto/perfume\"\n              },\n              \"cantidad\": {\n                \"type\": \"integer\",\n                \"minimum\": 1,\n                \"description\": \"Cantidad del producto\"\n              },\n              \"precio\": {\n                \"type\": \"number\",\n                \"minimum\": 0,\n                \"description\": \"Precio unitario del producto\"\n              },\n              \"total\": {\n                \"type\": \"number\",\n                \"minimum\": 0,\n                \"description\": \"Total por este producto (cantidad × precio)\"\n              }\n            },\n            \"required\": [\"nombre\", \"cantidad\", \"precio\", \"total\"]\n          },\n          \"description\": \"Lista de productos en el pedido\"\n        },\n        \"cantidad_total\": {\n          \"type\": \"integer\",\n          \"minimum\": 0,\n          \"description\": \"Cantidad total de productos en el pedido\"\n        },\n        \"total_producto\": {\n          \"type\": \"number\",\n          \"minimum\": 0,\n          \"description\": \"Total de todos los productos sin incluir envío\"\n        },\n        \"total_envio\": {\n          \"type\": \"number\",\n          \"minimum\": 0,\n          \"description\": \"Costo total del envío\"\n        },\n        \"total\": {\n          \"type\": \"number\",\n          \"minimum\": 0,\n          \"description\": \"Total final del pedido (total_producto + total_envio)\"\n        }\n      },\n      \"required\": [\"productos\", \"cantidad_total\", \"total_producto\", \"total_envio\", \"total\"],\n      \"description\": \"Información completa del pedido y productos\"\n    }\n  },\n  \"required\": [\"output\", \"datosConfirmados\", \"status\", \"clienteInfo\", \"pedidoInfo\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1040,
+        784
+      ],
+      "id": "ce6c7502-1479-4f5c-88f4-3cee190f9706",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        752,
+        576
+      ],
+      "id": "c2945310-488f-4581-a4bf-f8ac942be856",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e45e034a-2a09-480a-8190-51616030c985",
+              "leftValue": "={{ $json.output.datosConfirmados }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        352
+      ],
+      "id": "8372b4d7-8321-411f-9e9c-781b06425b47",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Validator Data').first().json.sessionId }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output.output }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ parseInt( $json.output.output.length() * 25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1504,
+        448
+      ],
+      "id": "f1d0c893-40f2-40f6-aa10-931baa155a33",
+      "name": "Send Dynamic Greeting"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_ventas_principal_pro('{{ $('Validator Data').first().json.sessionId }}', 'ESPERANDO');\nSELECT actualizar_datos_cliente_pro('{{ $('Validator Data').first().json.sessionId }}', '{{ JSON.stringify($('AI Agent').first().json.output.clienteInfo) }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1728,
+        448
+      ],
+      "id": "828ab8a4-9a2f-4aa1-914b-059571daa7b0",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_ventas_principal_pro('{{ $('Validator Data').first().json.sessionId }}', 'LISTO');\nSELECT actualizar_datos_cliente_pro('{{ $('Validator Data').first().json.sessionId }}', '{{ JSON.stringify($('AI Agent').first().json.output.clienteInfo) }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1504,
+        256
+      ],
+      "id": "21d6ce2d-5dca-4770-919f-9ca770633506",
+      "name": "Update Data Client Status",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// FORMATO ALEGRE PERSONALIZADO - Combinando lo mejor del 2 y 4\n// Script para n8n - Versión alegre, termina en total a pagar\n\nconst clienteInfo = $('AI Agent').first().json.output.clienteInfo;\nconst pedidoInfo = $('AI Agent').first().json.output.pedidoInfo;\n\nfunction formatearPrecio(precio) {\n  return new Intl.NumberFormat('es-CO').format(precio);\n}\n\n// Lista alegre de productos\nlet productosTexto = '';\npedidoInfo.productos.forEach((producto, index) => {\n  const precioFormat = formatearPrecio(producto.precio);\n  const totalFormat = formatearPrecio(producto.total);\n  productosTexto += `${index + 1}. *${producto.nombre}*\n   ${producto.cantidad} unidades × $${precioFormat} = $${totalFormat}\n\n`;\n});\n\nconst envioFormat = formatearPrecio(pedidoInfo.total_envio);\nconst totalFormat = formatearPrecio(pedidoInfo.total);\nconst correoTexto = clienteInfo.correo ? `📧 ${clienteInfo.correo}\\n` : '';\n\nconst mensajeConfirmacion = `📋 *Revisa tu pedido antes de confirmar*\n\n*🏠 INFORMACIÓN DE ENTREGA*\n👤 ${clienteInfo.nombre}\n📞 ${clienteInfo.telefono}\n📍 ${clienteInfo.direccion}, ${clienteInfo.ciudad}\n${correoTexto}\n*🛍️ LO QUE ELEGISTE*\n\n${productosTexto}*💳 DETALLES DE PAGO*\nMétodo: ${clienteInfo.metodoPago}\n🚚 Envío: $${envioFormat}\n\n*💰 TOTAL A PAGAR: $${totalFormat}*`;\n\nreturn {\n  json: {\n    mensaje_confirmacion: mensajeConfirmacion,\n    status: \"LISTO\",\n    datos_cliente: clienteInfo,\n    datos_pedido: pedidoInfo,\n    total_formateado: \"$\" + totalFormat\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        256
+      ],
+      "id": "5627c665-b74a-4d47-9f21-74c0687a3dbb",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('Validator Data').first().json.sessionId }}\",\n  \"message\": {{ JSON.stringify($json.mensaje_confirmacion) }},\n  \"delayTyping\": 2,\n  \"buttonList\": {\n    \"buttons\": [\n      {\n        \"id\": \"confirmar_pedido\",\n        \"label\": \"🎉 CONFIRMAR PEDIDO\"\n      },\n      {\n        \"id\": \"modificar_pedido\",\n        \"label\": \"✏️ Modificar pedido\"\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1952,
+        256
+      ],
+      "id": "711042a6-bc51-40f8-aff4-54ccb234d96e",
+      "name": "Send Buttons1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Validator Data": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update Data Client Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Dynamic Greeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Dynamic Greeting": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Data Client Status": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send Buttons1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eadebfe5-bfaf-4fc7-bf96-7190e03ae8cf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
+  },
+  "id": "WVmEpKVLhRNt0mTP",
+  "tags": []
+}
