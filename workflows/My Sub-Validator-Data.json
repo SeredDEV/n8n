@@ -5,24 +5,26 @@
       "parameters": {
         "inputSource": "passthrough"
       },
-      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "id": "26853136-7e33-47c4-8f1d-c234864bfba6",
       "typeVersion": 1.1,
       "name": "Validator Data",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "position": [
-        272,
-        352
+        -2016,
+        -96
       ]
     },
     {
-      "parameters": {},
+      "parameters": {
+        "contextWindowLength": 12
+      },
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        624,
-        576
+        -1664,
+        128
       ],
-      "id": "97574fe8-1a28-4188-a4f3-ce9ef9b07f48",
+      "id": "e94c07cb-5e94-42c1-9fa6-cacae252eff4",
       "name": "Postgres Chat Memory",
       "credentials": {
         "postgres": {
@@ -34,17 +36,17 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=# PROMPT PARA EXTRAER DATOS DEL CLIENTE\n\nEres un asistente experto en extraer y validar datos de clientes. Tu tarea es analizar el mensaje del cliente y extraer la siguiente información:\n\n**DATOS REQUERIDOS:**\n\n- 👤 Nombre completo\n- 📞 Teléfono (10 dígitos)\n- 📍 Dirección completa\n- 🏙️ Ciudad\n- 📧 Correo electrónico (OPCIONAL)\n\n**MENSAJE DEL CLIENTE:**\n{{ $json.message }}\n\n**INFORMACIÓN DEL CLIENTE EXISTENTE:**\n\n- Nombre: {{ $json.nombre_cliente }}\n- Teléfono: {{ $json.telefono }}\n- Dirección: {{ $json.direccion }}\n- Ciudad: {{ $json.ciudad }}\n- Correo: {{ $json.email }}\n\n**INFORMACIÓN DEL PEDIDO EXISTENTE:**\n\n- Productos: {{ $json.productos_info }}\n- Cantidad total: {{ $json.cantidad_total }}\n- Total productos: {{ $json.total_producto }}\n- Total envío: {{ $json.total_envio }}\n- Total final: {{ $json.total_producto }} + {{ $json.total_envio }}\n- Método de pago: {{ $json.pago }}\n\n**INSTRUCCIONES CRÍTICAS:**\n\n1. **USA EXACTAMENTE LOS DATOS QUE VIENEN EN productos_info** - NO inventes productos nuevos\n2. PRIMERO verifica si ya existen datos del cliente en las variables \n3. Si algún dato del cliente es null o está vacío, analiza el {{ $json.message }} para extraer esa información faltante\n4. Si ya tienes todos los datos del cliente completos, confirma y procede\n5. El teléfono debe tener exactamente 10 dígitos\n6. El correo es opcional\n7. La dirección debe incluir detalles específicos\n8. Si todos los datos están completos, cambia el status a \"LISTO\"\n9. Si aún faltan datos, mantén el status en \"ESPERANDO\"\n10. **IMPORTANTE: Usa los productos EXACTOS de {{ $json.productos_info }}**\n11. **IMPORTANTE: Usa las cantidades EXACTAS de {{ $json.cantidad_total }}**\n12. **IMPORTANTE: Usa los totales EXACTOS de {{ $json.total_producto }} y {{ $json.total_envio }}**\n\n**RESPONDE ÚNICAMENTE CON EL SIGUIENTE JSON:**\n\n```json\n{\n  \"output\": \"mensaje de respuesta al cliente\",\n  \"status\": \"ESPERANDO\" | \"LISTO\",\n  \"metodoPago\": \"{{ $json.pago }}\",\n  \"datosConfirmados\": true/false,\n  \"calculationsVerified\": true,\n  \"clienteInfo\": {\n    \"nombre\": \"{{ $json.nombre_cliente }}\",\n    \"telefono\": \"{{ $json.telefono }}\",\n    \"direccion\": \"{{ $json.direccion }}\",\n    \"ciudad\": \"{{ $json.ciudad }}\",\n    \"metodoPago\": \"{{ $json.pago }}\",\n    \"correo\": \"{{ $json.email }}\"\n  },\n  \"pedidoInfo\": {\n    \"productos\": {{ $json.productos_info }},\n    \"cantidad_total\": {{ $json.cantidad_total }},\n    \"total_producto\": {{ $json.total_producto }},\n    \"total_envio\": {{ $json.total_envio }},\n    \"total\": {{ $json.total_producto }} + {{ $json.total_envio }}\n  }\n}\n```\n\n**REGLAS DE VALIDACIÓN:**\n\n- **NO CAMBIES LOS PRODUCTOS** - Usa exactamente {{ $json.productos_info }}\n- **NO CAMBIES LAS CANTIDADES** - Usa exactamente {{ $json.cantidad_total }}\n- **NO CAMBIES LOS PRECIOS** - Usa exactamente {{ $json.total_producto }} y {{ $json.total_envio }}\n- Combina datos existentes con datos extraídos del mensaje\n- Prioriza datos ya guardados, solo completa los que falten\n- Nombre: Mínimo 2 palabras, solo letras y espacios\n- Teléfono: Exactamente 10 dígitos numéricos\n- Dirección: Debe incluir al menos calle/carrera y número\n- Ciudad: Solo letras y espacios, mínimo 3 caracteres\n- Correo: Formato válido de email (si está presente)\n\n**EJEMPLO CON LOS DATOS REALES:**\n\n```json\n{\n  \"output\": \"¡Perfecto! Todos tus datos están completos y válidos. Procederemos con tu pedido.\",\n  \"status\": \"LISTO\",\n  \"metodoPago\": \"CONTRA ENTREGA\",\n  \"datosConfirmados\": true,\n  \"calculationsVerified\": true,\n  \"clienteInfo\": {\n    \"nombre\": \"Sergio Eduardo Rodriguez Morales\",\n    \"telefono\": \"3011284297\",\n    \"direccion\": \"Cl. 7 Sur #50GG-13, Guayabal, Medellín\",\n    \"ciudad\": \"Medellín\",\n    \"metodoPago\": \"CONTRA ENTREGA\",\n    \"correo\": \"Sistemasmi13@gmail.com\"\n  },\n  \"pedidoInfo\": {\n    \"productos\": [\n      {\n        \"total\": 350000,\n        \"nombre\": \"Lociones One Million\",\n        \"precio\": 35000,\n        \"cantidad\": 10\n      },\n      {\n        \"total\": 140000,\n        \"nombre\": \"Lociones Versace Eros\", \n        \"precio\": 35000,\n        \"cantidad\": 4\n      },\n      {\n        \"total\": 210000,\n        \"nombre\": \"Lociones 212\",\n        \"precio\": 35000,\n        \"cantidad\": 6\n      }\n    ],\n    \"cantidad_total\": 20,\n    \"total_producto\": 700000,\n    \"total_envio\": 24900,\n    \"total\": 724900\n  }\n}\n```\n\n**FLUJO DE STATUS:**\n\n- Si TODOS los datos están completos → status: \"LISTO\"\n- Si AÚN faltan datos → status: \"ESPERANDO\"\n\n**RECORDATORIO FINAL:**\n\n- ❌ NO inventes productos como \"Perfume A, B, C\"\n- ✅ USA los productos reales de {{ $json.productos_info }}\n- ❌ NO cambies precios, cantidades o totales\n- ✅ CONSERVA todos los datos exactos del pedido existente",
+        "text": "=# AGENTE VALIDADOR DE DATOS DE CLIENTE\n\nAnaliza y consolida datos de entrega del cliente evitando solicitar información duplicada.\n\n**DATOS REQUERIDOS:**\n- 👤 Nombre completo (2+ palabras)\n- 📞 Teléfono (10 dígitos)  \n- 📍 Dirección completa (con números)\n- 🏙️ Ciudad\n\n**FUENTES DE DATOS:**\n\n1. **Mensaje actual:** {{ $json.message }}\n\n2. **Sistema:**\n   - Nombre: {{ $json.nombre_cliente }}\n   - Teléfono: {{ $json.telefono }}\n   - Dirección: {{ $json.direccion }}\n   - Ciudad: {{ $json.ciudad }}\n   - Correo: {{ $json.email }}\n\n3. **Historial:** Revisa Postgres Chat Memory para datos enviados anteriormente\n\n**Pedido:** {{ $json.productos_info }} | Total: ${{ $json.total_producto }} + ${{ $json.total_envio }} | Pago: {{ $json.pago }}\n\n## PROCESO\n\n1. **CONSOLIDAR:** Toma el primer valor válido de: Sistema → Mensaje → Historial\n2. **VALIDAR:** Verifica que no sea null/vacío y cumpla formato básico  \n3. **RESPONDER:** Según completitud de datos\n\n**Si TODOS los datos están completos:**\n```\n✅ ¡Perfecto! Tengo todos tus datos.\n\n📋 RESUMEN:\n👤 [NOMBRE] | 📞 [TELÉFONO] \n📍 [DIRECCIÓN] | 🏙️ [CIUDAD]\n💰 Total: $[TOTAL] | 🚚 [PAGO]\n\n¡Procederemos con tu pedido!\n```\n\n**Si faltan datos:**\n- **Cliente frustrado** (\"ya los envié\"): Mostrar empatía + datos confirmados + solicitar faltantes\n- **Mensaje normal:** Solicitar TODOS los faltantes en un solo mensaje con ejemplo\n\n**Plantilla para datos faltantes:**\n```\nPara completar tu pedido necesito:\n[LISTA_DATOS_FALTANTES]\n\n⚠️ **IMPORTANTE:** Envía TODOS en un solo mensaje.\n\nEjemplo: \"[EJEMPLO_DINÁMICO]\"\n\n¿Puedes enviarlos? 😊\n```\n\n**RESPONDE SOLO CON ESTE JSON:**\n\n```json\n{\n  \"output\": \"mensaje personalizado según estado\",\n  \"datosConfirmados\": true/false,\n  \"status\": \"ESPERANDO\" | \"LISTO\",\n  \"clienteInfo\": {\n    \"nombre\": \"valor_final_o_null\",\n    \"telefono\": \"valor_final_o_null\",\n    \"direccion\": \"valor_final_o_null\", \n    \"ciudad\": \"valor_final_o_null\",\n    \"metodoPago\": \"{{ $json.pago }}\",\n    \"correo\": \"valor_final_o_null\"\n  },\n  \"pedidoInfo\": {\n    \"productos\": {{ $json.productos_info }},\n    \"cantidad_total\": {{ $json.cantidad_total }},\n    \"total_producto\": {{ $json.total_producto }},\n    \"total_envio\": {{ $json.total_envio }},\n    \"total\": {{ $json.total_producto }} + {{ $json.total_envio }}\n  }\n}\n```\n\n**REGLAS CRÍTICAS:**\n- ❌ NUNCA pedir datos que YA tienes válidos \n- ✅ SIEMPRE revisar las 3 fuentes antes de solicitar\n- ✅ Si cliente se frustra, mostrar empatía y datos confirmados\n- ✅ Pedir datos faltantes en un solo mensaje con ejemplo",
         "hasOutputParser": true,
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.1,
       "position": [
-        592,
-        352
+        -1696,
+        -96
       ],
-      "id": "8cd785a5-f9fa-49aa-b7be-0cb07477a167",
+      "id": "44bdea21-f835-41c1-85b1-91dfa07221de",
       "name": "AI Agent"
     },
     {
@@ -67,10 +69,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        496,
-        576
+        -1792,
+        128
       ],
-      "id": "308499f8-6c6f-40eb-8738-eae94d202cd5",
+      "id": "4aab9264-3c11-4bc9-847b-f8cc544e0b17",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
@@ -86,10 +88,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
       "typeVersion": 1,
       "position": [
-        880,
-        576
+        -1408,
+        128
       ],
-      "id": "17c977cc-7fd5-4abe-b8cd-b3c465fc3cb5",
+      "id": "f62a48fe-6725-44a0-9021-777be5e5527d",
       "name": "Auto-fixing Output Parser"
     },
     {
@@ -105,10 +107,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        912,
-        784
+        -1376,
+        336
       ],
-      "id": "b8703363-9fe9-4354-8b38-69269998267f",
+      "id": "f8d9c588-c497-427b-848e-24aa178477b0",
       "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
@@ -125,10 +127,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1040,
-        784
+        -1248,
+        336
       ],
-      "id": "ce6c7502-1479-4f5c-88f4-3cee190f9706",
+      "id": "514b6c29-176d-4a53-959a-2931e43414d2",
       "name": "Structured Output Parser"
     },
     {
@@ -136,10 +138,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
       "typeVersion": 1,
       "position": [
-        752,
-        576
+        -1536,
+        128
       ],
-      "id": "c2945310-488f-4581-a4bf-f8ac942be856",
+      "id": "40669a39-cdee-41d5-9859-447263993ddb",
       "name": "Calculator"
     },
     {
@@ -170,10 +172,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1280,
-        352
+        -1008,
+        -96
       ],
-      "id": "8372b4d7-8321-411f-9e9c-781b06425b47",
+      "id": "1883bdeb-f87f-47df-901c-8faba5634a0f",
       "name": "If"
     },
     {
@@ -211,10 +213,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1504,
-        448
+        -784,
+        0
       ],
-      "id": "f1d0c893-40f2-40f6-aa10-931baa155a33",
+      "id": "36734a91-a37d-4c2b-af82-b765b4b5a99f",
       "name": "Send Dynamic Greeting"
     },
     {
@@ -226,10 +228,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1728,
-        448
+        -560,
+        0
       ],
-      "id": "828ab8a4-9a2f-4aa1-914b-059571daa7b0",
+      "id": "68526d0a-24e7-43a0-ab63-61cf53cead47",
       "name": "Execute a SQL query",
       "credentials": {
         "postgres": {
@@ -247,10 +249,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1504,
-        256
+        -784,
+        -192
       ],
-      "id": "21d6ce2d-5dca-4770-919f-9ca770633506",
+      "id": "878a260b-2440-4a3c-9bdf-7475f2ee7802",
       "name": "Update Data Client Status",
       "credentials": {
         "postgres": {
@@ -266,10 +268,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1728,
-        256
+        -560,
+        -192
       ],
-      "id": "5627c665-b74a-4d47-9f21-74c0687a3dbb",
+      "id": "81a9e24d-a3f0-48fb-92f9-2e216c242b99",
       "name": "Code"
     },
     {
@@ -293,14 +295,48 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1952,
-        256
+        -336,
+        -192
       ],
-      "id": "711042a6-bc51-40f8-aff4-54ccb234d96e",
+      "id": "1839ec3d-7c9e-44f1-8251-9473c0bf523e",
       "name": "Send Buttons1"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Validator Data": [
+      {
+        "json": {
+          "id": 4,
+          "session_id": "573011284297",
+          "estado": "VENTAS",
+          "estado_ventas": "ESPERANDO",
+          "fecha_inicio": "2025-07-20T04:43:38.236Z",
+          "ultima_actividad": "2025-07-20T04:51:48.794Z",
+          "nombre_cliente": null,
+          "ciudad": "Medellín",
+          "telefono": "3194651229",
+          "direccion": null,
+          "email": null,
+          "guia": null,
+          "pago": "CONTRA ENTREGA",
+          "total_producto": 700000,
+          "total_envio": 24900,
+          "cantidad_total": 20,
+          "productos_info": [
+            {
+              "total": 700000,
+              "nombre": "LOVE LOVE",
+              "precio": 35000,
+              "cantidad": 20
+            }
+          ],
+          "conversacion_activa": true,
+          "sessionId": "573011284297",
+          "message": "Cl. 7 Sur #50GG-13, Guayabal, Medellín"
+        }
+      }
+    ]
+  },
   "connections": {
     "Validator Data": {
       "main": [
@@ -446,7 +482,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "eadebfe5-bfaf-4fc7-bf96-7190e03ae8cf",
+  "versionId": "05d64175-b62a-4362-bb49-2c7d44540a7f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
