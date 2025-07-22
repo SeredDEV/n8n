@@ -104,12 +104,11 @@ ALTER TABLE n8n_pro_conversation_states
 ADD CONSTRAINT chk_pro_pago 
 CHECK (pago IS NULL OR pago IN ('TRANSFERENCIA', 'CONTRA ENTREGA', 'INTERRAPIDÍSIMO'));
 
--- Validación de estado de modificación de producto
 ALTER TABLE n8n_pro_conversation_states 
 ADD CONSTRAINT chk_pro_estado_modificacion_producto 
 CHECK (
   estado_modificacion_producto IS NULL OR 
-  estado_modificacion_producto IN ('EDITANDO', 'CONFIRMADO', 'CANCELADO', 'ERROR')
+  estado_modificacion_producto IN ('EDIT_CANTIDAD', 'EDIT_PRODUCTO', 'MODIFICAR_TODO', 'AGREGAR_PRODUCTOS')
 );
 
 -- 4. FUNCIONES PARA ACTUALIZAR ESTADOS
@@ -306,11 +305,6 @@ DECLARE
     ultimo_estado_actual VARCHAR;
     ultimo_estado_ventas VARCHAR;
 BEGIN
-    -- Verificar que al menos uno de los parámetros tenga valor
-    IF total_producto_param IS NULL AND cantidad_total_param IS NULL AND productos_info_param IS NULL THEN
-        RAISE EXCEPTION ''Debe proporcionar al menos un valor: total_producto, cantidad_total o productos_info'';
-    END IF;
-    
     -- Obtener información del registro más reciente
     SELECT id, estado_actual, estado_ventas 
     INTO ultimo_registro_id, ultimo_estado_actual, ultimo_estado_ventas
@@ -329,12 +323,12 @@ BEGIN
         RETURN FALSE;
     END IF;
     
-    -- Actualizar solo los campos que tienen valor
+    -- Actualizar los campos, permitiendo que todos sean NULL
     UPDATE n8n_pro_conversation_states 
     SET 
-        total_producto = COALESCE(total_producto_param, total_producto),
-        cantidad_total = COALESCE(cantidad_total_param, cantidad_total),
-        productos_info = COALESCE(productos_info_param, productos_info),
+        total_producto = total_producto_param,
+        cantidad_total = cantidad_total_param,
+        productos_info = productos_info_param,
         ultima_actividad = CURRENT_TIMESTAMP
     WHERE id = ultimo_registro_id;
     
@@ -682,7 +676,6 @@ BEGIN
 END;
 ';
 
--- FUNCIÓN: Actualizar estado_modificacion_producto
 DROP FUNCTION IF EXISTS actualizar_estado_modificacion_producto_pro(VARCHAR, VARCHAR) CASCADE;
 CREATE OR REPLACE FUNCTION actualizar_estado_modificacion_producto_pro(
     session_id_param VARCHAR,
@@ -696,8 +689,8 @@ DECLARE
     ultimo_estado_ventas VARCHAR;
 BEGIN
     -- Validar que el estado de modificación sea válido
-    IF nuevo_estado_modificacion IS NOT NULL AND UPPER(nuevo_estado_modificacion) NOT IN (''EDITANDO'', ''CONFIRMADO'', ''CANCELADO'', ''ERROR'') THEN
-        RAISE EXCEPTION ''Estado de modificación de producto no válido: %. Estados permitidos: EDITANDO, CONFIRMADO, CANCELADO, ERROR, NULL'', UPPER(nuevo_estado_modificacion);
+    IF nuevo_estado_modificacion IS NOT NULL AND UPPER(nuevo_estado_modificacion) NOT IN (''EDIT_CANTIDAD'', ''EDIT_PRODUCTO'', ''MODIFICAR_TODO'', ''AGREGAR_PRODUCTOS'') THEN
+        RAISE EXCEPTION ''Estado de modificación de producto no válido: %. Estados permitidos: EDIT_CANTIDAD, EDIT_PRODUCTO, MODIFICAR_TODO, AGREGAR_PRODUCTOS, NULL'', UPPER(nuevo_estado_modificacion);
     END IF;
 
     -- Obtener información del registro más reciente
@@ -748,18 +741,17 @@ SELECT actualizar_estado_ventas_principal_pro('573011284297', 'LISTO');
 SELECT actualizar_estado_ventas_principal_pro('573011284297', 'FIN');
 SELECT actualizar_estado_ventas_principal_pro('573011284297', NULL); -- Limpiar estado
 
--- Estados de modificación de producto disponibles:
--- ✅ EDITANDO - Se está editando un producto
--- ✅ CONFIRMADO - Modificación confirmada
--- ✅ CANCELADO - Modificación cancelada
--- ✅ ERROR - Hubo un error en la modificación
+
+-- ✅ EDIT_CANTIDAD - Editar cantidad de un producto
+-- ✅ EDIT_PRODUCTO - Editar información de un producto
+-- ✅ MODIFICAR_TODO - Modificar todos los productos
+-- ✅ AGREGAR_PRODUCTOS - Agregar productos nuevos
 -- ✅ NULL - Sin estado de modificación (limpiado)
 
--- FUNCIÓN PARA ACTUALIZAR ESTADO DE MODIFICACIÓN DE PRODUCTO:
-SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'EDITANDO');
-SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'CONFIRMADO');
-SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'CANCELADO');
-SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'ERROR');
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'EDIT_CANTIDAD');
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'EDIT_PRODUCTO');
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'MODIFICAR_TODO');
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'AGREGAR_PRODUCTOS');
 SELECT actualizar_estado_modificacion_producto_pro('573011284297', NULL); -- Limpiar estado
 
 -- ACTUALIZAR DATOS COMPLETOS (CLIENTE + PRODUCTOS):
