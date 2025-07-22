@@ -61,6 +61,9 @@ CREATE TABLE n8n_pro_conversation_states (
     
     -- DATOS DE PRODUCTOS (JSON)
     productos_info JSONB NULL
+    ,
+    -- ESTADO DE MODIFICACIÓN DE PRODUCTO
+    estado_modificacion_producto VARCHAR(20) NULL
 );
 
 -- 2. CREAR ÍNDICES BÁSICOS (ordenados por importancia y uso)
@@ -97,10 +100,17 @@ ALTER TABLE n8n_pro_conversation_states
 ADD CONSTRAINT chk_pro_estado_ventas 
 CHECK (estado_ventas IS NULL OR estado_ventas IN ('COTIZANDO', 'RECOLECTANDO', 'ESPERANDO', 'LISTO', 'FIN'));
 
--- Validación de métodos de pago
 ALTER TABLE n8n_pro_conversation_states 
 ADD CONSTRAINT chk_pro_pago 
 CHECK (pago IS NULL OR pago IN ('TRANSFERENCIA', 'CONTRA ENTREGA', 'INTERRAPIDÍSIMO'));
+
+-- Validación de estado de modificación de producto
+ALTER TABLE n8n_pro_conversation_states 
+ADD CONSTRAINT chk_pro_estado_modificacion_producto 
+CHECK (
+  estado_modificacion_producto IS NULL OR 
+  estado_modificacion_producto IN ('EDITANDO', 'CONFIRMADO', 'CANCELADO', 'ERROR')
+);
 
 -- 4. FUNCIONES PARA ACTUALIZAR ESTADOS
 
@@ -621,7 +631,6 @@ BEGIN
 END;
 ';
 
--- FUNCIÓN PARA CONSULTAR ESTADO ACTUAL
 CREATE OR REPLACE FUNCTION obtener_estado_pro(session_id_param VARCHAR)
 RETURNS TABLE (
     id INTEGER,
@@ -641,6 +650,7 @@ RETURNS TABLE (
     total_envio INTEGER,
     cantidad_total INTEGER,
     productos_info JSONB,
+    estado_modificacion_producto VARCHAR,
     conversacion_activa BOOLEAN
 ) LANGUAGE plpgsql AS '
 BEGIN
@@ -663,6 +673,7 @@ BEGIN
         cs.total_envio,
         cs.cantidad_total,
         cs.productos_info,
+        cs.estado_modificacion_producto,
         cs.conversacion_activa
     FROM n8n_pro_conversation_states cs
     WHERE cs.session_id = session_id_param
@@ -671,24 +682,57 @@ BEGIN
 END;
 ';
 
--- ========================================
--- EJEMPLOS DE USO:
--- ========================================
+-- FUNCIÓN: Actualizar estado_modificacion_producto
+DROP FUNCTION IF EXISTS actualizar_estado_modificacion_producto_pro(VARCHAR, VARCHAR) CASCADE;
+CREATE OR REPLACE FUNCTION actualizar_estado_modificacion_producto_pro(
+    session_id_param VARCHAR,
+    nuevo_estado_modificacion VARCHAR
+)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+DECLARE
+    filas_afectadas INTEGER;
+    ultimo_registro_id INTEGER;
+    ultimo_estado_actual VARCHAR;
+    ultimo_estado_ventas VARCHAR;
+BEGIN
+    -- Validar que el estado de modificación sea válido
+    IF nuevo_estado_modificacion IS NOT NULL AND UPPER(nuevo_estado_modificacion) NOT IN (''EDITANDO'', ''CONFIRMADO'', ''CANCELADO'', ''ERROR'') THEN
+        RAISE EXCEPTION ''Estado de modificación de producto no válido: %. Estados permitidos: EDITANDO, CONFIRMADO, CANCELADO, ERROR, NULL'', UPPER(nuevo_estado_modificacion);
+    END IF;
+
+    -- Obtener información del registro más reciente
+    SELECT id, estado_actual, estado_ventas 
+    INTO ultimo_registro_id, ultimo_estado_actual, ultimo_estado_ventas
+    FROM n8n_pro_conversation_states 
+    WHERE session_id = session_id_param 
+    ORDER BY ultima_actividad DESC 
+    LIMIT 1;
+
+    -- Si no existe registro, no hacer nada
+    IF ultimo_registro_id IS NULL THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Si el registro está bloqueado (ventas + FIN), no actualizar
+    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Actualizar el estado_modificacion_producto del registro más reciente
+    UPDATE n8n_pro_conversation_states 
+    SET estado_modificacion_producto = CASE WHEN nuevo_estado_modificacion IS NULL THEN NULL ELSE UPPER(nuevo_estado_modificacion) END,
+        ultima_actividad = CURRENT_TIMESTAMP
+    WHERE id = ultimo_registro_id;
+
+    GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
+    RETURN filas_afectadas > 0;
+END;
+';
+
 
 /*
--- ========================================
--- EJEMPLOS DE USO:
--- ========================================
 
--- Estados principales disponibles:
--- ✅ SALUDO - Estado inicial de saludo
--- ✅ CATALOGO - Mostrar catálogo de productos
--- ✅ OFERTAS - Mostrar ofertas especiales
--- ✅ CONSULTA - Cliente hace consulta específica
--- ✅ VENTAS - Iniciar proceso de ventas
--- ✅ SOPORTE - Cliente necesita soporte técnico
 
--- FUNCIÓN UNIFICADA PARA TODOS LOS ESTADOS:
 SELECT actualizar_estado_principal_pro('573011284297', 'SALUDO');
 SELECT actualizar_estado_principal_pro('573011284297', 'CATALOGO');
 SELECT actualizar_estado_principal_pro('573011284297', 'OFERTAS');
@@ -696,21 +740,27 @@ SELECT actualizar_estado_principal_pro('573011284297', 'CONSULTA');
 SELECT actualizar_estado_principal_pro('573011284297', 'VENTAS');
 SELECT actualizar_estado_principal_pro('573011284297', 'SOPORTE');
 
--- Estados de ventas disponibles:
--- ✅ COTIZANDO - Se envía la cotización inicial
--- ✅ RECOLECTANDO - Cliente elige método y se piden datos
--- ✅ ESPERANDO - Faltan datos o hay errores de validación
--- ✅ LISTO - Datos están completos y validados
--- ✅ FIN - Cliente confirma el pedido
--- ✅ NULL - Sin estado de ventas (limpiado)
 
--- FUNCIÓN UNIFICADA PARA TODOS LOS ESTADOS DE VENTAS:
 SELECT actualizar_estado_ventas_principal_pro('573011284297', 'COTIZANDO');
 SELECT actualizar_estado_ventas_principal_pro('573011284297', 'RECOLECTANDO');
 SELECT actualizar_estado_ventas_principal_pro('573011284297', 'ESPERANDO');
 SELECT actualizar_estado_ventas_principal_pro('573011284297', 'LISTO');
 SELECT actualizar_estado_ventas_principal_pro('573011284297', 'FIN');
 SELECT actualizar_estado_ventas_principal_pro('573011284297', NULL); -- Limpiar estado
+
+-- Estados de modificación de producto disponibles:
+-- ✅ EDITANDO - Se está editando un producto
+-- ✅ CONFIRMADO - Modificación confirmada
+-- ✅ CANCELADO - Modificación cancelada
+-- ✅ ERROR - Hubo un error en la modificación
+-- ✅ NULL - Sin estado de modificación (limpiado)
+
+-- FUNCIÓN PARA ACTUALIZAR ESTADO DE MODIFICACIÓN DE PRODUCTO:
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'EDITANDO');
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'CONFIRMADO');
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'CANCELADO');
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', 'ERROR');
+SELECT actualizar_estado_modificacion_producto_pro('573011284297', NULL); -- Limpiar estado
 
 -- ACTUALIZAR DATOS COMPLETOS (CLIENTE + PRODUCTOS):
 SELECT actualizar_datos_completos_pro(
