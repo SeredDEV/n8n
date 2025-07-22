@@ -108,10 +108,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -4032,
-        0
+        -3584,
+        512
       ],
-      "id": "3c1b5264-461f-4bf0-b04a-3c64389437ec",
+      "id": "237866ff-421e-4a1e-a7f7-4a813555b9af",
       "name": "Message Type Router"
     },
     {
@@ -139,19 +139,19 @@
             {
               "id": "message-type-detector",
               "name": "message_type",
-              "value": "={{ $json.body.text ? 'text' : $json.body.audio ? 'audio' : $json.body.image ? 'image' : $json.body.buttonsResponseMessage ? 'button_response' : $json.body.document ? ($json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/') ? 'audio_file' : $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/') ? 'video' : 'document') : 'unknown' }}",
+              "value": "={{ $json.body.text ? 'text' : $json.body.audio ? 'audio' : $json.body.image ? 'image' : $json.body.buttonsResponseMessage ? ($json.body.buttonsResponseMessage.buttonId === 'confirmar_pedido' ? 'text' : 'button_response') : $json.body.document ? ($json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/') ? 'audio_file' : $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/') ? 'video' : 'document') : 'unknown' }}",
               "type": "string"
             },
             {
               "id": "message-object",
               "name": "message",
-              "value": "={{ { \"message_id\": $json.body.messageId, \"timestamp\": $json.body.momment, \"formatted_date\": DateTime.fromMillis($json.body.momment).toFormat('yyyy-MM-dd HH:mm:ss'), \"formatted_date_utc_minus_5\": DateTime.fromMillis($json.body.momment).setZone('UTC-5').toFormat('yyyy-MM-dd HH:mm:ss'), \"message_status\": $json.body.status, \"message_type\": ($json.body.text ? 'text' : $json.body.audio ? 'audio' : $json.body.image ? 'image' : $json.body.buttonsResponseMessage ? 'button_response' : $json.body.document ? ($json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/') ? 'audio_file' : $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/') ? 'video' : 'document') : 'unknown') } }}",
+              "value": "={{ { \"message_id\": $json.body.messageId, \"timestamp\": $json.body.momment, \"formatted_date\": DateTime.fromMillis($json.body.momment).toFormat('yyyy-MM-dd HH:mm:ss'), \"formatted_date_utc_minus_5\": DateTime.fromMillis($json.body.momment).setZone('UTC-5').toFormat('yyyy-MM-dd HH:mm:ss'), \"message_status\": $json.body.status, \"message_type\": ($json.body.text ? 'text' : $json.body.audio ? 'audio' : $json.body.image ? 'image' : $json.body.buttonsResponseMessage ? ($json.body.buttonsResponseMessage.buttonId === 'confirmar_pedido' ? 'text' : 'button_response') : $json.body.document ? ($json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/') ? 'audio_file' : $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/') ? 'video' : 'document') : 'unknown') } }}",
               "type": "object"
             },
             {
               "id": "content-text",
               "name": "text_content",
-              "value": "={{ $json.body.text ? { \"message\": $json.body.text.message } : null }}",
+              "value": "={{ $json.body.text ? { \"message\": $json.body.text.message } : ($json.body.buttonsResponseMessage && $json.body.buttonsResponseMessage.buttonId === 'confirmar_pedido') ? { \"message\": $json.body.buttonsResponseMessage.buttonId } : null }}",
               "type": "object"
             },
             {
@@ -203,10 +203,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -4256,
-        32
+        -3808,
+        544
       ],
-      "id": "6c66340b-80cb-4eb9-98d7-432eb29136af",
+      "id": "97428728-1387-4471-843e-d40e55342fb7",
       "name": "WhatsApp Message Parser"
     },
     {
@@ -218,10 +218,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -4480,
-        32
+        -4032,
+        544
       ],
-      "id": "c3b7afdf-b1ce-458b-9435-ea38b8fe81ad",
+      "id": "85279fb6-44eb-4c87-abb5-136d904bc9a1",
       "name": "Webhook",
       "webhookId": "50a91089-2c34-4dd0-8896-2715bd6e9612"
     },
@@ -232,10 +232,10 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -3808,
-        -32
+        -3360,
+        488
       ],
-      "id": "76562b57-c675-4dc4-87b3-45d21a88710c",
+      "id": "71e6cd3a-354a-44b6-bd64-1571ca494420",
       "name": "Pausa",
       "webhookId": "0bfa0972-a628-48bb-be5d-b3c30b33df0e"
     },
@@ -254,10 +254,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -3808,
-        -224
+        -3360,
+        296
       ],
-      "id": "d7ba6dca-ced4-4607-9fb9-135298ad5bf4",
+      "id": "2c33c2f9-6e82-4439-b507-d7e39496a786",
       "name": "Download Audio File"
     },
     {
@@ -275,10 +275,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -3808,
-        176
+        -3360,
+        680
       ],
-      "id": "7f380ef1-c018-4e10-bf91-b9f69e79b243",
+      "id": "a5b6fc55-745f-4c9d-9145-28625fb98d8a",
       "name": "Download Image File"
     },
     {
@@ -298,10 +298,10 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        -3584,
-        176
+        -3136,
+        680
       ],
-      "id": "758b2ec3-1ba7-4d9b-9d59-73733f6a124e",
+      "id": "8ce13deb-86aa-4456-9bb9-82246ee5272a",
       "name": "Analyze Image",
       "credentials": {
         "openAiApi": {
@@ -333,10 +333,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -3808,
-        1136
+        -3360,
+        1648
       ],
-      "id": "579bedaf-5978-4e99-9a58-24616a48ffc0",
+      "id": "73fabaf7-eecd-42bf-ba1e-51b7f974deea",
       "name": "Process Button Response"
     },
     {
@@ -501,6 +501,31 @@
                   {
                     "id": "e3943a52-8a51-413b-a5f2-89c394584dc5",
                     "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "modificar_producto",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "modificar_producto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "bae55070-387b-41d8-9c87-9b671231afb3",
+                    "leftValue": "={{ $json.button_id }}",
                     "rightValue": "modificar_pedido",
                     "operator": {
                       "type": "string",
@@ -512,7 +537,7 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "Modificar_Pedido"
+              "outputKey": "modificar_pedido"
             },
             {
               "conditions": {
@@ -546,10 +571,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -3584,
-        1056
+        -3136,
+        1536
       ],
-      "id": "3d24639e-d923-41f5-b958-c0ff0b6b2501",
+      "id": "37cd6414-4f3b-44ca-bd52-5b29894e1b11",
       "name": "Button Response Router"
     },
     {
@@ -564,10 +589,10 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        -3584,
-        -224
+        -3136,
+        296
       ],
-      "id": "7a6369f9-42f3-4fee-a1b2-5fc596811cb5",
+      "id": "f85b465d-d4f1-43f1-8e1c-f4dc7f72fe61",
       "name": "Transcribe a recording",
       "credentials": {
         "openAiApi": {
@@ -590,12 +615,12 @@
         },
         "options": {}
       },
-      "id": "2c24d20e-2144-41c9-9132-112d228a9477",
+      "id": "d07f2b8c-1c2f-4413-bad5-e73ab873355e",
       "name": "Extract Message Content",
       "type": "n8n-nodes-base.set",
       "position": [
-        -3360,
-        -32
+        -2912,
+        488
       ],
       "typeVersion": 3.4
     },
@@ -616,10 +641,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -3584,
-        -32
+        -3136,
+        488
       ],
-      "id": "03251b8b-de80-4c74-bdf7-e0b1c8ee1999",
+      "id": "ea82046b-0cd4-49de-a2f7-c63b6fc52033",
       "name": "Obtener Texto"
     },
     {
@@ -632,10 +657,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        -3136,
-        -32
+        -2688,
+        488
       ],
-      "id": "3e31353a-a069-45b8-a286-d52cbeb8113e",
+      "id": "09f9a486-7671-4cdb-aac2-73b57d21e33c",
       "name": "Store Message in Buffer",
       "credentials": {
         "redis": {
@@ -649,10 +674,10 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -2912,
-        -32
+        -2464,
+        488
       ],
-      "id": "664bc9e4-747b-4c4d-9c81-5c7d453357ef",
+      "id": "b7de2491-d077-441b-be17-20e8afe58c45",
       "name": "Wait for Buffer",
       "webhookId": "05929f0b-cb6a-48f9-901e-bbefe359f336"
     },
@@ -665,10 +690,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        -2688,
-        -32
+        -2240,
+        488
       ],
-      "id": "33c9fb31-7cc8-425c-aabd-c3ba9ee9eb99",
+      "id": "27847417-324b-4cd7-932f-2bf97c2072d4",
       "name": "Retrieve Messages from Buffer",
       "credentials": {
         "redis": {
@@ -705,10 +730,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -2464,
-        -32
+        -2016,
+        488
       ],
-      "id": "6436d151-03b0-442f-9dd4-7b61a405dff9",
+      "id": "a5e06155-a2f3-49b4-bf12-2afc4c23993e",
       "name": "Check for Duplicate Message"
     },
     {
@@ -719,10 +744,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        -2240,
-        -208
+        -1792,
+        304
       ],
-      "id": "02eecf59-515f-4a55-8d1d-b099ebd24f42",
+      "id": "3eb73ad4-282a-4e09-b607-ce098b798512",
       "name": "Clear Buffer Cache",
       "credentials": {
         "redis": {
@@ -736,10 +761,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        -2240,
-        -16
+        -1792,
+        496
       ],
-      "id": "78eef7ab-e77c-42fd-bb0e-baf96504f3ff",
+      "id": "7161aaac-7c78-4fe1-acd3-214f7033d134",
       "name": "Skip Duplicate Message"
     },
     {
@@ -759,10 +784,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -2016,
-        -208
+        -1568,
+        304
       ],
-      "id": "a63d691d-e7d1-4645-aae8-cc9b792d11bd",
+      "id": "d5d5d181-6670-4d5d-a9b9-95967daaf732",
       "name": "Format Final Output"
     },
     {
@@ -774,10 +799,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1792,
-        -208
+        -1344,
+        304
       ],
-      "id": "30f2a101-a172-4227-8805-1f82f81a16b0",
+      "id": "48c96b6b-2886-4e8a-8d13-93a6db341cb2",
       "name": "Get session_id",
       "credentials": {
         "postgres": {
@@ -814,10 +839,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -1568,
-        -208
+        -1120,
+        304
       ],
-      "id": "e327e418-5ed5-4a86-a1c8-623a97d39b78",
+      "id": "521c0fcd-6e0b-4d6a-ac20-31eb8bff8d7f",
       "name": "If"
     },
     {
@@ -827,10 +852,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -3360,
-        416
+        -2912,
+        936
       ],
-      "id": "5721fc45-d012-455c-b957-4a44e0753451",
+      "id": "c632ef10-86cc-4da7-9b0f-90b5775432ca",
       "name": "Dynamic Time Greeting"
     },
     {
@@ -840,10 +865,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1344,
-        -512
+        -896,
+        16
       ],
-      "id": "7f3196f5-9ac9-4c8a-b38e-3d70b01a8a27",
+      "id": "f358cc82-9b58-4644-b652-1490f0e179bc",
       "name": "Dynamic Greeting"
     },
     {
@@ -931,10 +956,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -3136,
-        400
+        -2688,
+        920
       ],
-      "id": "7c001fc3-a60e-4937-ae90-458f839f3306",
+      "id": "b7635ca3-aed1-46bf-ba90-49b7cf334461",
       "name": "Switch1"
     },
     {
@@ -972,10 +997,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1120,
-        -512
+        -672,
+        16
       ],
-      "id": "04afc96b-9481-4ad1-a1c8-0cb79397b029",
+      "id": "921c6f10-25cc-483a-8739-3454edb0cb9e",
       "name": "Send Dynamic Greeting"
     },
     {
@@ -999,10 +1024,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -896,
-        -512
+        -448,
+        16
       ],
-      "id": "c1a4c0a1-0e2d-46b0-b845-2244ccc18a1f",
+      "id": "6504ee10-7d85-4f13-be1c-876d473693b2",
       "name": "Send Buttons"
     },
     {
@@ -1012,10 +1037,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -2688,
-        448
+        -2240,
+        952
       ],
-      "id": "f537719b-4e0b-4346-a6de-ceea9bc57e2d",
+      "id": "f8d915bd-26be-4e51-b663-3ed6ccb630ba",
       "name": "Merge Audio"
     },
     {
@@ -1057,10 +1082,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -2464,
-        464
+        -2016,
+        968
       ],
-      "id": "84cab140-4535-4ba5-a5e1-d07d317356fe",
+      "id": "8f824568-bbdc-40cb-b280-4f77ba774cd0",
       "name": "Send Audio"
     },
     {
@@ -1098,10 +1123,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -2240,
-        464
+        -1792,
+        968
       ],
-      "id": "29466477-e43c-4dec-85f5-931fbcbeb771",
+      "id": "18a6db3f-da38-4996-9d5c-d951231f9e7b",
       "name": "Send Catalog Man"
     },
     {
@@ -1139,10 +1164,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -2016,
-        464
+        -1568,
+        968
       ],
-      "id": "ac090481-f306-4875-8c37-36396ac1d988",
+      "id": "e4e15277-293c-4b58-a92b-e61a3198c0bb",
       "name": "Send Catalog Women"
     },
     {
@@ -1160,10 +1185,10 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        -2912,
-        176
+        -2464,
+        688
       ],
-      "id": "a16421cf-e5a1-4d52-9033-5a1109a8ca81",
+      "id": "a23ec4e3-8d46-447b-9908-fb3256da08b2",
       "name": "Download Good Morning",
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -1187,10 +1212,10 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        -2912,
-        368
+        -2464,
+        880
       ],
-      "id": "0050365f-5b62-4e0b-8faf-a9864cf243fe",
+      "id": "0e96d7ce-3ef6-4b64-8b44-48a1074254e9",
       "name": "Download Good Afternoon",
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -1214,10 +1239,10 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        -2912,
-        560
+        -2464,
+        1072
       ],
-      "id": "ba923be7-6b27-4e6a-b718-a972323e4962",
+      "id": "016bf72d-7e98-4f37-aac3-4c978d9381ee",
       "name": "Download  Good Night",
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -1233,10 +1258,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -3360,
-        752
+        -2912,
+        1264
       ],
-      "id": "52d90029-a5a9-4298-b8eb-a7b942b3b0a8",
+      "id": "aa04ceb2-4a01-47e6-910a-93c99c49aef2",
       "name": "Dynamic Offers"
     },
     {
@@ -1274,10 +1299,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -3136,
-        752
+        -2688,
+        1264
       ],
-      "id": "5e4118c2-f8e4-4048-8847-cb3897bdf836",
+      "id": "3290edea-f50e-4fc7-97a3-0e99d24a2567",
       "name": "Send Dynamic Offers"
     },
     {
@@ -1287,10 +1312,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -3360,
-        944
+        -2912,
+        1456
       ],
-      "id": "27c4ab0c-e753-47c9-a37f-8a02f115fd2c",
+      "id": "27c02b64-1150-4c9f-a757-aa5f7452f21f",
       "name": "Dynamic Buy"
     },
     {
@@ -1328,10 +1353,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -3136,
-        944
+        -2688,
+        1456
       ],
-      "id": "2b963e12-3302-44e9-8890-b664ea2b7465",
+      "id": "3e1d49a5-f209-4904-a207-1bcd000bc461",
       "name": "Send Dynamic Buy"
     },
     {
@@ -1341,10 +1366,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -3360,
-        1136
+        -2912,
+        1648
       ],
-      "id": "11283ab7-f089-45b2-a311-0804dddf90d2",
+      "id": "fa72af87-8adb-42ee-a5fd-61f29459d5ba",
       "name": "Dynamic Order"
     },
     {
@@ -1382,10 +1407,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -3136,
-        1136
+        -2688,
+        1648
       ],
-      "id": "92bf365d-4bc5-41ad-8607-41a7a33f7ba4",
+      "id": "755816dc-47ae-4f6a-98c1-9a76bc346634",
       "name": "Send Dynamic Order"
     },
     {
@@ -1397,10 +1422,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -672,
-        -512
+        -224,
+        16
       ],
-      "id": "b42079e3-7516-455f-b014-11ff11e98f97",
+      "id": "7e747686-1afe-45cf-86b5-cdb9e655a198",
       "name": "Execute Status Greeting",
       "credentials": {
         "postgres": {
@@ -1418,10 +1443,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1792,
-        464
+        -1344,
+        968
       ],
-      "id": "427cde13-0e22-4605-b83f-950b15931683",
+      "id": "cbd1e3e4-a81e-4f75-82b1-6a1755ade6a3",
       "name": "Execute Status Catalog",
       "credentials": {
         "postgres": {
@@ -1439,10 +1464,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -2912,
-        752
+        -2464,
+        1264
       ],
-      "id": "92f8558e-317b-459f-8692-f17e31aeccf4",
+      "id": "85b9ade9-afb7-49b2-9662-6a0bd1542af2",
       "name": "Execute Status Offers",
       "credentials": {
         "postgres": {
@@ -1460,10 +1485,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -2912,
-        944
+        -2464,
+        1456
       ],
-      "id": "96bcf92d-bb97-4015-bcfe-c4e7a46277ae",
+      "id": "a1b179a3-1b19-416d-89e2-0ee5773e56cf",
       "name": "Execute Status Buy",
       "credentials": {
         "postgres": {
@@ -1481,10 +1506,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -2912,
-        1136
+        -2464,
+        1648
       ],
-      "id": "55af33b0-11b5-4beb-b5e9-cfb7365f11c4",
+      "id": "f6c9b4b2-9a40-4fb2-b7cf-7ebd4b43e600",
       "name": "Execute Status Order",
       "credentials": {
         "postgres": {
@@ -1554,10 +1579,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -1120,
-        -112
+        -672,
+        456
       ],
-      "id": "afb40f5e-0e1d-44f8-8ec8-45f0cc0b12cd",
+      "id": "13d14846-7d2e-4d8e-a16c-edee3414ba3f",
       "name": "Status Response IA"
     },
     {
@@ -1565,10 +1590,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        -896,
-        16
+        -448,
+        592
       ],
-      "id": "d0d7441b-b596-4a59-ac58-25ccac9beb66",
+      "id": "a87f7ddf-58f0-4ea8-b26a-e343faba00d8",
       "name": "No Operation, do nothing"
     },
     {
@@ -1594,15 +1619,17 @@
             }
           ]
         },
-        "options": {}
+        "options": {
+          "systemPromptTemplate": "<rol>\nActúa como un experto clasificador de intenciones de compra con 10+ años de experiencia en análisis de comportamiento del consumidor en e-commerce.\n</rol>\n\n<tarea>\nClasifica con máxima precisión la intención de compra del cliente basándote únicamente en el texto proporcionado, enfocándote en el customer journey de ventas.\n</tarea>\n\n<instrucciones>\nPiensa paso a paso:\n\n1. **Identifica el verbo principal** y el tipo de pregunta (¿qué busca realmente?)\n2. **Analiza las palabras clave** que indican nivel de intención de compra\n3. **Evalúa si ya decidió comprar** vs. necesita información vs. busca ayuda vs. compara\n4. **Considera el contexto completo** del mensaje, incluyendo lenguaje informal\n5. **Clasifica en UNA sola categoría** - la intención MÁS dominante\n6. **Responde ÚNICAMENTE con el nombre de la categoría**\n</instrucciones>\n\n<categorias>\n**COMPRA_DIRECTA**: Cliente manifiesta voluntad definitiva de adquirir productos específicos, solicita procesos de venta, cotizaciones totales, o confirma decisiones de compra. \n*Señales clave: \"quiero comprar\", \"me llevo\", \"cuánto cuesta todo\", \"proceder al pago\", \"cotización completa\", \"ya decidí\", \"voy a comprar\"*\n\n**CONSULTA_INVENTARIO**: Cliente busca información específica sobre productos individuales: disponibilidad, precios, características, especificaciones. NO expresa intención de compra ni solicita ayuda para elegir.\n*Señales clave: \"tienes\", \"tenés\", \"tenes\", \"hay\", \"está\", \"queda\", \"manejas\", \"vendes\", \"vendés\", \"trabajas\", \"traes\", \"trajiste\", \"te llegó\", \"conseguís\", \"me consigues\", \"me das\", \"me vendés\", \"me vendes\", \"ofrecés\", \"ofreces\", \"se puede\", \"puedo conseguir\", \"comprarte\", \"precio de\", \"cuánto vale\", \"cuánto cuesta\", \"cuánto está\", \"cuánto sale\", \"a como\", \"a cuánto\", \"está disponible\", \"disponible\", \"en stock\", \"stock\", \"especificaciones\", \"características\"*\n\n**SOLICITUD_RECOMENDACION**: Cliente busca consejo personalizado, sugerencias adaptadas a sus necesidades, ayuda para tomar decisiones de compra, o recomendaciones basadas en ocasiones, gustos, presupuesto o preferencias.\n*Señales clave: \"qué me recomiendas\", \"cuál es mejor para\", \"ayúdame a elegir\", \"necesito algo\", \"qué me conviene\", \"busco\", \"quiero algo que\", \"para regalo\"*\n\n**COMPARACION_PRODUCTOS**: Cliente solicita análisis objetivo de diferencias, similitudes, ventajas y desventajas entre productos específicos ya identificados.\n*Señales clave: \"vs\", \"comparar\", \"diferencias entre\", \"cuál es mejor entre\", \"pros y contras\", \"ventajas de X sobre Y\", \"qué es mejor\"*\n</categorias>\n\n<ejemplos>\nInput: \"Quiero comprar 2 frascos de Love Spell y 1 loción Victoria's Secret, ¿cuánto me sale todo con envío?\"\nOutput: COMPRA_DIRECTA\n\nInput: \"¿Cuánto cuesta el perfume Chanel Coco Mademoiselle de 100ml?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Tienes la one million\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Hay disponible el perfume Dior Sauvage?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Manejas perfumes de hombre?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Me consigues el Chanel No. 5\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Trabajas con perfumes importados\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Te llegó la loción Victoria Secret?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Queda stock del Dior Sauvage\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Cuánto está el perfume Carolina Herrera?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Se puede conseguir el One Million Lucky?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Necesito un perfume dulce y juvenil para una chica de 20 años, ¿qué me recomiendas?\"\nOutput: SOLICITUD_RECOMENDACION\n\nInput: \"¿Cuáles son las diferencias entre la loción corporal y el perfume de la misma fragancia?\"\nOutput: COMPARACION_PRODUCTOS\n\nInput: \"Me llevo el set de perfume + loción corporal, ¿cómo procedo al pago?\"\nOutput: COMPRA_DIRECTA\n\nInput: \"¿Tienen disponible la loción Victoria's Secret Bombshell en presentación de 250ml?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Busco una fragancia elegante para regalo de aniversario, presupuesto $200\"\nOutput: SOLICITUD_RECOMENDACION\n\nInput: \"Perfume Dior Sauvage vs loción corporal Sauvage, ¿cuál dura más?\"\nOutput: COMPARACION_PRODUCTOS\n\nInput: \"¿Vendes el perfume Carolina Herrera Good Girl?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Hay algún descuento en perfumes importados\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Tenés la loción corporal Bombshell?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Me das precio del Dior Homme\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"A cuanto el One Million Prive\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"A como está el perfume Dior\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"A como me lo dejas\"\nOutput: CONSULTA_INVENTARIO\n</ejemplos>\n\n<reglas_de_clasificacion>\n**PRIORIDADES en caso de ambigüedad:**\n1. Si menciona compra directa + otra cosa → COMPRA_DIRECTA\n2. Si compara productos específicos → COMPARACION_PRODUCTOS  \n3. Si busca consejo/ayuda para elegir → SOLICITUD_RECOMENDACION\n4. Si solo pregunta info técnica/precio/disponibilidad → CONSULTA_INVENTARIO\n\n**CASOS ESPECIALES:**\n- \"¿Cuál cuesta menos entre X y Y?\" → COMPARACION_PRODUCTOS (no consulta de inventario)\n- \"Quiero algo bueno y barato\" → SOLICITUD_RECOMENDACION (no compra directa)\n- \"¿Tienes el perfume Dior en presentación de 30ml?\" → CONSULTA_INVENTARIO (variante específica)\n- \"Me interesa esta loción\" → CONSULTA_INVENTARIO (interés ≠ compra directa)\n- \"¿Qué tal huele el perfume X?\" → CONSULTA_INVENTARIO (características del producto)\n- \"¿La loción corporal huele igual que el perfume?\" → COMPARACION_PRODUCTOS (comparando formatos)\n- \"Busco algo para seducir\" → SOLICITUD_RECOMENDACION (necesidad específica)\n- \"Tienes la [nombre del perfume]\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Hay [producto]?\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Manejas [tipo de producto]?\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"Me consigues [producto]\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Te llegó [producto]?\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"Queda stock de [producto]\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Cuánto está [producto]?\" → CONSULTA_INVENTARIO (pregunta de precio)\n- \"A como [producto]\" → CONSULTA_INVENTARIO (pregunta de precio)\n- \"A cuánto [producto]\" → CONSULTA_INVENTARIO (pregunta de precio)\n- \"Trabajas con [categoría]\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Se puede conseguir [producto]?\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n\n**VARIACIONES DE LENGUAJE INFORMAL Y MODERNO:**\n- **Disponibilidad**: \"Tienes\" = \"Tenés\" = \"Tenes\" = \"Hay\" = \"Está\" = \"Queda\" = \"Stock\"\n- **Venta/Manejo**: \"Manejas\" = \"Vendes\" = \"Vendés\" = \"Trabajas\" = \"Traes\" = \"Ofrecés\" = \"Ofreces\"\n- **Conseguir**: \"Me consigues\" = \"Conseguís\" = \"Se puede conseguir\" = \"Puedo conseguir\"\n- **Llegada/Stock**: \"Te llegó\" = \"Trajiste\" = \"Llegaste a traer\"\n- **Precio informal**: \"Cuánto está\" = \"Cuánto sale\" = \"A cuánto\" = \"A como\" = \"Cuánto vale\"\n- **Compra indirecta**: \"Me das\" = \"Me vendés\" = \"Me vendes\" = \"Comprarte\"\n- **Sin signos de interrogación**: \"Tienes el perfume\" = \"¿Tienes el perfume?\"\n- **Sin artículos**: \"Tienes one million\" = \"Tienes la one million\"\n\n**TODAS estas variaciones son CONSULTA_INVENTARIO cuando preguntan por productos específicos**\n</reglas_de_clasificacion>\n\n<restricciones>\n- NO expliques tu razonamiento\n- RESPONDE únicamente con el nombre de la categoría\n- Sé preciso y consistente en la clasificación\n- Considera variaciones de lenguaje informal y coloquial\n</restricciones>"
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.textClassifier",
       "typeVersion": 1.1,
       "position": [
-        -448,
-        32
+        0,
+        852
       ],
-      "id": "84fafcda-aae6-4209-bc06-832312d2ac03",
+      "id": "8656c9df-2108-4573-809a-ce3bfc07cbb4",
       "name": "Text Classifier"
     },
     {
@@ -1618,10 +1645,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        -352,
-        320
+        96,
+        1140
       ],
-      "id": "a4acdab6-12e5-4571-aaf1-b0eec621948c",
+      "id": "66aae821-1eff-4379-8284-cf1a99486a69",
       "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
@@ -1669,10 +1696,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -48,
-        320
+        400,
+        1140
       ],
-      "id": "a47b6bfc-e01e-45f2-8186-151616066184",
+      "id": "7026f914-0422-47e0-b51c-17bde450c272",
       "name": "COMPARACION"
     },
     {
@@ -1714,10 +1741,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -48,
-        128
+        400,
+        948
       ],
-      "id": "54c4321a-e223-4fcf-86cb-0b7af40aa747",
+      "id": "a38485e3-f4c5-4da2-8561-7c272a597581",
       "name": "RECOMENDACION"
     },
     {
@@ -1759,10 +1786,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -48,
-        -304
+        400,
+        448
       ],
-      "id": "77172e3a-4760-430b-9db9-0ad9bf5fdef5",
+      "id": "2b384306-e75d-4b26-8479-fcceaa224901",
       "name": "COMPRA"
     },
     {
@@ -1804,10 +1831,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -48,
-        -64
+        400,
+        756
       ],
-      "id": "c242de69-dd46-4e70-bf25-3292602df83b",
+      "id": "adb0d943-600d-4d7c-beb0-b747a7374c5c",
       "name": "INVENTARIO"
     },
     {
@@ -1858,10 +1885,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -672,
-        -112
+        -224,
+        712
       ],
-      "id": "3f481f72-4f7e-430a-bc4e-2ac5059e6999",
+      "id": "bd192e7f-1bfb-4c28-a324-64bf0eb57fb7",
       "name": "If1"
     },
     {
@@ -1895,10 +1922,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -3360,
-        1328
+        -2912,
+        1840
       ],
-      "id": "b10719ae-2f72-4257-a680-30c16141632e",
+      "id": "a4f6f59b-d041-47b8-9a7a-d8c41eb73f2a",
       "name": "Contra_Entrega"
     },
     {
@@ -1922,38 +1949,11 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -3360,
-        1520
+        -2912,
+        2032
       ],
-      "id": "af981f5e-952e-405a-a7d5-aeb343edf65c",
+      "id": "2519ff86-001e-42e0-9f97-d946180b1e39",
       "name": "Transferencia"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "Tk1Yk7Bhqs7KvV9o",
-          "mode": "list",
-          "cachedResultName": "My Sub Sales Specialist Agent"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        -3360,
-        1712
-      ],
-      "id": "7e3fd392-4f0e-4b63-84b4-2e8583919531",
-      "name": "Modificar_Pedido"
     },
     {
       "parameters": {
@@ -2032,6 +2032,31 @@
               },
               "renameOutput": true,
               "outputKey": "LISTO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d96bfc64-af1e-4304-88c2-d148d7ce8798",
+                    "leftValue": "={{ $json.estado_ventas }}",
+                    "rightValue": "COTIZANDO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "COTIZANDO"
             }
           ]
         },
@@ -2042,10 +2067,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -896,
-        -240
+        -448,
+        304
       ],
-      "id": "58d6085c-e0ca-41b7-85b5-8bd7e51864e5",
+      "id": "3fed6eb3-db1f-4f02-860a-51f0794dc6e1",
       "name": "Switch"
     },
     {
@@ -2072,10 +2097,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -672,
-        -304
+        -224,
+        208
       ],
-      "id": "72350bb3-a759-45a6-bd36-cabe841928fd",
+      "id": "10977f56-e92b-446f-9966-b09841b55b53",
       "name": "VALIDATOR DATA"
     },
     {
@@ -2087,10 +2112,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1344,
-        -96
+        -896,
+        472
       ],
-      "id": "2dde2b54-057a-45bd-b8a5-a49b0a162b50",
+      "id": "fe4a1330-9599-4513-88e7-baeccb299d0b",
       "name": "Get Data User",
       "credentials": {
         "postgres": {
@@ -2098,6 +2123,108 @@
           "name": "Postgres account"
         }
       }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_estado_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        2224
+      ],
+      "id": "1aaa0b43-2af5-45b9-a917-aa92339b3f59",
+      "name": "Get Data User1",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Script para generar SOLO mensajes variados de modificación de pedido (SIN BOTONES)\n// Obtener los datos de entrada\nconst datosCliente = $input.first().json;\nconst productosInfo = datosCliente.productos_info;\nconst totalProducto = datosCliente.total_producto;\n\n// Función para formatear el total con separadores de miles\nfunction formatearPrecio(precio) {\n  return new Intl.NumberFormat('es-CO', {\n    style: 'currency',\n    currency: 'COP',\n    minimumFractionDigits: 0,\n    maximumFractionDigits: 0\n  }).format(precio).replace('COP', '').trim();\n}\n\n// Crear el resumen del pedido actual\nfunction crearResumenPedido() {\n  if (productosInfo.length === 1) {\n    const producto = productosInfo[0];\n    return `${producto.nombre} x ${producto.cantidad} unidades (${formatearPrecio(producto.total)})`;\n  } else {\n    const totalItems = productosInfo.reduce((sum, p) => sum + p.cantidad, 0);\n    const listaProductos = productosInfo.map(p => `${p.nombre} x${p.cantidad}`).join(', ');\n    return `${totalItems} productos: ${listaProductos} (${formatearPrecio(totalProducto)})`;\n  }\n}\n\n// Crear lista detallada de productos para mostrar\nfunction crearListaDetallada() {\n  if (productosInfo.length === 1) {\n    const producto = productosInfo[0];\n    return `🧴 *${producto.nombre}* → ${producto.cantidad} uni`;\n  } else {\n    return productosInfo.map(p => `🧴 *${p.nombre}* → ${p.cantidad} uni`).join('\\n');\n  }\n}\n\nconst resumenPedido = crearResumenPedido();\nconst listaDetallada = crearListaDetallada();\n\n// Array de 10 mensajes variados SIN BOTONES\nconst mensajes = [\n  // Mensaje 1 - Tranquilizador\n  `😊 *¡NO TE PREOCUPES!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nCambiar de opinión es totalmente normal. Estoy aquí para ayudarte a encontrar exactamente lo que necesitas.\n\n¡Hazme saber qué quieres modificar! 💪`,\n\n  // Mensaje 2 - Empático\n  `✨ *¡PERFECTO TIMING!*\n\nTu pedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nMe encanta que te tomes el tiempo para asegurarte de que todo esté como lo deseas. Queremos que quedes 100% satisfecho.\n\nEstoy aquí para ayudarte ❤️`,\n\n  // Mensaje 3 - Motivador\n  `🌟 *¡EXCELENTE DECISIÓN!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nTomarte el tiempo para revisar y ajustar muestra que realmente te importa hacer la mejor elección. ¡Eso me gusta!\n\n¡Vamos a dejarlo perfecto! 🎯`,\n\n  // Mensaje 4 - Cercano\n  `🤝 *¡ESTOY CONTIGO!*\n\nTienes:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nNo hay problema alguno en querer ajustar tu pedido. Mi trabajo es que tengas exactamente lo que buscas.\n\n¡Cuéntame qué necesitas cambiar! 😊`,\n\n  // Mensaje 5 - Directo y amigable\n  `✏️ *¿QUÉ QUIERES MODIFICAR?*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nEscríbeme qué necesitas modificar y te ayudo inmediatamente 👍`,\n\n  // Mensaje 6 - Personalizado\n  `🛠️ *¿QUÉ DESEAS AJUSTAR?*\n\nTu pedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nDime qué cambio necesitas y lo actualizamos al instante ⚡`,\n\n  // Mensaje 7 - Profesional con toque personal\n  `🔧 *PERSONALIZA TU PEDIDO*\n\nSelección actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\n¡Escríbeme tu modificación! 🚀`,\n\n  // Mensaje 8 - Sencillo y efectivo\n  `⚙️ *EDITAR PEDIDO*\n\nTienes:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\n¿Cuál opción necesitas? Te ayudo ya mismo 😊`,\n\n  // Mensaje 9 - Entusiasta\n  `✨ *VAMOS A MODIFICAR*\n\nPedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nCuéntame qué necesitas cambiar 💪`,\n\n  // Mensaje 10 - Comprensivo y servicial\n  `🎨 *¡HAGAMOS AJUSTES!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nEntiendo que quieras que todo sea perfecto. Estoy aquí para hacer los cambios que necesites.\n\n¡Solo dímelo y lo resolvemos! 🌟`\n];\n\n// Función para escapar caracteres especiales en JSON\nfunction escaparJSON(texto) {\n  return texto\n    .replace(/\\\\/g, '\\\\\\\\')  // Escapar backslashes\n    .replace(/\"/g, '\\\\\"')    // Escapar comillas dobles\n    .replace(/\\n/g, '\\\\n')   // Escapar saltos de línea\n    .replace(/\\r/g, '\\\\r')   // Escapar retorno de carro\n    .replace(/\\t/g, '\\\\t');  // Escapar tabulaciones\n}\n\n// Seleccionar un mensaje aleatorio\nconst mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];\n\n// Retornar el resultado con mensaje escapado\nreturn {\n  json: {\n    mensaje_modificacion: escaparJSON(mensajeAleatorio),\n    mensaje_sin_escapar: mensajeAleatorio, // Por si lo necesitas sin escapar\n    pedido_actual: resumenPedido,\n    total_formateado: `${formatearPrecio(totalProducto)}`,\n    cantidad_productos: productosInfo.length,\n    cantidad_total: datosCliente.cantidad_total,\n    status: \"MODIFICANDO\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2688,
+        2224
+      ],
+      "id": "bc0007d7-aecb-4203-8c30-d090a8d17536",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.mensaje_modificacion }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ parseInt( $json.mensaje_modificacion.length() * 25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4032,
+        2448
+      ],
+      "id": "ff26fcea-ddbb-48e3-ac90-215e451b5022",
+      "name": "Send Dynamic Offers2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}\",\n  \"message\": \"{{ $json.mensaje_modificacion }}\",\n  \"delayTyping\": 1500,\n  \"buttonList\": {\n    \"buttons\": [\n      {\n        \"id\": \"cambiar_cantidad\",\n        \"label\": \"🔢 Cantidad de productos\"\n      },\n      {\n        \"id\": \"cambiar_producto\", \n        \"label\": \"🛍️ Tipo de productos\"\n      },\n      {\n        \"id\": \"modificar_todo\",\n        \"label\": \"🔄 Todo el pedido\"\n      },\n      {\n        \"id\": \"agregar_productos\",\n        \"label\": \"➕ Agregar más productos\"\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2464,
+        2224
+      ],
+      "id": "8c29732c-ab74-40d1-96b6-62fae68cb31d",
+      "name": "Send Buttons1"
     }
   ],
   "pinData": {
@@ -2106,17 +2233,17 @@
         "json": {
           "headers": {
             "host": "n8n.srv895922.hstgr.cloud",
-            "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/111.0.5563.101 Mobile/15E148 Safari/604.1",
-            "content-length": "879",
+            "user-agent": "Mozilla/5.0 (iPod touch; CPU iPhone 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Mobile/15E148 Safari/604.1",
+            "content-length": "883",
             "content-type": "application/json",
             "origin": "https://api.z-api.io",
             "server": "Z-API",
-            "x-forwarded-for": "146.235.56.142",
+            "x-forwarded-for": "167.234.247.31",
             "x-forwarded-host": "n8n.srv895922.hstgr.cloud",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
             "x-forwarded-server": "22c5bda17b34",
-            "x-real-ip": "146.235.56.142",
+            "x-real-ip": "167.234.247.31",
             "z-api-token": "25512E9D7889005341E093C0",
             "accept-encoding": "gzip"
           },
@@ -2131,25 +2258,25 @@
             "isGroup": false,
             "isNewsletter": false,
             "instanceId": "3E437048CF3D40E574FE2EE02AE98ECC",
-            "messageId": "30886929DE42A2C84D1EFED3602914DD",
+            "messageId": "B8B287827EFFB972497FB59F320233AA",
             "phone": "573011284297",
             "fromMe": false,
-            "momment": 1752983476000,
+            "momment": 1753147011000,
             "status": "RECEIVED",
             "chatName": "Sergio R.",
             "senderPhoto": null,
             "senderName": "Sergio R.",
-            "photo": "https://pps.whatsapp.net/v/t61.24694-24/518949464_1473845160724464_1356829479899435347_n.jpg?ccb=11-4&oh=01_Q5Aa2AFE8xnNoYBfTBHwu3_ar_9oxQ7cnR2ITo_IwLhQQV5oIA&oe=68897B4E&_nc_sid=5e03e0&_nc_cat=108",
+            "photo": "https://pps.whatsapp.net/v/t61.24694-24/518949464_1473845160724464_1356829479899435347_n.jpg?ccb=11-4&oh=01_Q5Aa2AHvHwQa8ilCvr1NZLzQS1hf9vMbjJZIXpdj7wmLjy2k9w&oe=688BE60E&_nc_sid=5e03e0&_nc_cat=108",
             "broadcast": false,
             "participantLid": null,
-            "referenceMessageId": "3EB0D5CB8EF99BAC466005",
+            "referenceMessageId": "3EB00CE33A2BC13189D5B4",
             "messageExpirationSeconds": 0,
             "forwarded": false,
             "type": "ReceivedCallback",
             "fromApi": false,
             "buttonsResponseMessage": {
-              "buttonId": "confirmar_pedido",
-              "message": "🎉 CONFIRMAR PEDIDO"
+              "buttonId": "modificar_producto",
+              "message": "✏️ Modificar pedido"
             }
           },
           "webhookUrl": "https://n8n.srv895922.hstgr.cloud/webhook/50a91089-2c34-4dd0-8896-2715bd6e9612",
@@ -2325,11 +2452,12 @@
         ],
         [
           {
-            "node": "Modificar_Pedido",
+            "node": "Get Data User1",
             "type": "main",
             "index": 0
           }
         ],
+        [],
         []
       ]
     },
@@ -2774,6 +2902,13 @@
         [],
         [
           {
+            "node": "COMPRA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "If1",
             "type": "main",
             "index": 0
@@ -2791,13 +2926,40 @@
           }
         ]
       ]
+    },
+    "Get Data User1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send Buttons1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Dynamic Offers2": {
+      "main": [
+        []
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "098829fe-0c9c-4765-8cf9-95d2084bb86c",
+  "versionId": "f2757266-ca37-4441-99a1-b2768eb823aa",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
