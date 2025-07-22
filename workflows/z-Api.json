@@ -109,7 +109,7 @@
       "typeVersion": 3.2,
       "position": [
         -3584,
-        512
+        536
       ],
       "id": "237866ff-421e-4a1e-a7f7-4a813555b9af",
       "name": "Message Type Router"
@@ -204,7 +204,7 @@
       "typeVersion": 3.4,
       "position": [
         -3808,
-        544
+        568
       ],
       "id": "97428728-1387-4471-843e-d40e55342fb7",
       "name": "WhatsApp Message Parser"
@@ -219,7 +219,7 @@
       "typeVersion": 2,
       "position": [
         -4032,
-        544
+        568
       ],
       "id": "85279fb6-44eb-4c87-abb5-136d904bc9a1",
       "name": "Webhook",
@@ -233,7 +233,7 @@
       "typeVersion": 1.1,
       "position": [
         -3360,
-        488
+        512
       ],
       "id": "71e6cd3a-354a-44b6-bd64-1571ca494420",
       "name": "Pausa",
@@ -255,7 +255,7 @@
       "typeVersion": 4.2,
       "position": [
         -3360,
-        296
+        320
       ],
       "id": "2c33c2f9-6e82-4439-b507-d7e39496a786",
       "name": "Download Audio File"
@@ -276,7 +276,7 @@
       "typeVersion": 4.2,
       "position": [
         -3360,
-        680
+        704
       ],
       "id": "a5b6fc55-745f-4c9d-9145-28625fb98d8a",
       "name": "Download Image File"
@@ -299,7 +299,7 @@
       "typeVersion": 1.8,
       "position": [
         -3136,
-        680
+        704
       ],
       "id": "8ce13deb-86aa-4456-9bb9-82246ee5272a",
       "name": "Analyze Image",
@@ -334,7 +334,7 @@
       "typeVersion": 3.4,
       "position": [
         -3360,
-        1648
+        1672
       ],
       "id": "73fabaf7-eecd-42bf-ba1e-51b7f974deea",
       "name": "Process Button Response"
@@ -572,7 +572,7 @@
       "typeVersion": 3.2,
       "position": [
         -3136,
-        1536
+        1560
       ],
       "id": "37cd6414-4f3b-44ca-bd52-5b29894e1b11",
       "name": "Button Response Router"
@@ -590,7 +590,7 @@
       "typeVersion": 1.8,
       "position": [
         -3136,
-        296
+        320
       ],
       "id": "f85b465d-d4f1-43f1-8e1c-f4dc7f72fe61",
       "name": "Transcribe a recording",
@@ -620,7 +620,7 @@
       "type": "n8n-nodes-base.set",
       "position": [
         -2912,
-        488
+        512
       ],
       "typeVersion": 3.4
     },
@@ -642,7 +642,7 @@
       "typeVersion": 3.4,
       "position": [
         -3136,
-        488
+        512
       ],
       "id": "ea82046b-0cd4-49de-a2f7-c63b6fc52033",
       "name": "Obtener Texto"
@@ -658,7 +658,7 @@
       "typeVersion": 1,
       "position": [
         -2688,
-        488
+        512
       ],
       "id": "09f9a486-7671-4cdb-aac2-73b57d21e33c",
       "name": "Store Message in Buffer",
@@ -675,7 +675,7 @@
       "typeVersion": 1.1,
       "position": [
         -2464,
-        488
+        512
       ],
       "id": "b7de2491-d077-441b-be17-20e8afe58c45",
       "name": "Wait for Buffer",
@@ -691,7 +691,7 @@
       "typeVersion": 1,
       "position": [
         -2240,
-        488
+        512
       ],
       "id": "27847417-324b-4cd7-932f-2bf97c2072d4",
       "name": "Retrieve Messages from Buffer",
@@ -731,7 +731,7 @@
       "typeVersion": 2.2,
       "position": [
         -2016,
-        488
+        512
       ],
       "id": "a5e06155-a2f3-49b4-bf12-2afc4c23993e",
       "name": "Check for Duplicate Message"
@@ -745,7 +745,7 @@
       "typeVersion": 1,
       "position": [
         -1792,
-        304
+        328
       ],
       "id": "3eb73ad4-282a-4e09-b607-ce098b798512",
       "name": "Clear Buffer Cache",
@@ -762,7 +762,7 @@
       "typeVersion": 1,
       "position": [
         -1792,
-        496
+        520
       ],
       "id": "7161aaac-7c78-4fe1-acd3-214f7033d134",
       "name": "Skip Duplicate Message"
@@ -785,7 +785,7 @@
       "typeVersion": 3.4,
       "position": [
         -1568,
-        304
+        328
       ],
       "id": "d5d5d181-6670-4d5d-a9b9-95967daaf732",
       "name": "Format Final Output"
@@ -800,7 +800,7 @@
       "typeVersion": 2.6,
       "position": [
         -1344,
-        304
+        328
       ],
       "id": "48c96b6b-2886-4e8a-8d13-93a6db341cb2",
       "name": "Get session_id",
@@ -840,7 +840,7 @@
       "typeVersion": 2.2,
       "position": [
         -1120,
-        304
+        328
       ],
       "id": "521c0fcd-6e0b-4d6a-ac20-31eb8bff8d7f",
       "name": "If"
@@ -853,7 +853,7 @@
       "typeVersion": 2,
       "position": [
         -2912,
-        936
+        960
       ],
       "id": "c632ef10-86cc-4da7-9b0f-90b5775432ca",
       "name": "Dynamic Time Greeting"
@@ -957,7 +957,7 @@
       "typeVersion": 3.2,
       "position": [
         -2688,
-        920
+        944
       ],
       "id": "b7635ca3-aed1-46bf-ba90-49b7cf334461",
       "name": "Switch1"
@@ -1038,7 +1038,7 @@
       "typeVersion": 3.2,
       "position": [
         -2240,
-        952
+        976
       ],
       "id": "f8d915bd-26be-4e51-b663-3ed6ccb630ba",
       "name": "Merge Audio"
@@ -1083,7 +1083,7 @@
       "typeVersion": 4.2,
       "position": [
         -2016,
-        968
+        992
       ],
       "id": "8f824568-bbdc-40cb-b280-4f77ba774cd0",
       "name": "Send Audio"
@@ -1124,7 +1124,7 @@
       "typeVersion": 4.2,
       "position": [
         -1792,
-        968
+        992
       ],
       "id": "18a6db3f-da38-4996-9d5c-d951231f9e7b",
       "name": "Send Catalog Man"
@@ -1165,7 +1165,7 @@
       "typeVersion": 4.2,
       "position": [
         -1568,
-        968
+        992
       ],
       "id": "e4e15277-293c-4b58-a92b-e61a3198c0bb",
       "name": "Send Catalog Women"
@@ -1186,7 +1186,7 @@
       "typeVersion": 3,
       "position": [
         -2464,
-        688
+        712
       ],
       "id": "a23ec4e3-8d46-447b-9908-fb3256da08b2",
       "name": "Download Good Morning",
@@ -1213,7 +1213,7 @@
       "typeVersion": 3,
       "position": [
         -2464,
-        880
+        904
       ],
       "id": "0e96d7ce-3ef6-4b64-8b44-48a1074254e9",
       "name": "Download Good Afternoon",
@@ -1240,7 +1240,7 @@
       "typeVersion": 3,
       "position": [
         -2464,
-        1072
+        1096
       ],
       "id": "016bf72d-7e98-4f37-aac3-4c978d9381ee",
       "name": "Download  Good Night",
@@ -1259,7 +1259,7 @@
       "typeVersion": 2,
       "position": [
         -2912,
-        1264
+        1288
       ],
       "id": "aa04ceb2-4a01-47e6-910a-93c99c49aef2",
       "name": "Dynamic Offers"
@@ -1300,7 +1300,7 @@
       "typeVersion": 4.2,
       "position": [
         -2688,
-        1264
+        1288
       ],
       "id": "3290edea-f50e-4fc7-97a3-0e99d24a2567",
       "name": "Send Dynamic Offers"
@@ -1313,7 +1313,7 @@
       "typeVersion": 2,
       "position": [
         -2912,
-        1456
+        1480
       ],
       "id": "27c02b64-1150-4c9f-a757-aa5f7452f21f",
       "name": "Dynamic Buy"
@@ -1354,7 +1354,7 @@
       "typeVersion": 4.2,
       "position": [
         -2688,
-        1456
+        1480
       ],
       "id": "3e1d49a5-f209-4904-a207-1bcd000bc461",
       "name": "Send Dynamic Buy"
@@ -1367,7 +1367,7 @@
       "typeVersion": 2,
       "position": [
         -2912,
-        1648
+        1672
       ],
       "id": "fa72af87-8adb-42ee-a5fd-61f29459d5ba",
       "name": "Dynamic Order"
@@ -1408,7 +1408,7 @@
       "typeVersion": 4.2,
       "position": [
         -2688,
-        1648
+        1672
       ],
       "id": "755816dc-47ae-4f6a-98c1-9a76bc346634",
       "name": "Send Dynamic Order"
@@ -1444,7 +1444,7 @@
       "typeVersion": 2.6,
       "position": [
         -1344,
-        968
+        992
       ],
       "id": "cbd1e3e4-a81e-4f75-82b1-6a1755ade6a3",
       "name": "Execute Status Catalog",
@@ -1465,7 +1465,7 @@
       "typeVersion": 2.6,
       "position": [
         -2464,
-        1264
+        1288
       ],
       "id": "85b9ade9-afb7-49b2-9662-6a0bd1542af2",
       "name": "Execute Status Offers",
@@ -1486,7 +1486,7 @@
       "typeVersion": 2.6,
       "position": [
         -2464,
-        1456
+        1480
       ],
       "id": "a1b179a3-1b19-416d-89e2-0ee5773e56cf",
       "name": "Execute Status Buy",
@@ -1507,7 +1507,7 @@
       "typeVersion": 2.6,
       "position": [
         -2464,
-        1648
+        1672
       ],
       "id": "f6c9b4b2-9a40-4fb2-b7cf-7ebd4b43e600",
       "name": "Execute Status Order",
@@ -1580,7 +1580,7 @@
       "typeVersion": 3.2,
       "position": [
         -672,
-        456
+        504
       ],
       "id": "13d14846-7d2e-4d8e-a16c-edee3414ba3f",
       "name": "Status Response IA"
@@ -1591,7 +1591,7 @@
       "typeVersion": 1,
       "position": [
         -448,
-        592
+        640
       ],
       "id": "a87f7ddf-58f0-4ea8-b26a-e343faba00d8",
       "name": "No Operation, do nothing"
@@ -1627,7 +1627,7 @@
       "typeVersion": 1.1,
       "position": [
         0,
-        852
+        1304
       ],
       "id": "8656c9df-2108-4573-809a-ce3bfc07cbb4",
       "name": "Text Classifier"
@@ -1646,7 +1646,7 @@
       "typeVersion": 1.2,
       "position": [
         96,
-        1140
+        1592
       ],
       "id": "66aae821-1eff-4379-8284-cf1a99486a69",
       "name": "OpenAI Chat Model1",
@@ -1697,7 +1697,7 @@
       "typeVersion": 1.2,
       "position": [
         400,
-        1140
+        1736
       ],
       "id": "7026f914-0422-47e0-b51c-17bde450c272",
       "name": "COMPARACION"
@@ -1742,7 +1742,7 @@
       "typeVersion": 1.2,
       "position": [
         400,
-        948
+        1544
       ],
       "id": "a38485e3-f4c5-4da2-8561-7c272a597581",
       "name": "RECOMENDACION"
@@ -1787,7 +1787,7 @@
       "typeVersion": 1.2,
       "position": [
         400,
-        448
+        1024
       ],
       "id": "2b384306-e75d-4b26-8479-fcceaa224901",
       "name": "COMPRA"
@@ -1832,7 +1832,7 @@
       "typeVersion": 1.2,
       "position": [
         400,
-        756
+        1352
       ],
       "id": "adb0d943-600d-4d7c-beb0-b747a7374c5c",
       "name": "INVENTARIO"
@@ -1886,7 +1886,7 @@
       "typeVersion": 2.2,
       "position": [
         -224,
-        712
+        1024
       ],
       "id": "bd192e7f-1bfb-4c28-a324-64bf0eb57fb7",
       "name": "If1"
@@ -1923,7 +1923,7 @@
       "typeVersion": 1.2,
       "position": [
         -2912,
-        1840
+        1864
       ],
       "id": "a4f6f59b-d041-47b8-9a7a-d8c41eb73f2a",
       "name": "Contra_Entrega"
@@ -1950,7 +1950,7 @@
       "typeVersion": 1.2,
       "position": [
         -2912,
-        2032
+        2056
       ],
       "id": "2519ff86-001e-42e0-9f97-d946180b1e39",
       "name": "Transferencia"
@@ -2068,7 +2068,7 @@
       "typeVersion": 3.2,
       "position": [
         -448,
-        304
+        352
       ],
       "id": "3fed6eb3-db1f-4f02-860a-51f0794dc6e1",
       "name": "Switch"
@@ -2113,7 +2113,7 @@
       "typeVersion": 2.6,
       "position": [
         -896,
-        472
+        520
       ],
       "id": "fe4a1330-9599-4513-88e7-baeccb299d0b",
       "name": "Get Data User",
@@ -2123,40 +2123,6 @@
           "name": "Postgres account"
         }
       }
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT * FROM obtener_estado_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -2912,
-        2224
-      ],
-      "id": "1aaa0b43-2af5-45b9-a917-aa92339b3f59",
-      "name": "Get Data User1",
-      "credentials": {
-        "postgres": {
-          "id": "8JM5p3eqNiJuC8uB",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Script para generar SOLO mensajes variados de modificación de pedido (SIN BOTONES)\n// Obtener los datos de entrada\nconst datosCliente = $input.first().json;\nconst productosInfo = datosCliente.productos_info;\nconst totalProducto = datosCliente.total_producto;\n\n// Función para formatear el total con separadores de miles\nfunction formatearPrecio(precio) {\n  return new Intl.NumberFormat('es-CO', {\n    style: 'currency',\n    currency: 'COP',\n    minimumFractionDigits: 0,\n    maximumFractionDigits: 0\n  }).format(precio).replace('COP', '').trim();\n}\n\n// Crear el resumen del pedido actual\nfunction crearResumenPedido() {\n  if (productosInfo.length === 1) {\n    const producto = productosInfo[0];\n    return `${producto.nombre} x ${producto.cantidad} unidades (${formatearPrecio(producto.total)})`;\n  } else {\n    const totalItems = productosInfo.reduce((sum, p) => sum + p.cantidad, 0);\n    const listaProductos = productosInfo.map(p => `${p.nombre} x${p.cantidad}`).join(', ');\n    return `${totalItems} productos: ${listaProductos} (${formatearPrecio(totalProducto)})`;\n  }\n}\n\n// Crear lista detallada de productos para mostrar\nfunction crearListaDetallada() {\n  if (productosInfo.length === 1) {\n    const producto = productosInfo[0];\n    return `🧴 *${producto.nombre}* → ${producto.cantidad} uni`;\n  } else {\n    return productosInfo.map(p => `🧴 *${p.nombre}* → ${p.cantidad} uni`).join('\\n');\n  }\n}\n\nconst resumenPedido = crearResumenPedido();\nconst listaDetallada = crearListaDetallada();\n\n// Array de 10 mensajes variados SIN BOTONES\nconst mensajes = [\n  // Mensaje 1 - Tranquilizador\n  `😊 *¡NO TE PREOCUPES!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nCambiar de opinión es totalmente normal. Estoy aquí para ayudarte a encontrar exactamente lo que necesitas.\n\n¡Hazme saber qué quieres modificar! 💪`,\n\n  // Mensaje 2 - Empático\n  `✨ *¡PERFECTO TIMING!*\n\nTu pedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nMe encanta que te tomes el tiempo para asegurarte de que todo esté como lo deseas. Queremos que quedes 100% satisfecho.\n\nEstoy aquí para ayudarte ❤️`,\n\n  // Mensaje 3 - Motivador\n  `🌟 *¡EXCELENTE DECISIÓN!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nTomarte el tiempo para revisar y ajustar muestra que realmente te importa hacer la mejor elección. ¡Eso me gusta!\n\n¡Vamos a dejarlo perfecto! 🎯`,\n\n  // Mensaje 4 - Cercano\n  `🤝 *¡ESTOY CONTIGO!*\n\nTienes:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nNo hay problema alguno en querer ajustar tu pedido. Mi trabajo es que tengas exactamente lo que buscas.\n\n¡Cuéntame qué necesitas cambiar! 😊`,\n\n  // Mensaje 5 - Directo y amigable\n  `✏️ *¿QUÉ QUIERES MODIFICAR?*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nEscríbeme qué necesitas modificar y te ayudo inmediatamente 👍`,\n\n  // Mensaje 6 - Personalizado\n  `🛠️ *¿QUÉ DESEAS AJUSTAR?*\n\nTu pedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nDime qué cambio necesitas y lo actualizamos al instante ⚡`,\n\n  // Mensaje 7 - Profesional con toque personal\n  `🔧 *PERSONALIZA TU PEDIDO*\n\nSelección actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\n¡Escríbeme tu modificación! 🚀`,\n\n  // Mensaje 8 - Sencillo y efectivo\n  `⚙️ *EDITAR PEDIDO*\n\nTienes:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\n¿Cuál opción necesitas? Te ayudo ya mismo 😊`,\n\n  // Mensaje 9 - Entusiasta\n  `✨ *VAMOS A MODIFICAR*\n\nPedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nCuéntame qué necesitas cambiar 💪`,\n\n  // Mensaje 10 - Comprensivo y servicial\n  `🎨 *¡HAGAMOS AJUSTES!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProducto)}\n\nEntiendo que quieras que todo sea perfecto. Estoy aquí para hacer los cambios que necesites.\n\n¡Solo dímelo y lo resolvemos! 🌟`\n];\n\n// Función para escapar caracteres especiales en JSON\nfunction escaparJSON(texto) {\n  return texto\n    .replace(/\\\\/g, '\\\\\\\\')  // Escapar backslashes\n    .replace(/\"/g, '\\\\\"')    // Escapar comillas dobles\n    .replace(/\\n/g, '\\\\n')   // Escapar saltos de línea\n    .replace(/\\r/g, '\\\\r')   // Escapar retorno de carro\n    .replace(/\\t/g, '\\\\t');  // Escapar tabulaciones\n}\n\n// Seleccionar un mensaje aleatorio\nconst mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];\n\n// Retornar el resultado con mensaje escapado\nreturn {\n  json: {\n    mensaje_modificacion: escaparJSON(mensajeAleatorio),\n    mensaje_sin_escapar: mensajeAleatorio, // Por si lo necesitas sin escapar\n    pedido_actual: resumenPedido,\n    total_formateado: `${formatearPrecio(totalProducto)}`,\n    cantidad_productos: productosInfo.length,\n    cantidad_total: datosCliente.cantidad_total,\n    status: \"MODIFICANDO\"\n  }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -2688,
-        2224
-      ],
-      "id": "bc0007d7-aecb-4203-8c30-d090a8d17536",
-      "name": "Code"
     },
     {
       "parameters": {
@@ -2194,37 +2160,92 @@
       "typeVersion": 4.2,
       "position": [
         -4032,
-        2448
+        2472
       ],
       "id": "ff26fcea-ddbb-48e3-ac90-215e451b5022",
       "name": "Send Dynamic Offers2"
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "client-token",
-              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
-            }
-          ]
+        "workflowId": {
+          "__rl": true,
+          "value": "UkTlEqZZpE5BH5xi",
+          "mode": "list",
+          "cachedResultName": "My Sub-Botton-Edit-orders"
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"phone\": \"{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}\",\n  \"message\": \"{{ $json.mensaje_modificacion }}\",\n  \"delayTyping\": 1500,\n  \"buttonList\": {\n    \"buttons\": [\n      {\n        \"id\": \"cambiar_cantidad\",\n        \"label\": \"🔢 Cantidad de productos\"\n      },\n      {\n        \"id\": \"cambiar_producto\", \n        \"label\": \"🛍️ Tipo de productos\"\n      },\n      {\n        \"id\": \"modificar_todo\",\n        \"label\": \"🔄 Todo el pedido\"\n      },\n      {\n        \"id\": \"agregar_productos\",\n        \"label\": \"➕ Agregar más productos\"\n      }\n    ]\n  }\n}",
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "user_sender_phone": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
+          "matchingColumns": [
+            "user_sender_phone"
+          ],
+          "schema": [
+            {
+              "id": "user_sender_phone",
+              "displayName": "user_sender_phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
         "options": {}
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
       "position": [
-        -2464,
-        2224
+        -2912,
+        2248
       ],
-      "id": "8c29732c-ab74-40d1-96b6-62fae68cb31d",
-      "name": "Send Buttons1"
+      "name": "Modificar Pedido",
+      "id": "711f53b5-41a4-491c-846b-3d23a4e5fc39"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UkTlEqZZpE5BH5xi",
+          "mode": "list",
+          "cachedResultName": "My Sub-Botton-Edit-orders"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "user_sender_phone": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
+          "matchingColumns": [
+            "user_sender_phone"
+          ],
+          "schema": [
+            {
+              "id": "user_sender_phone",
+              "displayName": "user_sender_phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        400
+      ],
+      "id": "4071eacb-a191-475e-913c-d66c76ffe999",
+      "name": "Execute Workflow"
     }
   ],
   "pinData": {
@@ -2233,17 +2254,17 @@
         "json": {
           "headers": {
             "host": "n8n.srv895922.hstgr.cloud",
-            "user-agent": "Mozilla/5.0 (iPod touch; CPU iPhone 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Mobile/15E148 Safari/604.1",
+            "user-agent": "Mozilla/5.0 (Linux; Android 10; LM-Q720) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.5563.115 Mobile Safari/537.36",
             "content-length": "883",
             "content-type": "application/json",
             "origin": "https://api.z-api.io",
             "server": "Z-API",
-            "x-forwarded-for": "167.234.247.31",
+            "x-forwarded-for": "146.235.39.88",
             "x-forwarded-host": "n8n.srv895922.hstgr.cloud",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
             "x-forwarded-server": "22c5bda17b34",
-            "x-real-ip": "167.234.247.31",
+            "x-real-ip": "146.235.39.88",
             "z-api-token": "25512E9D7889005341E093C0",
             "accept-encoding": "gzip"
           },
@@ -2258,18 +2279,18 @@
             "isGroup": false,
             "isNewsletter": false,
             "instanceId": "3E437048CF3D40E574FE2EE02AE98ECC",
-            "messageId": "B8B287827EFFB972497FB59F320233AA",
+            "messageId": "ED335C9C1958F2C55E1814CC6F5BE912",
             "phone": "573011284297",
             "fromMe": false,
-            "momment": 1753147011000,
+            "momment": 1753156665000,
             "status": "RECEIVED",
             "chatName": "Sergio R.",
             "senderPhoto": null,
             "senderName": "Sergio R.",
-            "photo": "https://pps.whatsapp.net/v/t61.24694-24/518949464_1473845160724464_1356829479899435347_n.jpg?ccb=11-4&oh=01_Q5Aa2AHvHwQa8ilCvr1NZLzQS1hf9vMbjJZIXpdj7wmLjy2k9w&oe=688BE60E&_nc_sid=5e03e0&_nc_cat=108",
+            "photo": "https://pps.whatsapp.net/v/t61.24694-24/518949464_1473845160724464_1356829479899435347_n.jpg?ccb=11-4&oh=01_Q5Aa2AFbJLxhSQtyI-6ikbnePBWIth2S03hL0vBHNC3Of-dh4g&oe=688C1E4E&_nc_sid=5e03e0&_nc_cat=108",
             "broadcast": false,
             "participantLid": null,
-            "referenceMessageId": "3EB00CE33A2BC13189D5B4",
+            "referenceMessageId": "3EB00E40630045AB1A6E71",
             "messageExpirationSeconds": 0,
             "forwarded": false,
             "type": "ReceivedCallback",
@@ -2452,7 +2473,7 @@
         ],
         [
           {
-            "node": "Get Data User1",
+            "node": "Modificar Pedido",
             "type": "main",
             "index": 0
           }
@@ -2902,7 +2923,7 @@
         [],
         [
           {
-            "node": "COMPRA",
+            "node": "Execute Workflow",
             "type": "main",
             "index": 0
           }
@@ -2927,28 +2948,6 @@
         ]
       ]
     },
-    "Get Data User1": {
-      "main": [
-        [
-          {
-            "node": "Code",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code": {
-      "main": [
-        [
-          {
-            "node": "Send Buttons1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Send Dynamic Offers2": {
       "main": [
         []
@@ -2959,7 +2958,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f2757266-ca37-4441-99a1-b2768eb823aa",
+  "versionId": "3b076a5a-4279-485d-a106-81c87422e07b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
