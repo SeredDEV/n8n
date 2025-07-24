@@ -15,6 +15,7 @@ DROP FUNCTION IF EXISTS actualizar_datos_cliente_pro(VARCHAR, JSONB) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_pago_pro(VARCHAR, VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_pago_total_pro(VARCHAR, VARCHAR, INTEGER) CASCADE;
 DROP FUNCTION IF EXISTS actualizar_pago_envio_pro(VARCHAR, VARCHAR, INTEGER) CASCADE;
+DROP FUNCTION IF EXISTS actualizar_productos_info_pro(VARCHAR, JSONB) CASCADE;
 DROP FUNCTION IF EXISTS estado_saludo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_catalogo_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS estado_ofertas_pro(VARCHAR) CASCADE;
@@ -30,7 +31,6 @@ DROP FUNCTION IF EXISTS estado_ventas_limpiar_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS obtener_estado_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS obtener_estado_ventas_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS obtener_historial_sesion_pro(VARCHAR) CASCADE;
-DROP FUNCTION IF EXISTS debug_registro_bloqueado_pro(VARCHAR) CASCADE;
 
 -- 1. CREAR LA TABLA PRINCIPAL
 CREATE TABLE n8n_pro_conversation_states (
@@ -112,6 +112,50 @@ CHECK (
 );
 
 -- 4. FUNCIONES PARA ACTUALIZAR ESTADOS
+-- FUNCIÓN ESPECÍFICA: Actualizar solo productos_info
+DROP FUNCTION IF EXISTS actualizar_productos_info_pro(VARCHAR, TEXT) CASCADE;
+CREATE OR REPLACE FUNCTION actualizar_productos_info_pro(
+    session_id_param VARCHAR,
+    productos_info_param TEXT DEFAULT NULL
+)
+RETURNS BOOLEAN LANGUAGE plpgsql AS '
+DECLARE
+    filas_afectadas INTEGER;
+    ultimo_registro_id INTEGER;
+    ultimo_estado_actual VARCHAR;
+    ultimo_estado_ventas VARCHAR;
+    productos_info_json JSONB;
+BEGIN
+    -- Convertir el parámetro TEXT a JSONB
+    IF productos_info_param IS NOT NULL THEN
+        productos_info_json := productos_info_param::JSONB;
+    ELSE
+        productos_info_json := NULL;
+    END IF;
+
+    -- Obtener información del registro más reciente
+    SELECT id, estado_actual, estado_ventas 
+    INTO ultimo_registro_id, ultimo_estado_actual, ultimo_estado_ventas
+    FROM n8n_pro_conversation_states 
+    WHERE session_id = session_id_param 
+    ORDER BY ultima_actividad DESC 
+    LIMIT 1;
+
+    -- Si no existe registro, no hacer nada
+    IF ultimo_registro_id IS NULL THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Actualizar solo productos_info
+    UPDATE n8n_pro_conversation_states 
+    SET productos_info = productos_info_json,
+        ultima_actividad = CURRENT_TIMESTAMP
+    WHERE id = ultimo_registro_id;
+
+    GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
+    RETURN filas_afectadas > 0;
+END;
+';
 
 -- FUNCIÓN GENERAL: Actualizar cualquier estado
 CREATE OR REPLACE FUNCTION actualizar_estado_pro(
@@ -121,7 +165,6 @@ CREATE OR REPLACE FUNCTION actualizar_estado_pro(
 RETURNS BOOLEAN LANGUAGE plpgsql AS '
 DECLARE
     filas_afectadas INTEGER;
-    registro_bloqueado BOOLEAN := FALSE;
     ultimo_estado_actual VARCHAR;
     ultimo_estado_ventas VARCHAR;
 BEGIN
@@ -133,20 +176,7 @@ BEGIN
     ORDER BY ultima_actividad DESC 
     LIMIT 1;
     
-    -- Si existe un registro, verificar si está bloqueado
-    IF ultimo_estado_actual IS NOT NULL THEN
-        registro_bloqueado := (ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'');
-    END IF;
-    
-    -- Si está bloqueado, SIEMPRE crear nuevo registro
-    IF registro_bloqueado THEN
-        INSERT INTO n8n_pro_conversation_states (session_id, estado_actual) 
-        VALUES (session_id_param, nuevo_estado);
-        GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
-        RETURN filas_afectadas > 0;
-    END IF;
-    
-    -- Si no está bloqueado y existe registro, actualizar
+    -- Si existe registro, actualizar
     IF ultimo_estado_actual IS NOT NULL THEN
         UPDATE n8n_pro_conversation_states 
         SET estado_actual = nuevo_estado,
@@ -193,10 +223,6 @@ BEGIN
         RETURN FALSE;
     END IF;
     
-    -- Si el registro está bloqueado (ventas + FIN), no actualizar
-    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
-        RETURN FALSE;
-    END IF;
     
     -- Actualizar el estado de ventas del registro más reciente
     UPDATE n8n_pro_conversation_states 
@@ -318,10 +344,6 @@ BEGIN
         RETURN FALSE;
     END IF;
     
-    -- Si el registro está bloqueado (ventas + FIN), no actualizar
-    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
-        RETURN FALSE;
-    END IF;
     
     -- Actualizar los campos, permitiendo que todos sean NULL
     UPDATE n8n_pro_conversation_states 
@@ -364,11 +386,6 @@ BEGIN
     
     -- Si no existe registro, no hacer nada
     IF ultimo_registro_id IS NULL THEN
-        RETURN FALSE;
-    END IF;
-    
-    -- Si el registro está bloqueado (ventas + FIN), no actualizar
-    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
         RETURN FALSE;
     END IF;
     
@@ -447,11 +464,6 @@ BEGIN
         RETURN FALSE;
     END IF;
     
-    -- Si el registro está bloqueado (ventas + FIN), no actualizar
-    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
-        RETURN FALSE;
-    END IF;
-    
     -- Actualizar el método de pago del registro más reciente
     UPDATE n8n_pro_conversation_states 
     SET 
@@ -497,11 +509,6 @@ BEGIN
     
     -- Si no existe registro, no hacer nada
     IF ultimo_registro_id IS NULL THEN
-        RETURN FALSE;
-    END IF;
-    
-    -- Si el registro está bloqueado (ventas + FIN), no actualizar
-    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
         RETURN FALSE;
     END IF;
     
@@ -592,38 +599,6 @@ BEGIN
 END;
 ';
 
--- FUNCIÓN DE DEBUG: Verificar si un registro está bloqueado
-CREATE OR REPLACE FUNCTION debug_registro_bloqueado_pro(session_id_param VARCHAR)
-RETURNS TABLE (
-    id INTEGER,
-    session_id VARCHAR,
-    estado_actual VARCHAR,
-    estado_ventas VARCHAR,
-    esta_bloqueado BOOLEAN,
-    es_mas_reciente BOOLEAN
-) LANGUAGE plpgsql AS '
-BEGIN
-    RETURN QUERY
-    WITH ultimo_registro AS (
-        SELECT id as ultimo_id
-        FROM n8n_pro_conversation_states 
-        WHERE session_id = session_id_param 
-        ORDER BY ultima_actividad DESC 
-        LIMIT 1
-    )
-    SELECT 
-        cs.id,
-        cs.session_id,
-        cs.estado_actual,
-        cs.estado_ventas,
-        (cs.estado_actual = ''VENTAS'' AND cs.estado_ventas = ''FIN'') as esta_bloqueado,
-        (cs.id = ur.ultimo_id) as es_mas_reciente
-    FROM n8n_pro_conversation_states cs
-    CROSS JOIN ultimo_registro ur
-    WHERE cs.session_id = session_id_param
-    ORDER BY cs.ultima_actividad DESC;
-END;
-';
 
 CREATE OR REPLACE FUNCTION obtener_estado_pro(session_id_param VARCHAR)
 RETURNS TABLE (
@@ -703,11 +678,6 @@ BEGIN
 
     -- Si no existe registro, no hacer nada
     IF ultimo_registro_id IS NULL THEN
-        RETURN FALSE;
-    END IF;
-
-    -- Si el registro está bloqueado (ventas + FIN), no actualizar
-    IF ultimo_estado_actual = ''VENTAS'' AND ultimo_estado_ventas = ''FIN'' THEN
         RETURN FALSE;
     END IF;
 
