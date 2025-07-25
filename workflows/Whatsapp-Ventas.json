@@ -139,7 +139,7 @@
             {
               "id": "message-type-detector",
               "name": "message_type",
-              "value": "={{ $json.body.text ? 'text' : $json.body.audio ? 'audio' : $json.body.image ? 'image' : $json.body.buttonsResponseMessage ? ($json.body.buttonsResponseMessage.buttonId === 'confirmar_pedido' ? 'text' : 'button_response') : $json.body.document ? ($json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/') ? 'audio_file' : $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/') ? 'video' : 'document') : 'unknown' }}",
+              "value": "={{ $json.body.text ? 'text' : $json.body.audio ? 'audio' : $json.body.image ? 'image' : $json.body.buttonsResponseMessage ? 'button_response' : $json.body.document ? ($json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/') ? 'audio_file' : $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/') ? 'video' : 'document') : 'unknown' }}",
               "type": "string"
             },
             {
