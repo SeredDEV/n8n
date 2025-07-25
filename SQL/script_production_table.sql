@@ -31,6 +31,8 @@ DROP FUNCTION IF EXISTS estado_ventas_limpiar_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS obtener_estado_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS obtener_estado_ventas_pro(VARCHAR) CASCADE;
 DROP FUNCTION IF EXISTS obtener_historial_sesion_pro(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS insertar_pedido_desde_conversacion(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS diagnosticar_session_id(VARCHAR) CASCADE;
 
 -- 1. CREAR LA TABLA PRINCIPAL
 CREATE TABLE n8n_pro_conversation_states (
@@ -390,12 +392,14 @@ BEGIN
     END IF;
     
     -- Actualizar los datos del cliente que no sean NULL en el JSON
-    UPDATE n8n_pro_conversation_states 
-    SET 
-        nombre_cliente = CASE 
-            WHEN datos_cliente_param->''nombre'' IS NOT NULL AND datos_cliente_param->>''nombre'' != '''' THEN 
-                datos_cliente_param->>''nombre'' 
-            ELSE nombre_cliente 
+    UPDATE n8n_pro_conversation_states
+    SET
+        nombre_cliente = CASE
+            WHEN datos_cliente_param->''nombre_cliente'' IS NOT NULL AND datos_cliente_param->>''nombre_cliente'' != '''' THEN
+                datos_cliente_param->>''nombre_cliente''
+            WHEN datos_cliente_param->''nombre'' IS NOT NULL AND datos_cliente_param->>''nombre'' != '''' THEN
+                datos_cliente_param->>''nombre''
+            ELSE nombre_cliente
         END,
         telefono = CASE 
             WHEN datos_cliente_param->''telefono'' IS NOT NULL AND datos_cliente_param->>''telefono'' != '''' THEN 
@@ -793,7 +797,141 @@ SELECT actualizar_pago_envio_pro('573011284297', 'INTERRAPIDÍSIMO', 25000);
 SELECT actualizar_pago_envio_pro('573011284297', '', NULL);
 
 -- CONSULTAR SOLO ESTADO DE VENTAS:
+
+-- CONSULTAR SOLO ESTADO DE VENTAS:
 SELECT obtener_estado_ventas_pro('573011284297');
 */
 
+
+-- ========================================
+-- FUNCIÓN PARA INSERTAR PEDIDO EN n8n_orders DESDE n8n_pro_conversation_states
+-- ========================================
+
+CREATE OR REPLACE FUNCTION insertar_pedido_desde_conversacion(
+    session_id_param VARCHAR
+)
+RETURNS BOOLEAN LANGUAGE plpgsql AS $$
+DECLARE
+    filas_afectadas INTEGER;
+    registro_conversacion RECORD;
+BEGIN
+    -- Obtener los datos del registro más reciente de la conversación
+    SELECT
+        session_id,
+        nombre_cliente,
+        telefono,
+        email,
+        ciudad,
+        direccion,
+        pago,
+        total_producto,
+        total_envio,
+        cantidad_total,
+        guia,
+        productos_info
+    INTO registro_conversacion
+    FROM n8n_pro_conversation_states
+    WHERE session_id = session_id_param
+    ORDER BY ultima_actividad DESC
+    LIMIT 1;
+
+    -- Verificar si existe el registro de conversación
+    IF registro_conversacion.session_id IS NULL THEN
+        RAISE NOTICE 'ERROR: No se encontró registro de conversación para session_id: %', session_id_param;
+        RETURN FALSE;
+    END IF;
+
+    -- DEBUG: Mostrar los datos que se van a transferir
+    RAISE NOTICE 'DEBUG: Datos encontrados para session_id: %', session_id_param;
+    RAISE NOTICE 'DEBUG: nombre_cliente = "%"', COALESCE(registro_conversacion.nombre_cliente, 'NULL');
+    RAISE NOTICE 'DEBUG: telefono = "%"', COALESCE(registro_conversacion.telefono, 'NULL');
+    RAISE NOTICE 'DEBUG: email = "%"', COALESCE(registro_conversacion.email, 'NULL');
+    RAISE NOTICE 'DEBUG: ciudad = "%"', COALESCE(registro_conversacion.ciudad, 'NULL');
+    RAISE NOTICE 'DEBUG: direccion = "%"', COALESCE(registro_conversacion.direccion, 'NULL');
+
+    -- NOTA: Se permite crear múltiples pedidos con el mismo session_id
+    RAISE NOTICE 'INFO: Creando nuevo pedido para session_id: % (se permiten múltiples pedidos)', session_id_param;
+
+    -- Insertar el nuevo pedido en n8n_orders
+    INSERT INTO n8n_orders (
+        session_id,
+        nombre_cliente,
+        telefono,
+        email,
+        ciudad,
+        direccion,
+        pago,
+        total_producto,
+        total_envio,
+        cantidad_total,
+        guia,
+        productos_info,
+        estado
+    ) VALUES (
+        registro_conversacion.session_id,
+        COALESCE(registro_conversacion.nombre_cliente, 'SIN NOMBRE'),
+        COALESCE(registro_conversacion.telefono, 'SIN TELÉFONO'),
+        COALESCE(registro_conversacion.email, 'SIN EMAIL'),
+        COALESCE(registro_conversacion.ciudad, 'SIN CIUDAD'),
+        COALESCE(registro_conversacion.direccion, 'SIN DIRECCIÓN'),
+        COALESCE(registro_conversacion.pago, 'PENDIENTE'),
+        COALESCE(registro_conversacion.total_producto, 0),
+        COALESCE(registro_conversacion.total_envio, 0),
+        COALESCE(registro_conversacion.cantidad_total, 0),
+        COALESCE(registro_conversacion.guia, 'SIN GUÍA'),
+        COALESCE(registro_conversacion.productos_info, '[]'),
+        'CREADO'::estado_pedido
+    );
+
+    -- DEBUG: Mostrar los datos que se insertaron
+    RAISE NOTICE 'DEBUG: Datos insertados en n8n_orders:';
+    RAISE NOTICE 'DEBUG: session_id = %', registro_conversacion.session_id;
+    RAISE NOTICE 'DEBUG: nombre_cliente = %', COALESCE(registro_conversacion.nombre_cliente, 'SIN NOMBRE');
+    RAISE NOTICE 'DEBUG: telefono = %', COALESCE(registro_conversacion.telefono, 'SIN TELÉFONO');
+    RAISE NOTICE 'DEBUG: email = %', COALESCE(registro_conversacion.email, 'SIN EMAIL');
+    RAISE NOTICE 'DEBUG: ciudad = %', COALESCE(registro_conversacion.ciudad, 'SIN CIUDAD');
+    RAISE NOTICE 'DEBUG: direccion = %', COALESCE(registro_conversacion.direccion, 'SIN DIRECCIÓN');
+    RAISE NOTICE 'DEBUG: pago = %', COALESCE(registro_conversacion.pago, 'PENDIENTE');
+    RAISE NOTICE 'DEBUG: total_producto = %', COALESCE(registro_conversacion.total_producto, 0);
+    RAISE NOTICE 'DEBUG: total_envio = %', COALESCE(registro_conversacion.total_envio, 0);
+    RAISE NOTICE 'DEBUG: cantidad_total = %', COALESCE(registro_conversacion.cantidad_total, 0);
+
+    GET DIAGNOSTICS filas_afectadas = ROW_COUNT;
+
+    IF filas_afectadas > 0 THEN
+        RAISE NOTICE 'ÉXITO: Pedido creado para session_id: %', session_id_param;
+        RETURN TRUE;
+    ELSE
+        RAISE NOTICE 'ERROR: No se pudo crear pedido para session_id: %', session_id_param;
+        RETURN FALSE;
+    END IF;
+
+EXCEPTION
+    WHEN unique_violation THEN
+        RAISE NOTICE 'ERROR: Restricción UNIQUE violada - Ya existe un pedido con session_id: %', session_id_param;
+        RAISE NOTICE 'SOLUCIÓN: Ejecutar el script fix_multiple_orders.sql para eliminar la restricción';
+        RETURN FALSE;
+    WHEN OTHERS THEN
+        RAISE NOTICE 'ERROR CRÍTICO en insertar_pedido_desde_conversacion: % - %', SQLSTATE, SQLERRM;
+        RAISE NOTICE 'DETALLE: %', SQLERRM;
+        RETURN FALSE;
+END;
+$$;
+
+-- ========================================
+-- EJEMPLO DE USO:
+-- ========================================
+/*
+-- INSERTAR PEDIDO DESDE CONVERSACIÓN:
+SELECT insertar_pedido_desde_conversacion('573011284297');
+
+-- VER PEDIDO CREADO:
+SELECT * FROM n8n_orders WHERE session_id = '573011284297';
+
+-- VER TODOS LOS PEDIDOS DE UNA SESIÓN:
+SELECT id, session_id, nombre_cliente, telefono, estado, fecha
+FROM n8n_orders
+WHERE session_id = '573011284297'
+ORDER BY fecha DESC;
+*/
 

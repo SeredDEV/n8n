@@ -5,6 +5,10 @@ DROP TABLE IF EXISTS n8n_orders CASCADE;
 -- Eliminar tipo enum si existe
 DROP TYPE IF EXISTS estado_pedido CASCADE;
 
+-- Eliminar funciones si existen
+DROP FUNCTION IF EXISTS cambiar_estado_pedido(VARCHAR, estado_pedido) CASCADE;
+DROP FUNCTION IF EXISTS cambiar_estado_pedido_por_id(INTEGER, estado_pedido) CASCADE;
+
 -- Crear el tipo ENUM para los estados de pedidos
 CREATE TYPE estado_pedido AS ENUM ('CREADO', 'GENERANDO', 'ENVIADO');
 
@@ -30,11 +34,35 @@ CREATE TABLE n8n_orders (
     guia VARCHAR(100) NULL,
 
     -- DATOS DE PRODUCTOS (JSON)
-    productos_info JSONB NULL,
+    productos_info JSONB NULL
 
-    -- RESTRICCIONES
-    CONSTRAINT unique_session_id UNIQUE (session_id)
+    -- NOTA: Se permite múltiples pedidos con el mismo session_id
 );
+
+-- ========================================
+-- VALIDAR Y ELIMINAR RESTRICCIÓN UNIQUE SI EXISTE
+-- ========================================
+
+DO $$
+BEGIN
+    -- Verificar si existe la restricción unique_session_id
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.table_constraints
+        WHERE constraint_name = 'unique_session_id'
+        AND table_name = 'n8n_orders'
+        AND table_schema = current_schema()
+    ) THEN
+        -- Eliminar la restricción si existe
+        ALTER TABLE n8n_orders DROP CONSTRAINT unique_session_id;
+        RAISE NOTICE 'ÉXITO: Restricción unique_session_id eliminada - Ahora se permiten múltiples pedidos por session_id';
+    ELSE
+        RAISE NOTICE 'INFO: La restricción unique_session_id no existe - Múltiples pedidos permitidos';
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'ADVERTENCIA: Error al verificar/eliminar restricción unique_session_id: % - %', SQLSTATE, SQLERRM;
+END $$;
 
 -- Crear índices para mejorar rendimiento
 CREATE INDEX idx_n8n_orders_session_id ON n8n_orders(session_id);
@@ -53,6 +81,21 @@ BEGIN
     SET estado = p_nuevo_estado,
         fecha = CURRENT_TIMESTAMP
     WHERE session_id = p_session_id;
+
+    RETURN FOUND;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Función auxiliar para cambiar estado de UN PEDIDO ESPECÍFICO por ID
+CREATE OR REPLACE FUNCTION cambiar_estado_pedido_por_id(
+    p_pedido_id INTEGER,
+    p_nuevo_estado estado_pedido
+) RETURNS BOOLEAN AS $$
+BEGIN
+    UPDATE n8n_orders
+    SET estado = p_nuevo_estado,
+        fecha = CURRENT_TIMESTAMP
+    WHERE id = p_pedido_id;
 
     RETURN FOUND;
 END;
