@@ -1938,9 +1938,19 @@
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
-          "value": {},
+          "value": {
+            "sessionId": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
           "matchingColumns": [],
-          "schema": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "Session ID",
+              "required": true,
+              "type": "string",
+              "description": "Session identifier for chat memory (sender phone number)"
+            }
+          ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": true
         },
