@@ -9,13 +9,26 @@ CREATE TABLE n8n_update_product (
 CREATE INDEX idx_session_id ON n8n_update_product(session_id);
 CREATE INDEX idx_product ON n8n_update_product(product);
 
--- Función para insertar un registro en n8n_update_product
--- Ahora limpia automáticamente el emoji '🧴 ' del producto
 CREATE OR REPLACE FUNCTION insert_n8n_update_product(p_session_id VARCHAR, p_product VARCHAR)
 RETURNS VOID AS $$
+DECLARE
+    cleaned_product VARCHAR;
 BEGIN
+    -- Limpiar múltiples emojis y espacios extra del producto
+    cleaned_product := TRIM(p_product);
+
+    -- Lista de emojis comunes a limpiar
+    cleaned_product := REPLACE(cleaned_product, '🧴 ', '');
+    cleaned_product := REPLACE(cleaned_product, '❌ ', '');
+    cleaned_product := REPLACE(cleaned_product, '✅ ', '');
+    cleaned_product := REPLACE(cleaned_product, '🔥 ', '');
+    cleaned_product := REPLACE(cleaned_product, '💡 ', '');
+
+    -- Limpiar espacios extra que puedan quedar
+    cleaned_product := TRIM(cleaned_product);
+
     INSERT INTO n8n_update_product (session_id, product)
-    VALUES (p_session_id, TRIM(REPLACE(p_product, '🧴 ', '')));
+    VALUES (p_session_id, cleaned_product);
 END;
 $$ LANGUAGE plpgsql;
 

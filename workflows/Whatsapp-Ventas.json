@@ -1,0 +1,4122 @@
+{
+  "name": "Whatsapp-Ventas",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message_type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f1f4f21d-7bac-4148-8fa5-eb91e67e3f5e"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message_type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "53ea1f96-c52a-4d1f-a00d-c0cafb1feb82"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message_type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b2b2b2b2-2222-3333-4444-555555555555"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message_type }}",
+                    "rightValue": "button_response",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c3c3c3c3-3333-4444-5555-666666666666"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "button"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3584,
+        512
+      ],
+      "id": "237866ff-421e-4a1e-a7f7-4a813555b9af",
+      "name": "Message Type Router"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "credentials-object",
+              "name": "credentials",
+              "value": "={{ { \"z_api_token\": $json.headers['z-api-token'], \"instance_id\": $json.body.instanceId } }}",
+              "type": "object"
+            },
+            {
+              "id": "system-object",
+              "name": "system",
+              "value": "={{ { \"execution_mode\": $json.executionMode, \"webhook_url\": $json.webhookUrl, \"user_agent\": $json.headers['user-agent'], \"origin_server\": $json.headers.origin, \"client_ip\": $json.headers['x-real-ip'] } }}",
+              "type": "object"
+            },
+            {
+              "id": "user-object",
+              "name": "user",
+              "value": "={{ { \"sender_phone\": $json.body.phone, \"connected_phone\": $json.body.connectedPhone, \"chat_name\": $json.body.chatName, \"sender_name\": $json.body.senderName, \"chat_lid\": $json.body.chatLid } }}",
+              "type": "object"
+            },
+            {
+              "id": "message-type-detector",
+              "name": "message_type",
+              "value": "={{ $json.body.text ? 'text' : $json.body.audio ? 'audio' : $json.body.image ? 'image' : $json.body.buttonsResponseMessage ? ($json.body.buttonsResponseMessage.buttonId === 'confirmar_pedido' ? 'text' : 'button_response') : $json.body.document ? ($json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/') ? 'audio_file' : $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/') ? 'video' : 'document') : 'unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "message-object",
+              "name": "message",
+              "value": "={{ { \"message_id\": $json.body.messageId, \"timestamp\": $json.body.momment, \"formatted_date\": DateTime.fromMillis($json.body.momment).toFormat('yyyy-MM-dd HH:mm:ss'), \"formatted_date_utc_minus_5\": DateTime.fromMillis($json.body.momment).setZone('UTC-5').toFormat('yyyy-MM-dd HH:mm:ss'), \"message_status\": $json.body.status, \"message_type\": ($json.body.text ? 'text' : $json.body.audio ? 'audio' : $json.body.image ? 'image' : $json.body.buttonsResponseMessage ? ($json.body.buttonsResponseMessage.buttonId === 'confirmar_pedido' ? 'text' : 'button_response') : $json.body.document ? ($json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/') ? 'audio_file' : $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/') ? 'video' : 'document') : 'unknown') } }}",
+              "type": "object"
+            },
+            {
+              "id": "content-text",
+              "name": "text_content",
+              "value": "={{ $json.body.text ? { \"message\": $json.body.text.message } : ($json.body.buttonsResponseMessage && $json.body.buttonsResponseMessage.buttonId === 'confirmar_pedido') ? { \"message\": $json.body.buttonsResponseMessage.buttonId } : null }}",
+              "type": "object"
+            },
+            {
+              "id": "content-audio",
+              "name": "audio_content",
+              "value": "={{ $json.body.audio ? { \"audio_url\": $json.body.audio.audioUrl, \"duration_seconds\": $json.body.audio.seconds, \"mime_type\": $json.body.audio.mimeType, \"is_ptt\": $json.body.audio.ptt, \"view_once\": $json.body.audio.viewOnce, \"source\": 'audio_object' } : null }}",
+              "type": "object"
+            },
+            {
+              "id": "content-audio-file",
+              "name": "audio_file_content",
+              "value": "={{ ($json.body.document && $json.body.document.mimeType && $json.body.document.mimeType.startsWith('audio/')) ? { \"audio_url\": $json.body.document.documentUrl, \"file_name\": $json.body.document.fileName, \"mime_type\": $json.body.document.mimeType, \"caption\": $json.body.document.caption, \"title\": $json.body.document.title, \"source\": 'document_object' } : null }}",
+              "type": "object"
+            },
+            {
+              "id": "content-image",
+              "name": "image_content",
+              "value": "={{ $json.body.image ? { \"image_url\": $json.body.image.imageUrl, \"thumbnail_url\": $json.body.image.thumbnailUrl, \"caption\": $json.body.image.caption, \"mime_type\": $json.body.image.mimeType, \"view_once\": $json.body.image.viewOnce, \"width\": $json.body.image.width, \"height\": $json.body.image.height } : null }}",
+              "type": "object"
+            },
+            {
+              "id": "content-video",
+              "name": "video_content",
+              "value": "={{ ($json.body.document && $json.body.document.mimeType && $json.body.document.mimeType.startsWith('video/')) ? { \"video_url\": $json.body.document.documentUrl, \"file_name\": $json.body.document.fileName, \"mime_type\": $json.body.document.mimeType, \"caption\": $json.body.document.caption, \"title\": $json.body.document.title, \"source\": 'document_object' } : null }}",
+              "type": "object"
+            },
+            {
+              "id": "content-document",
+              "name": "document_content",
+              "value": "={{ ($json.body.document && (!$json.body.document.mimeType || (!$json.body.document.mimeType.startsWith('audio/') && !$json.body.document.mimeType.startsWith('video/')))) ? { \"document_url\": $json.body.document.documentUrl, \"file_name\": $json.body.document.fileName, \"title\": $json.body.document.title, \"caption\": $json.body.document.caption, \"mime_type\": $json.body.document.mimeType, \"page_count\": $json.body.document.pageCount } : null }}",
+              "type": "object"
+            },
+            {
+              "id": "content-button",
+              "name": "button_content",
+              "value": "={{ $json.body.buttonsResponseMessage ? { \"button_id\": $json.body.buttonsResponseMessage.buttonId, \"button_text\": $json.body.buttonsResponseMessage.message, \"button_response\": $json.body.buttonsResponseMessage.buttonId, \"display_text\": $json.body.buttonsResponseMessage.message } : null }}",
+              "type": "object"
+            },
+            {
+              "id": "flags-object",
+              "name": "flags",
+              "value": "={{ { \"from_me\": $json.body.fromMe, \"is_group\": $json.body.isGroup, \"is_newsletter\": $json.body.isNewsletter, \"is_forwarded\": $json.body.forwarded, \"is_broadcast\": $json.body.broadcast, \"callback_type\": $json.body.type, \"from_api\": $json.body.fromApi, \"is_status_reply\": $json.body.isStatusReply, \"is_edit\": $json.body.isEdit, \"waiting_message\": $json.body.waitingMessage, \"message_expiration_seconds\": $json.body.messageExpirationSeconds || 0 } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3808,
+        544
+      ],
+      "id": "97428728-1387-4471-843e-d40e55342fb7",
+      "name": "WhatsApp Message Parser"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "50a91089-2c34-4dd0-8896-2715bd6e9612",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -4032,
+        544
+      ],
+      "id": "85279fb6-44eb-4c87-abb5-136d904bc9a1",
+      "name": "Webhook",
+      "webhookId": "50a91089-2c34-4dd0-8896-2715bd6e9612"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3360,
+        496
+      ],
+      "id": "71e6cd3a-354a-44b6-bd64-1571ca494420",
+      "name": "Pausa",
+      "webhookId": "0bfa0972-a628-48bb-be5d-b3c30b33df0e"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.audio_content.audio_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3360,
+        304
+      ],
+      "id": "2c33c2f9-6e82-4439-b507-d7e39496a786",
+      "name": "Download Audio File"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.image_content.image_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3360,
+        688
+      ],
+      "id": "a5b6fc55-745f-4c9d-9145-28625fb98d8a",
+      "name": "Download Image File"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "# Instrucciones para Descripción de Imagen\nDescribe esta imagen en español.",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -3136,
+        688
+      ],
+      "id": "8ce13deb-86aa-4456-9bb9-82246ee5272a",
+      "name": "Analyze Image",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "button-response-id",
+              "name": "button_id",
+              "value": "={{ $json.button_content.button_id }}",
+              "type": "string"
+            },
+            {
+              "id": "button-response-text",
+              "name": "button_text",
+              "value": "={{ $json.button_content.button_text || $json.button_content.display_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3360,
+        2800
+      ],
+      "id": "73fabaf7-eecd-42bf-ba1e-51b7f974deea",
+      "name": "Process Button Response"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "catalogo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "catalog-button-condition"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Catalogo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "ofertas",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "offers-button-condition"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ofertas"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "comprar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "buy-button-condition"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Comprar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "pedido",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "order-button-condition"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Pedido"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ca097790-b652-48d1-8181-c16fcef7a6bd",
+                    "leftValue": "={{ ['contra_entrega', 'interrapidisimo'].includes($json.button_id) }}",
+                    "rightValue": "contra_entrega",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Contra_Entrega"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0aab0b48-271c-4b6d-85d1-4ae926a7829a",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "transferencia",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Transferencia"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e3943a52-8a51-413b-a5f2-89c394584dc5",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "modificar_producto",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "modificar_producto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "bae55070-387b-41d8-9c87-9b671231afb3",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "modificar_pedido",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "modificar_pedido"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c6c49f16-27fd-4763-bde2-d5b388e27b6f",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "confirmar_pedido",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "confirmar_pedido"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3136,
+        1536
+      ],
+      "id": "37cd6414-4f3b-44ca-bd52-5b29894e1b11",
+      "name": "Button Response Router"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "es",
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -3136,
+        304
+      ],
+      "id": "f85b465d-d4f1-43f1-8e1c-f4dc7f72fe61",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
+              "name": "mensaje",
+              "type": "string",
+              "value": "={{ $json.text || $json.content || $json.button_text || $json.button_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d07f2b8c-1c2f-4413-bad5-e73ab873355e",
+      "name": "Extract Message Content",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2912,
+        496
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4b9efeb-9a68-43e3-bc4c-cd207510bddf",
+              "name": "text",
+              "value": "={{ $json.text_content.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3136,
+        496
+      ],
+      "id": "ea82046b-0cd4-49de-a2f7-c63b6fc52033",
+      "name": "Obtener Texto"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}",
+        "messageData": "={{ $json.mensaje }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -2688,
+        496
+      ],
+      "id": "09f9a486-7671-4cdb-aac2-73b57d21e33c",
+      "name": "Store Message in Buffer",
+      "credentials": {
+        "redis": {
+          "id": "HBZtjEwzw7Xu4Gm2",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2464,
+        496
+      ],
+      "id": "b7de2491-d077-441b-be17-20e8afe58c45",
+      "name": "Wait for Buffer",
+      "webhookId": "05929f0b-cb6a-48f9-901e-bbefe359f336"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -2240,
+        496
+      ],
+      "id": "27847417-324b-4cd7-932f-2bf97c2072d4",
+      "name": "Retrieve Messages from Buffer",
+      "credentials": {
+        "redis": {
+          "id": "HBZtjEwzw7Xu4Gm2",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "87d5a006-5e35-4dbf-a3dc-e5420b918845",
+              "leftValue": "={{ $json.propertyName.last() }}",
+              "rightValue": "={{ $('Extract Message Content').item.json.mensaje }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2016,
+        496
+      ],
+      "id": "a5e06155-a2f3-49b4-bf12-2afc4c23993e",
+      "name": "Check for Duplicate Message"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1792,
+        304
+      ],
+      "id": "3eb73ad4-282a-4e09-b607-ce098b798512",
+      "name": "Clear Buffer Cache",
+      "credentials": {
+        "redis": {
+          "id": "HBZtjEwzw7Xu4Gm2",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1792,
+        496
+      ],
+      "id": "7161aaac-7c78-4fe1-acd3-214f7033d134",
+      "name": "Skip Duplicate Message"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6459d32-0468-4e3c-8572-7b36e1fc2172",
+              "name": "conversation_content",
+              "value": "={{ $json.propertyName.join('\\n') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1568,
+        304
+      ],
+      "id": "d5d5d181-6670-4d5d-a9b9-95967daaf732",
+      "name": "Format Final Output"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    '{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}' as session_id,\n    CASE \n        WHEN NOT EXISTS (\n            SELECT 1 \n            FROM n8n_pro_conversation_states \n            WHERE session_id = '{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}'\n        ) THEN false  -- No hay registros, no existe\n        WHEN EXISTS (\n            SELECT 1 \n            FROM n8n_pro_conversation_states \n            WHERE session_id = '{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}'\n            AND ultima_actividad = (\n                SELECT MAX(ultima_actividad) \n                FROM n8n_pro_conversation_states \n                WHERE session_id = '{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}'\n            )\n            AND estado_actual = 'ventas' \n            AND estado_ventas = 'FIN'\n        ) THEN false  -- El más reciente está finalizado, no existe (crear nuevo)\n        ELSE true     -- En cualquier otro caso, existe\n    END as existe",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1344,
+        304
+      ],
+      "id": "48c96b6b-2886-4e8a-8d13-93a6db341cb2",
+      "name": "Get session_id",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7500bd18-477a-4fbe-b21d-ea6bbcc0a5d5",
+              "leftValue": "={{ $json.existe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1120,
+        304
+      ],
+      "id": "521c0fcd-6e0b-4d6a-ac20-31eb8bff8d7f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener hora UTC y ajustarla a UTC-5\nconst ahora = new Date();\nconst horaUTC = ahora.getUTCHours();\nconst horaUTC5 = (horaUTC + 24 - 5) % 24;\n\n// Determinar período del día\nlet periodo = '';\n\nif (horaUTC5 >= 5 && horaUTC5 < 12) {\n  periodo = 'mañana';\n} else if (horaUTC5 >= 12 && horaUTC5 < 18) {\n  periodo = 'tarde';\n} else {\n  periodo = 'noche';\n}\n\n// Retornar período junto con datos necesarios\nreturn [\n  {\n    json: {\n      periodo: periodo,\n      hora: horaUTC5,\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2912,
+        944
+      ],
+      "id": "c632ef10-86cc-4da7-9b0f-90b5775432ca",
+      "name": "Dynamic Time Greeting"
+    },
+    {
+      "parameters": {
+        "jsCode": "const saludos = [\n`🌸 ¡Hola! Gracias por escribir a *Ed Perfumería*  \nEstamos encantados de ayudarte a encontrar la fragancia ideal.`,\n\n`💬 ¡Bienvenido a *Ed Perfumería*!  \nGracias por elegirnos para tu próxima compra de perfumes.`,\n\n`🎉 ¡Hola! Qué gusto tenerte en *Ed Perfumería*  \nEstamos aquí para ayudarte a encontrar tu aroma perfecto.`,\n\n`🌟 ¡Gracias por comunicarte con *Ed Perfumería*!  \nNos alegra poder atenderte 😊`,\n\n`🚀 ¡Hola y bienvenido a *Ed Perfumería*!  \nEs un placer atenderte hoy ✨`,\n\n`🙌 ¡Hola! Gracias por escribir a *Ed Perfumería*  \nEstamos encantados de atenderte. 💐`,\n\n`👋 ¡Bienvenid@ a *Ed Perfumería*!  \nNos alegra recibir tu mensaje. 💖`,\n\n`✨ ¡Hola! Gracias por contactar a *Ed Perfumería*  \nNos alegra mucho tenerte por aquí 😊`,\n\n`🌟 ¡Gracias por comunicarte con *Ed Perfumería*!  \nEstamos aquí para ayudarte a encontrar tu fragancia ideal. 🧴✨`,\n\n`🎉 ¡Bienvenido a *Ed Perfumería*!  \nGracias por escribirnos. Estamos listos para asesorarte.`\n];\n\n// Selecciona uno al azar\nconst saludoAleatorio = saludos[Math.floor(Math.random() * saludos.length)];\nreturn [\n  {\n    json: {\n      output: saludoAleatorio\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -896,
+        16
+      ],
+      "id": "f358cc82-9b58-4644-b652-1490f0e179bc",
+      "name": "Dynamic Greeting"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.periodo }}",
+                    "rightValue": "mañana",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "eb8f4c83-efd2-4595-b674-25dc1c0ad1b8"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "mañana"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dcc3cd98-a426-4020-8af1-a851981f2055",
+                    "leftValue": "={{ $json.periodo }}",
+                    "rightValue": "tarde",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "tarde"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b515e6bc-c3a2-4471-b9ee-ff723e6ff6cc",
+                    "leftValue": "={{ $json.periodo }}",
+                    "rightValue": "noche",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "noche"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -2688,
+        928
+      ],
+      "id": "b7635ca3-aed1-46bf-ba90-49b7cf334461",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "=F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ parseInt( $json.output.length() * 25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -672,
+        16
+      ],
+      "id": "921c6f10-25cc-483a-8739-3454edb0cb9e",
+      "name": "Send Dynamic Greeting"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}\",\n  \"message\": \"{{ (() => { const h = new Date(new Date().getTime() - 18000000).getHours(); return h >= 5 && h < 12 ? '¡Buenos días!' : h >= 12 && h < 18 ? '¡Buenas tardes!' : '¡Buenas noches!'; })() }} 🌸\\n\\n¿Qué te gustaría hacer?\",\n  \"delayTyping\": 1500,\n  \"buttonList\": {\n    \"buttons\": [\n      {\n        \"id\": \"comprar\",\n        \"label\": \"🛒 Comprar\"\n      },\n      {\n        \"id\": \"catalogo\",\n        \"label\": \"📋 Catálogo\"\n      },\n      {\n        \"id\": \"ofertas\",\n        \"label\": \"🔥 Ofertas\"\n      },\n      {\n        \"id\": \"pedido\",\n        \"label\": \"📦 Consultar Pedido\"\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        16
+      ],
+      "id": "6504ee10-7d85-4f13-be1c-876d473693b2",
+      "name": "Send Buttons"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2240,
+        960
+      ],
+      "id": "f8d915bd-26be-4e51-b663-3ed6ccb630ba",
+      "name": "Merge Audio"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-audio",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "audio",
+              "value": "=data:{{ $('Merge Audio').item.binary.data.mimeType }};base64,{{ $('Merge Audio').item.binary.data.data }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "6"
+            },
+            {
+              "name": "waveform",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2016,
+        976
+      ],
+      "id": "8f824568-bbdc-40cb-b280-4f77ba774cd0",
+      "name": "Send Audio"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-document/pdf",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').first().json.user.sender_phone }}"
+            },
+            {
+              "name": "document",
+              "value": "https://drive.google.com/uc?export=download&id=1z1N-NqCHW2PrC1_HJS01MP6geTL6Jf_S"
+            },
+            {
+              "name": "fileName",
+              "value": "Catálogo Ed Perfumería Hombre"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1792,
+        976
+      ],
+      "id": "18a6db3f-da38-4996-9d5c-d951231f9e7b",
+      "name": "Send Catalog Man"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-document/pdf",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').first().json.user.sender_phone }}"
+            },
+            {
+              "name": "document",
+              "value": "https://drive.google.com/uc?export=download&id=1sf7vcqR6USGi-b496e7kCshxMNwI-4c4"
+            },
+            {
+              "name": "fileName",
+              "value": "Catálogo Ed Perfumería Mujer"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1568,
+        976
+      ],
+      "id": "e4e15277-293c-4b58-a92b-e61a3198c0bb",
+      "name": "Send Catalog Women"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1UND_G3K4tu_xmjsTOSyq3ypRVpzg95HH",
+          "mode": "list",
+          "cachedResultName": "Buenos Dias.ogg",
+          "cachedResultUrl": "https://drive.google.com/file/d/1UND_G3K4tu_xmjsTOSyq3ypRVpzg95HH/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2464,
+        688
+      ],
+      "id": "a23ec4e3-8d46-447b-9908-fb3256da08b2",
+      "name": "Download Good Morning",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lZPZd6pI3LpqZuri",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1oFABnmJkXuevND9TxwJP_zcM2VLsDPtb",
+          "mode": "list",
+          "cachedResultName": "Buenas Tardes.ogg",
+          "cachedResultUrl": "https://drive.google.com/file/d/1oFABnmJkXuevND9TxwJP_zcM2VLsDPtb/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2464,
+        880
+      ],
+      "id": "0e96d7ce-3ef6-4b64-8b44-48a1074254e9",
+      "name": "Download Good Afternoon",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lZPZd6pI3LpqZuri",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "16PkBRIK-Iv-VKInmhW1nq5Qfjc0EKWn2",
+          "mode": "list",
+          "cachedResultName": "Buenas Noches.ogg",
+          "cachedResultUrl": "https://drive.google.com/file/d/16PkBRIK-Iv-VKInmhW1nq5Qfjc0EKWn2/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2464,
+        1072
+      ],
+      "id": "016bf72d-7e98-4f37-aac3-4c978d9381ee",
+      "name": "Download  Good Night",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lZPZd6pI3LpqZuri",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ofertas = [\n`🎀 *Promociones especiales de Ed Perfumería*\n\n💎 **Ofertas disponibles:**\n1 unidad → $60.000\n2 unidades → $100.000  \n3 unidades → $120.000\n6 unidades → $210.000\n\n🔥 ¡Fragancias increíbles a precios únicos!`,\n\n`🎁 *Ofertas Ed Perfumería*\n\n✨ **Precios especiales:**\n1 por $60.000\n2 por $100.000\n3 por $120.000\n6 por $210.000\n\n💫 ¡Aprovecha nuestros mejores precios!`,\n\n`💎 *Promoción de la semana*\n\n🔥 **Ofertas vigentes:**\n1 unidad: $60.000\n2 unidades: $100.000\n3 unidades: $120.000\n6 unidades: $210.000\n\n🎉 ¡No dejes pasar estas ofertas!`,\n\n`🌟 *Ofertas especiales*\n\n💥 **Promociones disponibles:**\n1 x $60.000 | 2 x $100.000 | 3 x $120.000 | 6 x $210.000\n\n✨ ¡Solo por tiempo limitado!`,\n\n`🎊 *Ed Perfumería - Ofertas*\n\n🎁 **Precios increíbles:**\n1 fragancia → $60.000\n2 fragancias → $100.000\n3 fragancias → $120.000\n6 fragancias → $210.000\n\n🔥 ¡Te van a encantar!`,\n\n`💖 *Promociones actuales*\n\n🌸 **Ofertas de hoy:**\n1 unidad por $60.000\n2 unidades por $100.000\n3 unidades por $120.000\n6 unidades por $210.000\n\n💎 ¡Aprovecha esta oportunidad!`,\n\n`🚀 *Ofertas Ed Perfumería*\n\n⭐ **Precios especiales:**\n1 → $60.000\n2 → $100.000\n3 → $120.000\n6 → $210.000\n\n🎉 ¡Promociones por tiempo limitado!`,\n\n`🌈 *Promoción especial*\n\n💫 **Ofertas vigentes:**\n1 unidad: $60.000\n2 unidades: $100.000\n3 unidades: $120.000\n6 unidades: $210.000\n\n🔥 ¡No te las pierdas!`,\n\n`🎀 *Ofertas de la semana*\n\n✨ **Precios únicos:**\n1 x $60.000 • 2 x $100.000 • 3 x $120.000 • 6 x $210.000\n\n🎁 ¡Fragancias increíbles a precios especiales!`,\n\n`💝 *Ed Perfumería - Promociones*\n\n🌟 **Ofertas disponibles:**\n1 unidad = $60.000\n2 unidades = $100.000\n3 unidades = $120.000\n6 unidades = $210.000\n\n💎 ¡Aprovecha nuestras mejores ofertas!`\n];\n\n// Selecciona uno al azar\nconst ofertaAleatoria = ofertas[Math.floor(Math.random() * ofertas.length)];\nreturn [\n  {\n    json: {\n      output: ofertaAleatoria\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2912,
+        1264
+      ],
+      "id": "aa04ceb2-4a01-47e6-910a-93c99c49aef2",
+      "name": "Dynamic Offers"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ parseInt( $json.output.length() * 25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2688,
+        1264
+      ],
+      "id": "3290edea-f50e-4fc7-97a3-0e99d24a2567",
+      "name": "Send Dynamic Offers"
+    },
+    {
+      "parameters": {
+        "jsCode": "const comprar = [\n  `🌟 ¡INCREÍBLE! ¡Estás a punto de descubrir tu aroma ideal!\n\n- 🔍 ¡Búscala! Encuentra esa fragancia que tienes en mente  \n- 💡 ¡Sorpréndeme! Déjame recomendarte algo único  \n- ⚖️ ¡Compáralas! Descubre cuál se adapta mejor a ti  \n- 🛒 ¡Cómprala ya! Hazla tuya y disfruta su esencia  \n\n✨ ¿Qué deseas hacer? ¡Cuéntanos qué te gusta!`,\n\n  `💥 ¡WOW! ¡La aventura aromática comienza ahora!\n\n- 🔍 ¡Explora! Busca esa loción que te inspira  \n- 💡 ¡Inspírame! Recomiéndame algo fabuloso  \n- ⚖️ ¡Compáralas! Elige entre las mejores opciones  \n- 🛒 ¡Hazla tuya! Compra tu favorita y déjate sorprender  \n\n🌈 ¿Qué prefieres? ¡Dinos qué te emociona!`,\n\n  `🎉 ¡FANTÁSTICO! ¡Estás a un paso de tu fragancia soñada!\n\n- 🔍 ¡Descúbrela! Encuentra ese aroma especial  \n- 💡 ¡Recomiéndame! Sorpréndeme con algo nuevo  \n- ⚖️ ¡Compáralas! Veamos juntas/os las mejores alternativas  \n- 🛒 ¡Cómprala ya! Llévala contigo y siéntela cada día  \n\n✨ ¿Qué te gustaría hacer? ¡Cuéntame tu preferencia!`,\n\n  `💎 ¡ESPECTACULAR! ¡Vamos a encontrar tu fragancia perfecta!\n\n- 🔍 ¡Búscala! Esa loción que no puedes olvidar  \n- 💡 ¡Sorpréndeme! Recomiéndame algo que me encante  \n- ⚖️ ¡Compáralas! Descubre cuál es la ideal para ti  \n- 🛒 ¡Cómprala ya! Hazla parte de tu día a día  \n\n🚀 ¿Qué opción te llama más la atención? ¡Dinos qué te gusta!`,\n\n  `🎊 ¡SENSACIONAL! ¡Tu fragancia ideal está a un paso!\n\n- 🔍 ¡Encuéntrala! Busca ese aroma que te fascina  \n- 💡 ¡Déjate sorprender! Te recomiendo algo especial  \n- ⚖️ ¡Compáralas! Analicemos juntas/os las mejores opciones  \n- 🛒 ¡Cómprala ya! Hazla tuya y disfruta su magia  \n\n✨ ¿Qué deseas hacer? ¡Cuéntanos tu gusto!`,\n\n  `🔥 ¡EMOCIONANTE! ¡Elige cómo quieres descubrir tu próxima fragancia!\n\n- 🔍 ¡Búscala! Encuentra tu aroma favorito  \n- 💡 ¡Sorpréndeme! Recomiéndame algo diferente  \n- ⚖️ ¡Compáralas! Veamos cuál es la mejor para ti  \n- 🛒 ¡Cómprala ya! Llévala contigo y siéntela siempre  \n\n🌟 ¿Qué prefieres? ¡Dinos qué te gustaría probar!`,\n\n  `🌈 ¡MARAVILLOSO! ¡Estás a punto de encontrar tu esencia perfecta!\n\n- 🔍 ¡Descúbrela! Busca esa fragancia especial  \n- 💡 ¡Recomiéndame! Déjame sorprenderte con algo nuevo  \n- ⚖️ ¡Compáralas! Elige entre las mejores alternativas  \n- 🛒 ¡Cómprala ya! Hazla tuya y disfruta cada momento  \n\n✨ ¿Qué te gustaría hacer? ¡Cuéntame qué buscas!`,\n\n  `🚀 ¡EXTRAORDINARIO! ¡Vamos a por tu fragancia soñada!\n\n- 🔍 ¡Búscala! Encuentra ese aroma que te inspira  \n- 💡 ¡Sorpréndeme! Recomiéndame algo que me enamore  \n- ⚖️ ¡Compáralas! Descubre cuál es la mejor opción  \n- 🛒 ¡Cómprala ya! Hazla parte de tu rutina  \n\n💫 ¿Qué deseas hacer? ¡Dinos tu preferencia!`,\n\n  `🎁 ¡FELICIDAD! ¡Tu próxima fragancia te está esperando!\n\n- 🔍 ¡Encuéntrala! Busca esa loción especial  \n- 💡 ¡Déjate sorprender! Te recomiendo algo increíble  \n- ⚖️ ¡Compáralas! Analicemos juntas/os las mejores opciones  \n- 🛒 ¡Cómprala ya! Hazla tuya y disfruta su aroma  \n\n✨ ¿Qué prefieres? ¡Cuéntanos qué te gustaría!`,\n\n  `💖 ¡DIVERTIDO! ¡Elige cómo quieres descubrir tu nuevo aroma!\n\n- 🔍 ¡Búscala! Encuentra tu fragancia soñada  \n- 💡 ¡Sorpréndeme! Recomiéndame algo que me encante  \n- ⚖️ ¡Compáralas! Descubre cuál es la ideal para ti  \n- 🛒 ¡Cómprala ya! Hazla parte de tu día a día  \n\n🌟 ¿Qué deseas hacer? ¡Dinos qué te gusta y te ayudo enseguida!`\n];\n\n// Selecciona uno al azar\nconst comprarAleatorio = comprar[Math.floor(Math.random() * comprar.length)];\nreturn [\n  {\n    json: {\n      output: comprarAleatorio\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2912,
+        1456
+      ],
+      "id": "27c02b64-1150-4c9f-a757-aa5f7452f21f",
+      "name": "Dynamic Buy"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ Math.floor((parseInt($json.output.length) * 25) / 1000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2688,
+        1456
+      ],
+      "id": "3e1d49a5-f209-4904-a207-1bcd000bc461",
+      "name": "Send Dynamic Buy"
+    },
+    {
+      "parameters": {
+        "jsCode": "const consultarPedido = [\n`📦 *¡Perfecto! Consultemos tu pedido*\n\n¿Qué necesitas saber sobre tu compra?\n- ¿Estado del envío?\n- ¿Número de guía?\n- ¿Tiempo de entrega?\n\n🚚 ¡Estamos aquí para ayudarte!`,\n\n`🔍 *¡Excelente! Revisemos tu orden*\n\n¿Sobre qué quieres consultar?\n- ¿Dónde está mi pedido?\n- ¿Cuándo llega?\n- ¿Datos de envío?\n\n📋 ¡Dinos qué necesitas saber!`,\n\n`📱 *¡Genial! Veamos tu pedido*\n\n¿Qué información necesitas?\n- ¿Estado actual del envío?\n- ¿Número de seguimiento?\n- ¿Fecha estimada de entrega?\n\n✨ ¡Consultemos juntos!`,\n\n`🚛 *¡Listo para ayudarte!*\n\n¿Qué quieres saber de tu compra?\n- ¿Está en camino?\n- ¿Tienes la guía?\n- ¿Algún problema?\n\n🌟 ¡Revisemos tu pedido!`,\n\n`📦 *¡Vamos a consultar tu envío!*\n\n¿Sobre qué necesitas información?\n- ¿Estado del pedido?\n- ¿Seguimiento de envío?\n- ¿Tiempo de llegada?\n\n💎 ¡Estamos para resolver tus dudas!`,\n\n`🔎 *¡Perfecto! Consultemos tu orden*\n\n¿Qué información buscas?\n- ¿Dónde está mi compra?\n- ¿Número de guía?\n- ¿Cuándo llega?\n\n🎉 ¡Revisemos juntos!`,\n\n`📋 *¡Excelente! Veamos tu pedido*\n\n¿Qué necesitas consultar?\n- ¿Estado de envío?\n- ¿Datos de seguimiento?\n- ¿Información de entrega?\n\n🔥 ¡Dinos qué quieres saber!`,\n\n`🚚 *¡Consultemos tu compra!*\n\n¿Sobre qué tienes dudas?\n- ¿Mi pedido ya salió?\n- ¿Cuál es mi guía?\n- ¿Cuándo llega?\n\n🌈 ¡Estamos para ayudarte!`,\n\n`📱 *¡Genial! Revisemos tu envío*\n\n¿Qué información necesitas?\n- ¿Estado actual?\n- ¿Número de seguimiento?\n- ¿Fecha de entrega?\n\n💫 ¡Consultemos tu pedido!`,\n\n`🔍 *¡Perfecto! Veamos tu orden*\n\n¿Qué quieres saber?\n- ¿Dónde está mi pedido?\n- ¿Guía de envío?\n- ¿Tiempo estimado?\n\n🎁 ¡Resolvamos tus dudas!`\n];\n\n// Selecciona uno al azar\nconst consultarPedidoAleatorio = consultarPedido[Math.floor(Math.random() * consultarPedido.length)];\nreturn [\n  {\n    json: {\n      output: consultarPedidoAleatorio\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2912,
+        1648
+      ],
+      "id": "fa72af87-8adb-42ee-a5fd-61f29459d5ba",
+      "name": "Dynamic Order"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ Math.floor((parseInt($json.output.length) * 25) / 1000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2688,
+        1648
+      ],
+      "id": "755816dc-47ae-4f6a-98c1-9a76bc346634",
+      "name": "Send Dynamic Order"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_principal_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', 'SALUDO');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -224,
+        16
+      ],
+      "id": "7e747686-1afe-45cf-86b5-cdb9e655a198",
+      "name": "Execute Status Greeting",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_principal_pro('{{ $('WhatsApp Message Parser').first().json.user.sender_phone }}', 'CATALOGO');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1344,
+        976
+      ],
+      "id": "cbd1e3e4-a81e-4f75-82b1-6a1755ade6a3",
+      "name": "Execute Status Catalog",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_principal_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', 'OFERTAS');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2464,
+        1264
+      ],
+      "id": "85b9ade9-afb7-49b2-9662-6a0bd1542af2",
+      "name": "Execute Status Offers",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_principal_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', 'VENTAS');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2464,
+        1456
+      ],
+      "id": "a1b179a3-1b19-416d-89e2-0ee5773e56cf",
+      "name": "Execute Status Buy",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_principal_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', 'SOPORTE');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2464,
+        1648
+      ],
+      "id": "f6c9b4b2-9a40-4fb2-b7cf-7ebd4b43e600",
+      "name": "Execute Status Order",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.estado }}",
+                    "rightValue": "VENTAS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ventas-condition"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "sales"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.estado }}",
+                    "rightValue": "SOPORTE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "soporte-condition"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "order"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -672,
+        464
+      ],
+      "id": "13d14846-7d2e-4d8e-a16c-edee3414ba3f",
+      "name": "Status Response IA"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        592
+      ],
+      "id": "a87f7ddf-58f0-4ea8-b26a-e343faba00d8",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $('Format Final Output').item.json.conversation_content }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "COMPRA_DIRECTA",
+              "description": "Cliente manifiesta voluntad definitiva de adquirir productos específicos, solicita procesos de venta, cotizaciones totales, o confirma decisiones de compra. Incluye expresiones de compra inmediata, solicitudes de cálculo de totales, procesos de pago, datos de contacto para ventas, y confirmaciones directas."
+            },
+            {
+              "category": "CONSULTA_INVENTARIO",
+              "description": "Cliente busca información específica sobre productos individuales sin expresar intención de compra ni solicitar ayuda para elegir. Incluye consultas sobre precios unitarios, disponibilidad de stock, características técnicas, especificaciones del producto, contenido, originalidad, y verificación de existencias."
+            },
+            {
+              "category": "SOLICITUD_RECOMENDACION",
+              "description": "Cliente busca consejo personalizado, sugerencias adaptadas a sus necesidades, ayuda para tomar decisiones de compra, o recomendaciones basadas en ocasiones, gustos, presupuesto o preferencias específicas. El cliente delega la decisión al vendedor o busca orientación experta."
+            },
+            {
+              "category": "COMPARACION_PRODUCTOS",
+              "description": "Cliente solicita análisis objetivo de diferencias, similitudes, ventajas y desventajas entre productos específicos ya identificados. Busca información comparativa técnica sin necesariamente pedir ayuda para decidir, sino datos para evaluar opciones por sí mismo."
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "<rol>\nActúa como un experto clasificador de intenciones de compra con 10+ años de experiencia en análisis de comportamiento del consumidor en e-commerce.\n</rol>\n\n<tarea>\nClasifica con máxima precisión la intención de compra del cliente basándote únicamente en el texto proporcionado, enfocándote en el customer journey de ventas.\n</tarea>\n\n<instrucciones>\nPiensa paso a paso:\n\n1. **Identifica el verbo principal** y el tipo de pregunta (¿qué busca realmente?)\n2. **Analiza las palabras clave** que indican nivel de intención de compra\n3. **Evalúa si ya decidió comprar** vs. necesita información vs. busca ayuda vs. compara\n4. **Considera el contexto completo** del mensaje, incluyendo lenguaje informal\n5. **Clasifica en UNA sola categoría** - la intención MÁS dominante\n6. **Responde ÚNICAMENTE con el nombre de la categoría**\n</instrucciones>\n\n<categorias>\n**COMPRA_DIRECTA**: Cliente manifiesta voluntad definitiva de adquirir productos específicos, solicita procesos de venta, cotizaciones totales, o confirma decisiones de compra. \n*Señales clave: \"quiero comprar\", \"me llevo\", \"cuánto cuesta todo\", \"proceder al pago\", \"cotización completa\", \"ya decidí\", \"voy a comprar\"*\n\n**CONSULTA_INVENTARIO**: Cliente busca información específica sobre productos individuales: disponibilidad, precios, características, especificaciones. NO expresa intención de compra ni solicita ayuda para elegir.\n*Señales clave: \"tienes\", \"tenés\", \"tenes\", \"hay\", \"está\", \"queda\", \"manejas\", \"vendes\", \"vendés\", \"trabajas\", \"traes\", \"trajiste\", \"te llegó\", \"conseguís\", \"me consigues\", \"me das\", \"me vendés\", \"me vendes\", \"ofrecés\", \"ofreces\", \"se puede\", \"puedo conseguir\", \"comprarte\", \"precio de\", \"cuánto vale\", \"cuánto cuesta\", \"cuánto está\", \"cuánto sale\", \"a como\", \"a cuánto\", \"está disponible\", \"disponible\", \"en stock\", \"stock\", \"especificaciones\", \"características\"*\n\n**SOLICITUD_RECOMENDACION**: Cliente busca consejo personalizado, sugerencias adaptadas a sus necesidades, ayuda para tomar decisiones de compra, o recomendaciones basadas en ocasiones, gustos, presupuesto o preferencias.\n*Señales clave: \"qué me recomiendas\", \"cuál es mejor para\", \"ayúdame a elegir\", \"necesito algo\", \"qué me conviene\", \"busco\", \"quiero algo que\", \"para regalo\"*\n\n**COMPARACION_PRODUCTOS**: Cliente solicita análisis objetivo de diferencias, similitudes, ventajas y desventajas entre productos específicos ya identificados.\n*Señales clave: \"vs\", \"comparar\", \"diferencias entre\", \"cuál es mejor entre\", \"pros y contras\", \"ventajas de X sobre Y\", \"qué es mejor\"*\n</categorias>\n\n<ejemplos>\nInput: \"Quiero comprar 2 frascos de Love Spell y 1 loción Victoria's Secret, ¿cuánto me sale todo con envío?\"\nOutput: COMPRA_DIRECTA\n\nInput: \"¿Cuánto cuesta el perfume Chanel Coco Mademoiselle de 100ml?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Tienes la one million\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Hay disponible el perfume Dior Sauvage?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Manejas perfumes de hombre?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Me consigues el Chanel No. 5\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Trabajas con perfumes importados\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Te llegó la loción Victoria Secret?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Queda stock del Dior Sauvage\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Cuánto está el perfume Carolina Herrera?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Se puede conseguir el One Million Lucky?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Necesito un perfume dulce y juvenil para una chica de 20 años, ¿qué me recomiendas?\"\nOutput: SOLICITUD_RECOMENDACION\n\nInput: \"¿Cuáles son las diferencias entre la loción corporal y el perfume de la misma fragancia?\"\nOutput: COMPARACION_PRODUCTOS\n\nInput: \"Me llevo el set de perfume + loción corporal, ¿cómo procedo al pago?\"\nOutput: COMPRA_DIRECTA\n\nInput: \"¿Tienen disponible la loción Victoria's Secret Bombshell en presentación de 250ml?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Busco una fragancia elegante para regalo de aniversario, presupuesto $200\"\nOutput: SOLICITUD_RECOMENDACION\n\nInput: \"Perfume Dior Sauvage vs loción corporal Sauvage, ¿cuál dura más?\"\nOutput: COMPARACION_PRODUCTOS\n\nInput: \"¿Vendes el perfume Carolina Herrera Good Girl?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Hay algún descuento en perfumes importados\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"¿Tenés la loción corporal Bombshell?\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"Me das precio del Dior Homme\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"A cuanto el One Million Prive\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"A como está el perfume Dior\"\nOutput: CONSULTA_INVENTARIO\n\nInput: \"A como me lo dejas\"\nOutput: CONSULTA_INVENTARIO\n</ejemplos>\n\n<reglas_de_clasificacion>\n**PRIORIDADES en caso de ambigüedad:**\n1. Si menciona compra directa + otra cosa → COMPRA_DIRECTA\n2. Si compara productos específicos → COMPARACION_PRODUCTOS  \n3. Si busca consejo/ayuda para elegir → SOLICITUD_RECOMENDACION\n4. Si solo pregunta info técnica/precio/disponibilidad → CONSULTA_INVENTARIO\n\n**CASOS ESPECIALES:**\n- \"¿Cuál cuesta menos entre X y Y?\" → COMPARACION_PRODUCTOS (no consulta de inventario)\n- \"Quiero algo bueno y barato\" → SOLICITUD_RECOMENDACION (no compra directa)\n- \"¿Tienes el perfume Dior en presentación de 30ml?\" → CONSULTA_INVENTARIO (variante específica)\n- \"Me interesa esta loción\" → CONSULTA_INVENTARIO (interés ≠ compra directa)\n- \"¿Qué tal huele el perfume X?\" → CONSULTA_INVENTARIO (características del producto)\n- \"¿La loción corporal huele igual que el perfume?\" → COMPARACION_PRODUCTOS (comparando formatos)\n- \"Busco algo para seducir\" → SOLICITUD_RECOMENDACION (necesidad específica)\n- \"Tienes la [nombre del perfume]\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Hay [producto]?\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Manejas [tipo de producto]?\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"Me consigues [producto]\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Te llegó [producto]?\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"Queda stock de [producto]\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Cuánto está [producto]?\" → CONSULTA_INVENTARIO (pregunta de precio)\n- \"A como [producto]\" → CONSULTA_INVENTARIO (pregunta de precio)\n- \"A cuánto [producto]\" → CONSULTA_INVENTARIO (pregunta de precio)\n- \"Trabajas con [categoría]\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n- \"¿Se puede conseguir [producto]?\" → CONSULTA_INVENTARIO (pregunta de disponibilidad)\n\n**VARIACIONES DE LENGUAJE INFORMAL Y MODERNO:**\n- **Disponibilidad**: \"Tienes\" = \"Tenés\" = \"Tenes\" = \"Hay\" = \"Está\" = \"Queda\" = \"Stock\"\n- **Venta/Manejo**: \"Manejas\" = \"Vendes\" = \"Vendés\" = \"Trabajas\" = \"Traes\" = \"Ofrecés\" = \"Ofreces\"\n- **Conseguir**: \"Me consigues\" = \"Conseguís\" = \"Se puede conseguir\" = \"Puedo conseguir\"\n- **Llegada/Stock**: \"Te llegó\" = \"Trajiste\" = \"Llegaste a traer\"\n- **Precio informal**: \"Cuánto está\" = \"Cuánto sale\" = \"A cuánto\" = \"A como\" = \"Cuánto vale\"\n- **Compra indirecta**: \"Me das\" = \"Me vendés\" = \"Me vendes\" = \"Comprarte\"\n- **Sin signos de interrogación**: \"Tienes el perfume\" = \"¿Tienes el perfume?\"\n- **Sin artículos**: \"Tienes one million\" = \"Tienes la one million\"\n\n**TODAS estas variaciones son CONSULTA_INVENTARIO cuando preguntan por productos específicos**\n</reglas_de_clasificacion>\n\n<restricciones>\n- NO expliques tu razonamiento\n- RESPONDE únicamente con el nombre de la categoría\n- Sé preciso y consistente en la clasificación\n- Considera variaciones de lenguaje informal y coloquial\n</restricciones>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        864
+      ],
+      "id": "8656c9df-2108-4573-809a-ce3bfc07cbb4",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        1152
+      ],
+      "id": "66aae821-1eff-4379-8284-cf1a99486a69",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "4I5hY4XwoALE8VJS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "4HlRidEr8jDW0Zan",
+          "mode": "list",
+          "cachedResultName": "My Sub Product Comparator Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Format Final Output').item.json.conversation_content }}",
+            "sessionId": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "Query",
+              "required": true,
+              "type": "string",
+              "description": "The user query to process"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "Session ID",
+              "required": true,
+              "type": "string",
+              "description": "Session identifier for chat memory (sender phone number)"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        1152
+      ],
+      "id": "7026f914-0422-47e0-b51c-17bde450c272",
+      "name": "COMPARACION"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8xMoAwEO7wUKJTXi",
+          "mode": "list",
+          "cachedResultName": "My Sub Recommendation Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Format Final Output').item.json.conversation_content }}",
+            "sessionId": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "Query",
+              "required": true,
+              "type": "string",
+              "description": "The user query to process"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "Session ID",
+              "required": true,
+              "type": "string",
+              "description": "Session identifier for chat memory (sender phone number)"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        960
+      ],
+      "id": "a38485e3-f4c5-4da2-8561-7c272a597581",
+      "name": "RECOMENDACION"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Tk1Yk7Bhqs7KvV9o",
+          "mode": "list",
+          "cachedResultName": "My Sub Sales Specialist Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Format Final Output').item.json.conversation_content }}",
+            "sessionId": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "Query",
+              "required": true,
+              "type": "string",
+              "description": "The user query to process"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "Session ID",
+              "required": true,
+              "type": "string",
+              "description": "Session identifier for chat memory (sender phone number)"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        448
+      ],
+      "id": "2b384306-e75d-4b26-8479-fcceaa224901",
+      "name": "COMPRA"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "l0HpKncxwOEcFy8h",
+          "mode": "list",
+          "cachedResultName": "My Sub Inventory Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Format Final Output').item.json.conversation_content }}",
+            "sessionId": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "Query",
+              "required": true,
+              "type": "string",
+              "description": "The user query to process"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "Session ID",
+              "required": true,
+              "type": "string",
+              "description": "Session identifier for chat memory (sender phone number)"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        768
+      ],
+      "id": "adb0d943-600d-4d7c-beb0-b747a7374c5c",
+      "name": "INVENTARIO"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "df7a03b3-03fc-4afa-a80a-c622687316f2",
+              "leftValue": "={{ $json.estado_ventas }}",
+              "rightValue": "=ESPERANDO",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "27a3251e-1e79-4459-ae35-dcbc2570064d",
+              "leftValue": "={{ $json.estado_ventas }}",
+              "rightValue": "LISTO",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "407ed461-7e17-4638-a2bf-7da0f1fc9d25",
+              "leftValue": "={{ $json.estado_ventas }}",
+              "rightValue": "FIN",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        720
+      ],
+      "id": "bd192e7f-1bfb-4c28-a324-64bf0eb57fb7",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ROJE11JYihvwJXvW",
+          "mode": "list",
+          "cachedResultName": "My Sub Contra Entrega"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "Session ID",
+              "required": true,
+              "type": "string",
+              "description": "Session identifier for chat memory (sender phone number)"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -2912,
+        1840
+      ],
+      "id": "a4f6f59b-d041-47b8-9a7a-d8c41eb73f2a",
+      "name": "Contra_Entrega"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gE4JF3Lu1bpd66K6",
+          "mode": "list",
+          "cachedResultName": "My Sub Transferencia"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -2912,
+        2032
+      ],
+      "id": "2519ff86-001e-42e0-9f97-d946180b1e39",
+      "name": "Transferencia"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.estado_ventas }}",
+                    "rightValue": "RECOLECTANDO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3e6fe2c2-595d-430e-8c1a-84645d16f022"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "RECOLECTANDO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "97d8f253-f9a1-44a3-a541-c674b5d11535",
+                    "leftValue": "={{ $json.estado_ventas }}",
+                    "rightValue": "ESPERANDO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ESPERANDO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "04ef01b1-f32f-49ce-9e76-1fb09e162083",
+                    "leftValue": "={{ $json.estado_ventas }}",
+                    "rightValue": "LISTO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LISTO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d96bfc64-af1e-4304-88c2-d148d7ce8798",
+                    "leftValue": "={{ $json.estado_ventas }}",
+                    "rightValue": "COTIZANDO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "COTIZANDO"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -448,
+        304
+      ],
+      "id": "3fed6eb3-db1f-4f02-860a-51f0794dc6e1",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "WVmEpKVLhRNt0mTP",
+          "mode": "list",
+          "cachedResultName": "My Sub-Validator-Data"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}",
+            "message": "={{ $('Format Final Output').item.json.conversation_content }}"
+          },
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        208
+      ],
+      "id": "10977f56-e92b-446f-9966-b09841b55b53",
+      "name": "VALIDATOR DATA"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_estado_pro('573011284297');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -896,
+        480
+      ],
+      "id": "fe4a1330-9599-4513-88e7-baeccb299d0b",
+      "name": "Get Data User",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_estado_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        2224
+      ],
+      "id": "1aaa0b43-2af5-45b9-a917-aa92339b3f59",
+      "name": "Get Data User1",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Script para generar SOLO mensajes variados de modificación de pedido (SIN BOTONES)\n// Obtener los datos de entrada\nconst datosCliente = $input.first().json;\nconst productosInfo = datosCliente.productos_info;\n\n// CORRECCIÓN: Calcular el total correcto basado en los productos\nconst totalProductoCorregido = productosInfo.reduce((sum, producto) => sum + producto.total, 0);\nconst cantidadTotalCorregida = productosInfo.reduce((sum, producto) => sum + producto.cantidad, 0);\n\n// Función para formatear el total con separadores de miles\nfunction formatearPrecio(precio) {\n  return new Intl.NumberFormat('es-CO', {\n    style: 'currency',\n    currency: 'COP',\n    minimumFractionDigits: 0,\n    maximumFractionDigits: 0\n  }).format(precio).replace('COP', '').trim();\n}\n\n// Crear el resumen del pedido actual\nfunction crearResumenPedido() {\n  if (productosInfo.length === 1) {\n    const producto = productosInfo[0];\n    return `${producto.nombre} x ${producto.cantidad} unidades (${formatearPrecio(producto.total)})`;\n  } else {\n    const totalItems = cantidadTotalCorregida; // Usar el valor corregido\n    const listaProductos = productosInfo.map(p => `${p.nombre} x${p.cantidad}`).join(', ');\n    return `${totalItems} productos: ${listaProductos} (${formatearPrecio(totalProductoCorregido)})`;\n  }\n}\n\n// Crear lista detallada de productos para mostrar\nfunction crearListaDetallada() {\n  if (productosInfo.length === 1) {\n    const producto = productosInfo[0];\n    return `🧴 *${producto.nombre}* → ${producto.cantidad} uni`;\n  } else {\n    return productosInfo.map(p => `🧴 *${p.nombre}* → ${p.cantidad} uni`).join('\\n');\n  }\n}\n\nconst resumenPedido = crearResumenPedido();\nconst listaDetallada = crearListaDetallada();\n\n// Array de 10 mensajes variados SIN BOTONES\nconst mensajes = [\n  // Mensaje 1 - Tranquilizador\n  `😊 *¡NO TE PREOCUPES!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\nCambiar de opinión es totalmente normal. Estoy aquí para ayudarte a encontrar exactamente lo que necesitas.\n\n¡Hazme saber qué quieres modificar! 💪`,\n\n  // Mensaje 2 - Empático\n  `✨ *¡PERFECTO TIMING!*\n\nTu pedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\nMe encanta que te tomes el tiempo para asegurarte de que todo esté como lo deseas. Queremos que quedes 100% satisfecho.\n\nEstoy aquí para ayudarte ❤️`,\n\n  // Mensaje 3 - Motivador\n  `🌟 *¡EXCELENTE DECISIÓN!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\nTomarte el tiempo para revisar y ajustar muestra que realmente te importa hacer la mejor elección. ¡Eso me gusta!\n\n¡Vamos a dejarlo perfecto! 🎯`,\n\n  // Mensaje 4 - Cercano\n  `🤝 *¡ESTOY CONTIGO!*\n\nTienes:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\nNo hay problema alguno en querer ajustar tu pedido. Mi trabajo es que tengas exactamente lo que buscas.\n\n¡Cuéntame qué necesitas cambiar! 😊`,\n\n  // Mensaje 5 - Directo y amigable\n  `✏️ *¿QUÉ QUIERES MODIFICAR?*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\nEscríbeme qué necesitas modificar y te ayudo inmediatamente 👍`,\n\n  // Mensaje 6 - Personalizado\n  `🛠️ *¿QUÉ DESEAS AJUSTAR?*\n\nTu pedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\nDime qué cambio necesitas y lo actualizamos al instante ⚡`,\n\n  // Mensaje 7 - Profesional con toque personal\n  `🔧 *PERSONALIZA TU PEDIDO*\n\nSelección actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\n¡Escríbeme tu modificación! 🚀`,\n\n  // Mensaje 8 - Sencillo y efectivo\n  `⚙️ *EDITAR PEDIDO*\n\nTienes:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\n¿Cuál opción necesitas? Te ayudo ya mismo 😊`,\n\n  // Mensaje 9 - Entusiasta\n  `✨ *VAMOS A MODIFICAR*\n\nPedido:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\nCuéntame qué necesitas cambiar 💪`,\n\n  // Mensaje 10 - Comprensivo y servicial\n  `🎨 *¡HAGAMOS AJUSTES!*\n\nPedido actual:\n${listaDetallada}\nTotal: ${formatearPrecio(totalProductoCorregido)}\n\nEntiendo que quieras que todo sea perfecto. Estoy aquí para hacer los cambios que necesites.\n\n¡Solo dímelo y lo resolvemos! 🌟`\n];\n\n// Función para escapar caracteres especiales en JSON\nfunction escaparJSON(texto) {\n  return texto\n    .replace(/\\\\/g, '\\\\\\\\')  // Escapar backslashes\n    .replace(/\"/g, '\\\\\"')    // Escapar comillas dobles\n    .replace(/\\n/g, '\\\\n')   // Escapar saltos de línea\n    .replace(/\\r/g, '\\\\r')   // Escapar retorno de carro\n    .replace(/\\t/g, '\\\\t');  // Escapar tabulaciones\n}\n\n// Seleccionar un mensaje aleatorio\nconst mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];\n\n// Retornar el resultado con valores corregidos\nreturn {\n  json: {\n    mensaje_modificacion: escaparJSON(mensajeAleatorio),\n    mensaje_sin_escapar: mensajeAleatorio, // Por si lo necesitas sin escapar\n    pedido_actual: resumenPedido,\n    total_formateado: `${formatearPrecio(totalProductoCorregido)}`,\n    cantidad_productos: productosInfo.length,\n    cantidad_total: cantidadTotalCorregida, // Valor corregido\n    total_producto: totalProductoCorregido, // Valor corregido\n    // Información de depuración\n    debug_info: {\n      total_original: datosCliente.total_producto,\n      total_corregido: totalProductoCorregido,\n      cantidad_original: datosCliente.cantidad_total,\n      cantidad_corregida: cantidadTotalCorregida,\n      diferencia_total: totalProductoCorregido - datosCliente.total_producto,\n      diferencia_cantidad: cantidadTotalCorregida - datosCliente.cantidad_total\n    },\n    status: \"MODIFICANDO\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2688,
+        2224
+      ],
+      "id": "daf76562-2c6c-4491-8240-22f9370fc156",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}\",\n  \"message\": \"{{ $json.mensaje_modificacion }}\",\n  \"delayTyping\": 1500,\n  \"buttonList\": {\n    \"buttons\": [\n      {\n        \"id\": \"cambiar_cantidad\",\n        \"label\": \"🔢 Cantidad de productos\"\n      },\n      {\n        \"id\": \"cambiar_producto\", \n        \"label\": \"🛍️ Cambiar productos\"\n      },\n      {\n        \"id\": \"quitar_producto\",\n        \"label\": \"➖ Quitar un producto\"\n      },\n      {\n        \"id\": \"modificar_todo\",\n        \"label\": \"🗑️ Vaciar carrito\"\n      },\n      {\n        \"id\": \"agregar_productos\",\n        \"label\": \"➕ Agregar más productos\"\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2464,
+        2224
+      ],
+      "id": "3474f33f-d681-4a46-b442-4dae2ca8583b",
+      "name": "Send Buttons1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "cambiar_cantidad",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9949dc02-c7e4-4e28-b2b6-9d3cca9419e1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cambiar_cantidad"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "309bcb37-161a-490f-9328-7dceabb6c65f",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "cambiar_producto",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cambiar_producto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "45f3d70b-4d79-4a74-aea4-228c77750f9a",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "modificar_todo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "modificar_todo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2a4c04a6-8bfe-421e-900e-1b37ce53b82c",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "agregar_productos",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "agregar_productos"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "73c03b41-ebc2-4dd3-a58a-d839de6a325c",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "quitar_producto",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "quitar_producto"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3136,
+        2752
+      ],
+      "id": "9e0ff449-4151-4d20-bc1c-e77541c70295",
+      "name": "Edit Product"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_estado_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        2416
+      ],
+      "id": "4fdb8f27-a736-4d85-bfa1-469483f02b9d",
+      "name": "Get Data cambiar_cantidad",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_estado_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        2608
+      ],
+      "id": "eaa619b5-ea98-45bd-8d61-fca8f4f1cd42",
+      "name": "Get Data cambiar_producto",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Script para generar mensaje dinámico de ayuda - CAMBIAR TIPO DE PRODUCTOS\n// Obtener los datos de entrada\nconst productosInfo = $input.first().json.productos_info;\n\n// Crear lista actual de productos\nfunction crearListaActual() {\n  return productosInfo.map(p => `🧴 ${p.nombre} → ${p.cantidad} uni`).join('\\n');\n}\n\n// Crear botones dinámicos basados en los productos actuales\nfunction crearBotones() {\n  return productosInfo.map(producto => ({\n    id: `cambiar_producto_${producto.nombre.toLowerCase().replace(/\\s+/g, '_')}`,\n    label: `🧴 ${producto.nombre}`\n  }));\n}\n\nconst listaActual = crearListaActual();\nconst botones = crearBotones();\n\n// Mensaje simplificado - escapando saltos de línea para JSON\nconst mensajeAyudaTipoProductos = `🛍️Pedido actual:\\n${listaActual}\\n\\nPara cambiar productos, elija uno:`;\n\n// Retornar el resultado\nreturn {\n  json: {\n    mensaje_ayuda: mensajeAyudaTipoProductos,\n    botones: botones,\n    tipo_ayuda: \"cambiar_tipo_productos\",\n    productos_actuales: productosInfo.length\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2688,
+        2608
+      ],
+      "id": "9afb355c-4ed8-41ec-b8b0-7c01d2f3159b",
+      "name": "cambiar_producto"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Script para generar mensaje dinámico de ayuda - CAMBIAR CANTIDADES\n// Obtener los datos de entrada\nconst productosInfo = $input.first().json.productos_info;\n// Crear lista actual de productos\nfunction crearListaActual() {\n  return productosInfo.map(p => `🧴 ${p.nombre} → ${p.cantidad} uni`).join('\\n');\n}\n// Crear ejemplo dinámico basado en productos actuales\nfunction crearEjemploDinamico() {\n  // Si solo hay 1 producto\n  if (productosInfo.length === 1) {\n    const producto = productosInfo[0];\n    const nuevaCantidad = Math.max(1, producto.cantidad === 1 ? 5 : producto.cantidad + 3);\n    return `- \"*${producto.nombre}* cambiar a ${nuevaCantidad} unidades\"`;\n  }\n  \n  // Si hay 2 o más productos - mostrar ejemplo con múltiples\n  else {\n    const producto1 = productosInfo[0];\n    const producto2 = productosInfo[1];\n    const nuevaCantidad1 = Math.max(1, producto1.cantidad - 2);\n    const nuevaCantidad2 = Math.max(1, producto2.cantidad + 3);\n    return `- \"*${producto1.nombre}* cambiar a ${nuevaCantidad1} unidades, ${producto2.nombre} cambiar a ${nuevaCantidad2} unidades\"`;\n  }\n}\nconst listaActual = crearListaActual();\nconst ejemploDinamico = crearEjemploDinamico();\n// Mensaje de ayuda dinámico para cambiar cantidades\nconst mensajeAyudaCantidad = `🔢Pedido actual:\n${listaActual}\nPara cambiar cantidades, escribe así:\n📝 *EJEMPLO:*\n${ejemploDinamico}\n📋 *FORMATO FÁCIL:*\n[Nombre del producto] + [nueva cantidad]\n¿Qué cantidad quieres cambiar?`;\n// Retornar el resultado\nreturn {\n  json: {\n    mensaje_ayuda: mensajeAyudaCantidad,\n    tipo_ayuda: \"cambiar_cantidad\",\n    productos_actuales: productosInfo.length\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2688,
+        2416
+      ],
+      "id": "55c7fd1d-6e04-452b-a355-e80600e5c5b9",
+      "name": "cambiar_cantidad"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.mensaje_ayuda }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ parseInt( $json.mensaje_ayuda.length() * 25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2464,
+        2416
+      ],
+      "id": "93c69a42-d9cd-47ef-aa9c-6690f5a64f15",
+      "name": "Send cambiar_cantidad"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_estado_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        2800
+      ],
+      "id": "87473b1d-5e6b-4ab0-97ec-35973ac0800a",
+      "name": "Get Data modificar_todo",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Script para generar mensaje de advertencia - BORRAR TODO\n// Obtener los datos de entrada\nconst productosInfo = $input.first().json.productos_info;\n\n// Crear lista actual de productos\nfunction crearListaActual() {\n  return productosInfo.map(p => `🧴 *${p.nombre}* → ${p.cantidad} uni`).join('\\n');\n}\n\n// Crear botones dinámicos\nfunction crearBotones() {\n  return [\n    {\n      id: \"confirmar_borrar\",\n      label: \"✅ Sí, borrar todo\"\n    },\n    {\n      id: \"confirmar_cancelar\",\n      label: \"❌ No, cancelar\"\n    }\n  ];\n}\n\nconst listaActual = crearListaActual();\nconst botones = crearBotones();\nconst totalProductos = productosInfo.length;\nconst cantidadTotal = productosInfo.reduce((total, p) => total + p.cantidad, 0);\n\n// Mensaje de advertencia - escapando saltos de línea para JSON\nconst mensajeAdvertencia = `⚠️ ADVERTENCIA\\n\\nEstás a punto de borrar TODOS los productos seleccionados:\\n\\n${listaActual}\\n\\n📊 Total: ${totalProductos} productos (${cantidadTotal} unidades)\\n\\n¿Estás seguro de que quieres eliminar todo el pedido?`;\n\n// Retornar el resultado\nreturn {\n  json: {\n    mensaje_advertencia: mensajeAdvertencia,\n    botones: botones,\n    tipo_ayuda: \"confirmar_borrar_todo\",\n    productos_a_borrar: totalProductos,\n    cantidad_total: cantidadTotal\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2688,
+        2800
+      ],
+      "id": "24f456c6-8c39-4493-85d3-de177505cad5",
+      "name": "modificar_todo"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_estado_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        2992
+      ],
+      "id": "05b69992-f2ef-4234-bd94-750af0308868",
+      "name": "Get Data agregar_productos",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Script para generar mensaje dinámico de ayuda - AGREGAR PRODUCTOS\n// Obtener los datos de entrada\nconst productosInfo = $input.first().json.productos_info;\n\n// Crear lista actual de productos\nfunction crearListaActual() {\n  return productosInfo.map(p => `🧴 *${p.nombre}* → ${p.cantidad} uni`).join('\\n');\n}\n\n// Productos alternativos para ejemplos (diferentes a los actuales)\nconst productosAlternativos = [\n  \"SAUVAGE\", \"HUGO BOSS MAN\", \"BLEU DE CHANEL\", \"DIOR HOMME\", \n  \"VERSACE DYLAN BLUE\", \"POLO BLUE\", \"ACQUA DI GIO\", \"INVICTUS\"\n];\n\n// Crear ejemplo dinámico basado en productos actuales\nfunction crearEjemploDinamico() {\n  // Si solo hay 1 producto\n  if (productosInfo.length === 1) {\n    const productoNuevo = productosAlternativos[0]; // SAUVAGE\n    const cantidad = 5;\n    return `- \"Agregar *${productoNuevo}* ${cantidad} unidades\"`;\n  }\n  \n  // Si hay 2 o más productos - mostrar ejemplo con múltiples productos nuevos\n  else {\n    const producto1 = productosAlternativos[0]; // SAUVAGE\n    const producto2 = productosAlternativos[1]; // HUGO BOSS MAN\n    const cantidad1 = 5;\n    const cantidad2 = 3;\n    \n    return `- \"Agregar *${producto1}* ${cantidad1} unidades, *${producto2}* ${cantidad2} unidades\"`;\n  }\n}\n\nconst listaActual = crearListaActual();\nconst ejemploDinamico = crearEjemploDinamico();\n\n// Mensaje de ayuda dinámico para agregar productos\nconst mensajeAyudaAgregarProductos = `➕Pedido actual:\n${listaActual}\n\nPara agregar más productos, escribe así:\n\n📝 *EJEMPLO:*\n${ejemploDinamico}\n\n📋 *FORMATO FÁCIL:*\n${productosInfo.length === 1 ? '\"Agregar [producto] [cantidad]\"' : '\"Agregar [producto] [cantidad], [producto] [cantidad]\"'}\n\nSe sumará a tu pedido actual\n¿Qué productos quieres agregar?`;\n\n// Retornar el resultado\nreturn {\n  json: {\n    mensaje_ayuda: mensajeAyudaAgregarProductos,\n    tipo_ayuda: \"agregar_productos\",\n    productos_actuales: productosInfo.length\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2688,
+        2992
+      ],
+      "id": "5826c556-bfbe-414b-ac14-28c99677266b",
+      "name": "agregar_productos"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.mensaje_ayuda }}"
+            },
+            {
+              "name": "delayTyping",
+              "value": "={{ parseInt( $json.mensaje_ayuda.length() * 25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2464,
+        2992
+      ],
+      "id": "4f34f675-686d-411a-b460-1d5e2e2015c7",
+      "name": "Send agregar_productos"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_modificacion_producto_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', 'AGREGAR_PRODUCTOS');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2240,
+        2992
+      ],
+      "id": "c0ba5243-8ea1-491f-877e-bdb1d0d53301",
+      "name": "Get Data agregar_productos1",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_ventas_principal_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', NULL);\n\nSELECT actualizar_estado_modificacion_producto_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', NULL); \n\nSELECT delete_products_by_session('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');\n\nSELECT actualizar_estado_modificacion_producto_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', NULL);\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2688,
+        3568
+      ],
+      "id": "8e4ff72c-4405-496a-86f1-725fa9435b95",
+      "name": "Get Data agregar_productos4",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_estado_modificacion_producto_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', 'EDIT_CANTIDAD');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2240,
+        2416
+      ],
+      "id": "80a822ff-6480-4ac4-9f72-b171b4dd2504",
+      "name": "EDIT_CANTIDAD",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT delete_products_by_session('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');\nSELECT insert_n8n_update_product('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', '{{ $json.button_text }}');\nSELECT actualizar_estado_modificacion_producto_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', 'EDIT_PRODUCTO');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        3376
+      ],
+      "id": "caefa1a1-8ba5-4cbc-973b-0a79552e764f",
+      "name": "EDIT_PRODUCTO",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}\",\n  \"message\": {{ JSON.stringify($json.mensaje_ayuda) }},\n  \"delayTyping\": 1500,\n  \"buttonList\": {\n    \"buttons\": {{ JSON.stringify($json.botones) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2464,
+        2608
+      ],
+      "id": "507d0201-55c4-46e9-8f04-fd03e88b5aae",
+      "name": "Send Buttons2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "cambiar_producto_",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "9949dc02-c7e4-4e28-b2b6-9d3cca9419e1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cambiar_producto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3d7344e6-5a85-4b30-bc79-dd751be8a00c",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "confirmar_borrar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "confirmar_borrar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cf5141bc-460d-40e2-8481-6ed2c64f8aaf",
+                    "leftValue": "={{ $json.button_id }}",
+                    "rightValue": "eliminar_producto_",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "eliminar_producto"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3136,
+        3616
+      ],
+      "id": "9f1c2dfa-8517-4682-9ec5-ba7d642d7eb7",
+      "name": "Edit Data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('WhatsApp Message Parser').first().json.user.sender_phone }}\",\n  \"message\": {{ JSON.stringify($json.mensaje_advertencia) }},\n  \"delayTyping\": 1500,\n  \"buttonList\": {\n    \"buttons\": {{ JSON.stringify($json.botones) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2464,
+        2800
+      ],
+      "id": "451c4ed5-dac2-476b-9aec-122f7d8da5ba",
+      "name": "Send Buttons3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            },
+            {
+              "name": "message",
+              "value": "=Has seleccionado cambiar tu producto. Ahora, por favor escribe el nuevo producto y la cantidad que deseas, siguiendo este formato:\n\n📝 Ejemplo:\n- \"SAUVAGE 5 unidades\""
+            },
+            {
+              "name": "delayTyping",
+              "value": "=5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2688,
+        3376
+      ],
+      "id": "5126f09e-6ef6-4245-a5d5-6d5163aa19d5",
+      "name": "Send Buttons  Edit Product"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('WhatsApp Message Parser').first().json.user.sender_phone }}\",\n  \"message\": \"¡No te vayas sin ver lo que tenemos para ti! 😃\\n\\nExplora nuestro catálogo, revisa las ofertas o haz un nuevo pedido.\",\n  \"delayTyping\": 1500,\n  \"buttonList\": {\n    \"buttons\": [\n      {\n        \"id\": \"comprar\",\n        \"label\": \"🛒 Comprar\"\n      },\n      {\n        \"id\": \"catalogo\",\n        \"label\": \"📋 Catálogo\"\n      },\n      {\n        \"id\": \"ofertas\",\n        \"label\": \"🔥 Ofertas\"\n      },\n      {\n        \"id\": \"pedido\",\n        \"label\": \"📦 Consultar Pedido\"\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2912,
+        3568
+      ],
+      "id": "974d00e1-3f16-4df9-a03f-c141fe1c9464",
+      "name": "Send Buttons4"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM obtener_estado_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        3184
+      ],
+      "id": "52c65772-d27a-4ecc-a422-e3865070c49b",
+      "name": "Get Data Quitar Producto",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Script para generar mensaje dinámico de ayuda - ELIMINAR PRODUCTO\nconst productosInfo = $input.first().json.productos_info;\n\nfunction crearListaActual() {\n  return productosInfo.map(p => `🧴 ${p.nombre} → ${p.cantidad} uni`).join('\\n');\n}\n\nconst hayUnSoloProducto = productosInfo.length === 1;\n\nlet mensaje, botones, puedeModificar;\n\nif (hayUnSoloProducto) {\n  mensaje = `🛍️ Pedido actual:\\n${crearListaActual()}\\n\\n⚠️ Solo tienes un producto en el carrito.\\n¿Deseas vaciar el carrito?`;\n  botones = [\n    {\n      id: \"confirmar_borrar\",\n      label: \"✅ Sí, borrar todo\"\n    },\n    {\n      id: \"confirmar_cancelar\",\n      label: \"❌ No, cancelar\"\n    }\n  ];\n  puedeModificar = false; // O true, según tu lógica\n} else {\n  mensaje = `🛍️ Pedido actual:\\n${crearListaActual()}\\n\\nSelecciona el producto a eliminar:`;\n  botones = productosInfo.map(producto => ({\n    id: `eliminar_producto_${producto.nombre.toLowerCase().replace(/\\s+/g, '_')}`,\n    label: `❌ ${producto.nombre}`\n  }));\n  puedeModificar = true;\n}\n\nreturn {\n  json: {\n    mensaje_ayuda: mensaje,\n    botones: botones,\n    tipo_ayuda: \"eliminar_producto\",\n    productos_actuales: productosInfo.length,\n    un_solo_producto: hayUnSoloProducto,\n    puede_modificar: puedeModificar\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2688,
+        3184
+      ],
+      "id": "e432a592-b714-493b-bf88-5d3aee359c90",
+      "name": "quitar_producto"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3E437048CF3D40E574FE2EE02AE98ECC/token/25512E9D7889005341E093C0/send-button-list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "client-token",
+              "value": "F71f72d577fd94b2995487e18acdaa9ceS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}\",\n  \"message\": {{ JSON.stringify($json.mensaje_ayuda) }},\n  \"delayTyping\": 1500,\n  \"buttonList\": {\n    \"buttons\": {{ JSON.stringify($json.botones) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2464,
+        3184
+      ],
+      "id": "068b187e-6b29-4546-85db-b014a34cb37b",
+      "name": "Send Buttons5"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT delete_products_by_session('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');\nSELECT insert_n8n_update_product('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', '{{ $json.button_text }}');\nSELECT actualizar_estado_modificacion_producto_pro('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}', 'MODIFICAR_TODO');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2912,
+        3760
+      ],
+      "id": "c8ecfd04-9023-48e0-bc34-586f846824be",
+      "name": "EDIT_PRODUCTO1",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Entradas\nconst productDelete   = $('Get Update Product').first().json.product;          // nombre a eliminar\nconst productos_info  = $input.first().json.productos_info;                    // lista original\n\n// 2. Eliminar el producto indicado\nconst productosSinBorrar = productos_info.filter(\n  producto => producto.nombre !== productDelete\n);\n\n// 3. Cantidad total resultante\nconst cantidadTotal = productosSinBorrar.reduce(\n  (suma, p) => suma + (p.cantidad || 0),\n  0\n);\n\n// 4. Función precio unitario según cantidad total\nfunction precioPorEscala(qty) {\n  if (qty === 1)               return 60000;\n  if (qty === 2)               return 50000;\n  if (qty >= 3 && qty <= 5)    return 40000;\n  if (qty >= 6)                return 35000;\n  return 60000; // fallback\n}\n\n// 5. Precio unitario calculado\nconst precioUnitario = precioPorEscala(cantidadTotal);\n\n// 6. Calcular precio y total por producto\nconst productosFinales = productosSinBorrar.map(p => ({\n  ...p,\n  precio: precioUnitario,\n  total : precioUnitario * (p.cantidad || 0)\n}));\n\n// 7. Total general\nconst totalGeneral = productosFinales.reduce(\n  (suma, p) => suma + (p.total || 0),\n  0\n);\n\n// 8. Salida para n8n\nreturn [\n  {\n    json: {\n      productos_info : productosFinales,\n      cantidad_total : cantidadTotal,\n      precio_unitario: precioUnitario,\n      total_general  : totalGeneral,\n      producto_eliminado: productDelete\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2240,
+        3760
+      ],
+      "id": "0d7f1d2a-1573-48a3-9a62-f3861903e0ce",
+      "name": "Code9"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_pro_conversation_states",
+          "mode": "list",
+          "cachedResultName": "n8n_pro_conversation_states"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "productos_info"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2464,
+        3760
+      ],
+      "id": "63c2d756-8924-4f67-9677-448e653e2d71",
+      "name": "Get productos_info1",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_update_product",
+          "mode": "list",
+          "cachedResultName": "n8n_update_product"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "product"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2688,
+        3760
+      ],
+      "id": "49962db1-9532-46f5-ac3e-99bc25ca8edf",
+      "name": "Get Update Product",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT actualizar_productos_info_pro(\n  '{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}',\n  '{{ JSON.stringify($json.productos_info) }}'\n);\n\nSELECT delete_products_by_session('{{ $('WhatsApp Message Parser').item.json.user.sender_phone }}');\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2016,
+        3760
+      ],
+      "id": "a3b10ec5-7875-4cbc-83b6-5bcaea3b2ace",
+      "name": "Execute a SQL query2",
+      "credentials": {
+        "postgres": {
+          "id": "8JM5p3eqNiJuC8uB",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "LkGViUYxUOxTYhcA",
+          "mode": "list",
+          "cachedResultName": "My Sub Update Order"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId_firstItem": "={{ $('WhatsApp Message Parser').item.json.user.sender_phone }}"
+          },
+          "matchingColumns": [
+            "sessionId_firstItem"
+          ],
+          "schema": [
+            {
+              "id": "sessionId_firstItem",
+              "displayName": "sessionId_firstItem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1792,
+        3760
+      ],
+      "id": "92dc8768-b797-48b7-a548-c5ee9d05cd0f",
+      "name": "Execute Workflow"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.srv895922.hstgr.cloud",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+            "content-length": "873",
+            "content-type": "application/json",
+            "origin": "https://api.z-api.io",
+            "server": "Z-API",
+            "x-forwarded-for": "168.75.102.34",
+            "x-forwarded-host": "n8n.srv895922.hstgr.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "dce7a218380c",
+            "x-real-ip": "168.75.102.34",
+            "z-api-token": "25512E9D7889005341E093C0",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "isStatusReply": false,
+            "chatLid": "33501416050920@lid",
+            "connectedPhone": "573194651229",
+            "waitingMessage": false,
+            "isEdit": false,
+            "isGroup": false,
+            "isNewsletter": false,
+            "instanceId": "3E437048CF3D40E574FE2EE02AE98ECC",
+            "messageId": "0A4FF0D58C06AA0968B5B20BB7C797BE",
+            "phone": "573011284297",
+            "fromMe": false,
+            "momment": 1753403994000,
+            "status": "RECEIVED",
+            "chatName": "Sergio R.",
+            "senderPhoto": null,
+            "senderName": "Sergio R.",
+            "photo": "https://pps.whatsapp.net/v/t61.24694-24/518949464_1473845160724464_1356829479899435347_n.jpg?ccb=11-4&oh=01_Q5Aa2AERJ_KPSDnGxbTjCI_mjLV8dLPKUBp_euiexEDNuUPB3A&oe=688FDA8E&_nc_sid=5e03e0&_nc_cat=108",
+            "broadcast": false,
+            "participantLid": null,
+            "referenceMessageId": "3EB0E11955A4043F7E26E2",
+            "messageExpirationSeconds": 0,
+            "forwarded": false,
+            "type": "ReceivedCallback",
+            "fromApi": false,
+            "buttonsResponseMessage": {
+              "buttonId": "transferencia",
+              "message": "💳 Transferencia"
+            }
+          },
+          "webhookUrl": "https://n8n.srv895922.hstgr.cloud/webhook/50a91089-2c34-4dd0-8896-2715bd6e9612",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "WhatsApp Message Parser": {
+      "main": [
+        [
+          {
+            "node": "Message Type Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Message Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Type Router": {
+      "main": [
+        [
+          {
+            "node": "Download Audio File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pausa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Image File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Process Button Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image File": {
+      "main": [
+        [
+          {
+            "node": "Analyze Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pausa": {
+      "main": [
+        [
+          {
+            "node": "Obtener Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Extract Message Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Image": {
+      "main": [
+        [
+          {
+            "node": "Extract Message Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Button Response": {
+      "main": [
+        [
+          {
+            "node": "Button Response Router",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Product",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Button Response Router": {
+      "main": [
+        [
+          {
+            "node": "Dynamic Time Greeting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dynamic Offers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dynamic Buy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dynamic Order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contra_Entrega",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Transferencia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Data User1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        []
+      ]
+    },
+    "Obtener Texto": {
+      "main": [
+        [
+          {
+            "node": "Extract Message Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message Content": {
+      "main": [
+        [
+          {
+            "node": "Store Message in Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Message in Buffer": {
+      "main": [
+        [
+          {
+            "node": "Wait for Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Buffer": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Messages from Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Messages from Buffer": {
+      "main": [
+        [
+          {
+            "node": "Check for Duplicate Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Duplicate Message": {
+      "main": [
+        [
+          {
+            "node": "Clear Buffer Cache",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip Duplicate Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Buffer Cache": {
+      "main": [
+        [
+          {
+            "node": "Format Final Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Final Output": {
+      "main": [
+        [
+          {
+            "node": "Get session_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get session_id": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Dynamic Greeting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Data User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dynamic Greeting": {
+      "main": [
+        [
+          {
+            "node": "Send Dynamic Greeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dynamic Time Greeting": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Download Good Morning",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Good Afternoon",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download  Good Night",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Dynamic Greeting": {
+      "main": [
+        [
+          {
+            "node": "Send Buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Audio": {
+      "main": [
+        [
+          {
+            "node": "Send Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Audio": {
+      "main": [
+        [
+          {
+            "node": "Send Catalog Man",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Catalog Man": {
+      "main": [
+        [
+          {
+            "node": "Send Catalog Women",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Good Morning": {
+      "main": [
+        [
+          {
+            "node": "Merge Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Good Afternoon": {
+      "main": [
+        [
+          {
+            "node": "Merge Audio",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Download  Good Night": {
+      "main": [
+        [
+          {
+            "node": "Merge Audio",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Dynamic Offers": {
+      "main": [
+        [
+          {
+            "node": "Send Dynamic Offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dynamic Buy": {
+      "main": [
+        [
+          {
+            "node": "Send Dynamic Buy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dynamic Order": {
+      "main": [
+        [
+          {
+            "node": "Send Dynamic Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Buttons": {
+      "main": [
+        [
+          {
+            "node": "Execute Status Greeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Catalog Women": {
+      "main": [
+        [
+          {
+            "node": "Execute Status Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Dynamic Offers": {
+      "main": [
+        [
+          {
+            "node": "Execute Status Offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Dynamic Buy": {
+      "main": [
+        [
+          {
+            "node": "Execute Status Buy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Dynamic Order": {
+      "main": [
+        [
+          {
+            "node": "Execute Status Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Response IA": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "COMPRA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "INVENTARIO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RECOMENDACION",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "COMPARACION",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "COMPRA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "VALIDATOR DATA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "VALIDATOR DATA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "COMPRA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data User": {
+      "main": [
+        [
+          {
+            "node": "Status Response IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data User1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send Buttons1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Product": {
+      "main": [
+        [
+          {
+            "node": "Get Data cambiar_cantidad",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Data cambiar_producto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Data modificar_todo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Data agregar_productos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Data Quitar Producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data cambiar_cantidad": {
+      "main": [
+        [
+          {
+            "node": "cambiar_cantidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data cambiar_producto": {
+      "main": [
+        [
+          {
+            "node": "cambiar_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cambiar_producto": {
+      "main": [
+        [
+          {
+            "node": "Send Buttons2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cambiar_cantidad": {
+      "main": [
+        [
+          {
+            "node": "Send cambiar_cantidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data modificar_todo": {
+      "main": [
+        [
+          {
+            "node": "modificar_todo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "modificar_todo": {
+      "main": [
+        [
+          {
+            "node": "Send Buttons3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data agregar_productos": {
+      "main": [
+        [
+          {
+            "node": "agregar_productos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "agregar_productos": {
+      "main": [
+        [
+          {
+            "node": "Send agregar_productos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send agregar_productos": {
+      "main": [
+        [
+          {
+            "node": "Get Data agregar_productos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send cambiar_cantidad": {
+      "main": [
+        [
+          {
+            "node": "EDIT_CANTIDAD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Data": {
+      "main": [
+        [
+          {
+            "node": "EDIT_PRODUCTO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Buttons4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "EDIT_PRODUCTO1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EDIT_PRODUCTO": {
+      "main": [
+        [
+          {
+            "node": "Send Buttons  Edit Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Buttons3": {
+      "main": [
+        []
+      ]
+    },
+    "Get Data agregar_productos4": {
+      "main": [
+        []
+      ]
+    },
+    "Send Buttons4": {
+      "main": [
+        [
+          {
+            "node": "Get Data agregar_productos4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data Quitar Producto": {
+      "main": [
+        [
+          {
+            "node": "quitar_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "quitar_producto": {
+      "main": [
+        [
+          {
+            "node": "Send Buttons5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get productos_info1": {
+      "main": [
+        [
+          {
+            "node": "Code9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EDIT_PRODUCTO1": {
+      "main": [
+        [
+          {
+            "node": "Get Update Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Update Product": {
+      "main": [
+        [
+          {
+            "node": "Get productos_info1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code9": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query2": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2121fd3d-733c-4e3b-b363-cdda591e1e07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9b741fad69cc6219b90142a4f3a46a45de0510680dd2fdf57a5402cd3a1e0176"
+  },
+  "id": "NARCxPg3jEuCsBaJ",
+  "tags": [
+    {
+      "createdAt": "2025-07-24T01:28:48.246Z",
+      "updatedAt": "2025-07-24T01:28:48.246Z",
+      "id": "bI2UmbvTrUiQIVOH",
+      "name": "VENTAS"
+    }
+  ]
+}
