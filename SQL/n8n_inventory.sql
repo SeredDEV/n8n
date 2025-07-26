@@ -1,3 +1,6 @@
+-- Habilita la extensión pg_trgm para búsquedas fuzzy
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 -- Habilita la extensión pgvector
 -- Si ya no usas pgvector, puedes omitir la extensión
 
@@ -11,8 +14,41 @@ DROP INDEX IF EXISTS idx_n8n_vector_inventory_disponible CASCADE;
 DROP INDEX IF EXISTS idx_n8n_vector_inventory_precio CASCADE;
 DROP TABLE IF EXISTS n8n_vector_inventory CASCADE;
 
+-- Elimina índices de la tabla n8n_inventory si existen
+DROP INDEX IF EXISTS idx_n8n_inventory_nombre_locion CASCADE;
+DROP INDEX IF EXISTS idx_n8n_inventory_nombre_locion_fuzzy CASCADE;
+DROP INDEX IF EXISTS idx_n8n_inventory_categoria CASCADE;
+DROP INDEX IF EXISTS idx_n8n_inventory_categoria_fuzzy CASCADE;
+DROP INDEX IF EXISTS idx_n8n_inventory_marca CASCADE;
+DROP INDEX IF EXISTS idx_n8n_inventory_marca_fuzzy CASCADE;
+DROP INDEX IF EXISTS idx_n8n_inventory_disponible CASCADE;
+DROP INDEX IF EXISTS idx_n8n_inventory_precio CASCADE;
+
+-- Elimina trigger y función si existen
+DROP TRIGGER IF EXISTS update_n8n_inventory_updated_at ON n8n_inventory CASCADE;
+DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+DROP FUNCTION IF EXISTS buscar_productos(TEXT, TEXT, TEXT, BOOLEAN, INTEGER) CASCADE;
+
+-- Eliminar TODAS las versiones de buscar_productos_fuzzy_json_multi
+DO $$
+DECLARE
+    func_record RECORD;
+BEGIN
+    FOR func_record IN
+        SELECT proname, oidvectortypes(proargtypes) as args
+        FROM pg_proc
+        WHERE proname = 'buscar_productos_fuzzy_json_multi'
+    LOOP
+        EXECUTE 'DROP FUNCTION IF EXISTS ' || func_record.proname || '(' || func_record.args || ') CASCADE';
+    END LOOP;
+END $$;
+DROP FUNCTION IF EXISTS buscar_productos_fuzzy_json_multi(TEXT, TEXT, TEXT, INTEGER) CASCADE;
+
+-- Eliminar la tabla n8n_inventory si existe (para evitar duplicados)
+DROP TABLE IF EXISTS n8n_inventory CASCADE;
+
 -- Crear la nueva tabla n8n_inventory
-CREATE TABLE IF NOT EXISTS n8n_inventory (
+CREATE TABLE n8n_inventory (
     id SERIAL PRIMARY KEY,
     nombre_locion VARCHAR(255) NOT NULL,
     descripcion_aroma VARCHAR(255),
@@ -200,11 +236,17 @@ INSERT INTO n8n_inventory (
 ('ISSEY FEM', 'acuatico-floral', 'Issey Miyake', 100, 60000, 'MUJER', 'SI', '', '', '', '', ''),
 ('CHANEL #5', 'amaderado-fresco', 'Chanel', 100, 60000, 'MUJER', 'SI', '', '', '', '', '');
 
+-- Crear índices para búsquedas exactas
 CREATE INDEX idx_n8n_inventory_nombre_locion ON n8n_inventory(nombre_locion);
 CREATE INDEX idx_n8n_inventory_categoria ON n8n_inventory(categoria);
 CREATE INDEX idx_n8n_inventory_marca ON n8n_inventory(marca_fabricante);
 CREATE INDEX idx_n8n_inventory_disponible ON n8n_inventory(disponible);
 CREATE INDEX idx_n8n_inventory_precio ON n8n_inventory(precio_venta);
+
+-- Crear índices para búsquedas fuzzy usando pg_trgm
+CREATE INDEX idx_n8n_inventory_nombre_locion_fuzzy ON n8n_inventory USING gin(nombre_locion gin_trgm_ops);
+CREATE INDEX idx_n8n_inventory_marca_fuzzy ON n8n_inventory USING gin(marca_fabricante gin_trgm_ops);
+CREATE INDEX idx_n8n_inventory_categoria_fuzzy ON n8n_inventory USING gin(categoria gin_trgm_ops);
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -214,11 +256,120 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_n8n_inventory_updated_at 
-    BEFORE UPDATE ON n8n_inventory 
+CREATE TRIGGER update_n8n_inventory_updated_at
+    BEFORE UPDATE ON n8n_inventory
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- ========================================
+-- FUNCIÓN DE BÚSQUEDA FUZZY CON CATEGORÍA OPCIONAL
+-- ========================================
+
+
+
+CREATE OR REPLACE FUNCTION buscar_productos_fuzzy_json_multi(
+    terminos TEXT[],
+    categoria_filtro TEXT DEFAULT NULL,
+    limite INT DEFAULT 10
+)
+RETURNS JSONB AS $$
+BEGIN
+    RETURN (
+        WITH productos_con_similitud AS (
+            SELECT
+                id,
+                nombre_locion,
+                descripcion_aroma,
+                marca_fabricante,
+                contenido_ml,
+                precio_venta,
+                categoria,
+                disponible,
+                imagen_principal,
+                created_at,
+                updated_at,
+                (
+                    SELECT MAX(similarity(p.nombre_locion, t.term))
+                    FROM unnest(terminos) AS t(term)
+                ) AS sim_nombre,
+                (
+                    SELECT MAX(similarity(p.marca_fabricante, t.term))
+                    FROM unnest(terminos) AS t(term)
+                ) AS sim_marca,
+                CASE
+                    WHEN categoria_filtro IS NOT NULL THEN similarity(LOWER(p.categoria), LOWER(categoria_filtro))
+                    ELSE 0
+                END AS sim_categoria
+            FROM n8n_inventory p
+            WHERE
+                p.disponible = 'SI'
+                AND (
+                    categoria_filtro IS NULL
+                    OR LOWER(p.categoria) = LOWER(categoria_filtro)
+                )
+                AND EXISTS (
+                    SELECT 1 FROM unnest(terminos) AS t(term)
+                    WHERE p.nombre_locion % t.term OR p.marca_fabricante % t.term
+                )
+        ),
+        max_sim_nombre AS (
+            SELECT MAX(sim_nombre) AS max_sim FROM productos_con_similitud
+        )
+        SELECT jsonb_agg(objeto)
+        FROM (
+            SELECT jsonb_build_object(
+                'id', p.id,
+                'nombre_locion', p.nombre_locion,
+                'descripcion_aroma', p.descripcion_aroma,
+                'marca_fabricante', p.marca_fabricante,
+                'contenido_ml', p.contenido_ml,
+                'precio_venta', p.precio_venta,
+                'categoria', p.categoria,
+                'disponible', p.disponible,
+                'imagen_principal', p.imagen_principal,
+                'created_at', p.created_at,
+                'updated_at', p.updated_at,
+                'sim_nombre', p.sim_nombre,
+                'sim_marca', p.sim_marca,
+                'sim_categoria', p.sim_categoria
+            ) AS objeto
+            FROM productos_con_similitud p, max_sim_nombre m
+            WHERE p.sim_nombre = m.max_sim
+            ORDER BY p.sim_nombre DESC, p.sim_marca DESC, p.nombre_locion, p.categoria
+            LIMIT limite
+        ) sub
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+
+
 -- Consultas de ejemplo para verificar los datos
--- SELECT COUNT(*) FROM n8n_vector_inventory;
--- SELECT categoria, COUNT(*) FROM n8n_vector_inventory GROUP BY categoria;
--- SELECT marca_fabricante, COUNT(*) FROM n8n_vector_inventory GROUP BY marca_fabricante ORDER BY COUNT(*) DESC;
+-- SELECT COUNT(*) FROM n8n_inventory;
+-- SELECT categoria, COUNT(*) FROM n8n_inventory GROUP BY categoria;
+-- SELECT marca_fabricante, COUNT(*) FROM n8n_inventory GROUP BY marca_fabricante ORDER BY COUNT(*) DESC;
+
+-- ========================================
+-- EJEMPLOS DE USO DE LA FUNCIÓN
+-- ========================================
+
+-- 1. Búsqueda básica por términos
+SELECT buscar_productos_fuzzy_json_multi(ARRAY['ck one']);
+
+-- 2. Búsqueda con categoría exacta
+-- SELECT buscar_productos_fuzzy_json_multi(ARRAY['ck one'], 'HOMBRE');
+
+-- 3. Búsqueda con categoría fuzzy (tolerante a errores)
+-- SELECT buscar_productos_fuzzy_json_multi(ARRAY['ck one'], 'hombre');
+
+-- 4. Búsqueda múltiples términos con categoría
+-- SELECT buscar_productos_fuzzy_json_multi(ARRAY['ck one', 'million'], 'HOMBRE');
+
+-- 5. Búsqueda con límite personalizado
+-- SELECT buscar_productos_fuzzy_json_multi(ARRAY['chanel'], 'MUJER', 3);
+
+-- 6. Búsqueda tolerante a errores en categoría
+-- SELECT buscar_productos_fuzzy_json_multi(ARRAY['sauvage'], 'ombre'); -- Encontrará "HOMBRE"
