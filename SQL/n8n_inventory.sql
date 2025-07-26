@@ -533,7 +533,6 @@ CREATE TRIGGER update_n8n_inventory_updated_at
 
 
 
-
 CREATE OR REPLACE FUNCTION buscar_productos_fuzzy_json_multi(
     terminos TEXT[],
     categoria_filtro TEXT DEFAULT NULL,
@@ -572,7 +571,7 @@ BEGIN
                 p.disponible = 'SI'
                 AND (
                     categoria_filtro IS NULL
-                    OR LOWER(p.categoria) = LOWER(categoria_filtro)
+                    OR similarity(LOWER(p.categoria), LOWER(categoria_filtro)) > 0.4
                 )
                 AND EXISTS (
                     SELECT 1 FROM unnest(terminos) AS t(term)
@@ -608,7 +607,6 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 
