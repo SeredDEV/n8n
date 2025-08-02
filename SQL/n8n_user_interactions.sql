@@ -55,6 +55,13 @@ CREATE OR REPLACE FUNCTION registrar_interaccion_por_id(
     p_boton_id VARCHAR(50)
 ) RETURNS BOOLEAN AS $$
 BEGIN
+    -- Si es el menú principal, restablecer y salir
+    IF LOWER(p_boton_id) = 'menu' THEN
+        DELETE FROM n8n_user_interactions WHERE session_id = p_session_id;
+        RETURN TRUE;
+    END IF;
+    
+    -- Para otros botones, registrar normalmente
     INSERT INTO n8n_user_interactions (session_id, tipo_boton)
     VALUES (
         p_session_id, 
@@ -161,7 +168,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 COMMENT ON FUNCTION registrar_interaccion(VARCHAR, tipo_boton) IS 'Registra una nueva interacción de botón para un usuario';
-COMMENT ON FUNCTION registrar_interaccion_por_id(VARCHAR, VARCHAR) IS 'Registra interacción usando el ID del botón (comprar, catalogo, ofertas, pedido)';
+COMMENT ON FUNCTION registrar_interaccion_por_id(VARCHAR, VARCHAR) IS 'Registra interacción usando el ID del botón (comprar, catalogo, ofertas, pedido, menu)';
 COMMENT ON FUNCTION obtener_botones_no_explorados(VARCHAR) IS 'Devuelve los botones que el usuario AÚN NO ha presionado';
 COMMENT ON FUNCTION obtener_botones_explorados(VARCHAR) IS 'Devuelve los botones que el usuario YA ha presionado';
 COMMENT ON FUNCTION estadisticas_botones() IS 'Devuelve estadísticas de uso de todos los botones';
@@ -171,49 +178,80 @@ COMMENT ON FUNCTION restablecer_interacciones(VARCHAR) IS 'Restablece (borra) to
 -- FUNCIÓN JSON PARA N8N
 -- ========================================
 
--- Función para obtener botones como JSON (útil para N8N)
+-- Función para obtener botones como JSON con menú principal dinámico
 CREATE OR REPLACE FUNCTION obtener_botones_json(p_session_id VARCHAR(50))
 RETURNS JSON AS $$
 DECLARE
     result JSON;
+    tiene_interacciones BOOLEAN;
 BEGIN
-    SELECT json_agg(
-        CASE boton_disponible
-            WHEN 'COMPRAR' THEN json_build_object('id', 'comprar', 'label', '🛒 Comprar')
-            WHEN 'CATALOGO' THEN json_build_object('id', 'catalogo', 'label', '📋 Catálogo')
-            WHEN 'OFERTAS' THEN json_build_object('id', 'ofertas', 'label', '🔥 Ofertas')
-            WHEN 'CONSULTAR_PEDIDO' THEN json_build_object('id', 'pedido', 'label', '📦 Consultar Pedido')
-        END
-    ) INTO result
-    FROM obtener_botones_no_explorados(p_session_id);
+    -- Verificar si el usuario ya ha presionado algún botón
+    SELECT EXISTS (
+        SELECT 1 FROM n8n_user_interactions WHERE session_id = p_session_id
+    ) INTO tiene_interacciones;
+    
+    -- Obtener botones no explorados
+    WITH botones_disponibles AS (
+        SELECT 
+            CASE boton_disponible
+                WHEN 'COMPRAR' THEN json_build_object('id', 'comprar', 'label', '🛒 Comprar')
+                WHEN 'CATALOGO' THEN json_build_object('id', 'catalogo', 'label', '📋 Catálogo')
+                WHEN 'OFERTAS' THEN json_build_object('id', 'ofertas', 'label', '🔥 Ofertas')
+                WHEN 'CONSULTAR_PEDIDO' THEN json_build_object('id', 'pedido', 'label', '📦 Consultar Pedido')
+            END as boton_json
+        FROM obtener_botones_no_explorados(p_session_id)
+    ),
+    todos_botones AS (
+        SELECT boton_json FROM botones_disponibles
+        UNION ALL
+        -- Agregar menú principal solo si ya tiene interacciones
+        SELECT json_build_object('id', 'menu', 'label', '🏠 Menú Principal') as boton_json
+        WHERE tiene_interacciones = true
+    )
+    SELECT json_agg(boton_json) INTO result FROM todos_botones;
     
     RETURN result;
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION obtener_botones_json(VARCHAR) IS 'Devuelve botones disponibles en formato JSON para N8N';
+COMMENT ON FUNCTION obtener_botones_json(VARCHAR) IS 'Devuelve botones disponibles en JSON, agregando menú principal si ya exploró algo';
 
 -- ========================================
 -- EJEMPLOS DE USO (COMENTADOS)
 -- ========================================
 
 /*
--- EJEMPLOS BÁSICOS:
-SELECT registrar_interaccion('session_001', 'CATALOGO');
-SELECT registrar_interaccion('session_001', 'OFERTAS');
+-- EJEMPLOS CON MENÚ PRINCIPAL DINÁMICO:
 
--- REGISTRAR USANDO ID DEL BOTÓN (COMO VIENE DE N8N):
+-- USUARIO NUEVO (sin interacciones):
+SELECT obtener_botones_json('session_nuevo');
+-- Resultado: [comprar, catalogo, ofertas, pedido] (sin menú principal)
+
+-- REGISTRAR UNA INTERACCIÓN:
 SELECT registrar_interaccion_por_id('session_001', 'catalogo');
+
+-- AHORA YA TIENE INTERACCIONES:
+SELECT obtener_botones_json('session_001');
+-- Resultado: [comprar, ofertas, pedido, menu] (con menú principal al final)
+
+-- REGISTRAR OTRA INTERACCIÓN:
 SELECT registrar_interaccion_por_id('session_001', 'ofertas');
-SELECT registrar_interaccion_por_id('session_001', 'comprar');
-SELECT registrar_interaccion_por_id('session_001', 'pedido');
 
 -- VER BOTONES DISPONIBLES:
+SELECT obtener_botones_json('session_001');
+-- Resultado: [comprar, pedido, menu] (solo botones no explorados + menú)
+
+-- PRESIONAR MENÚ PRINCIPAL (restablece todo):
+SELECT registrar_interaccion_por_id('session_001', 'menu');
+
+-- DESPUÉS DEL MENÚ, VUELVE AL INICIO:
+SELECT obtener_botones_json('session_001');
+-- Resultado: [comprar, catalogo, ofertas, pedido] (todos los botones, sin menú)
+
+-- FUNCIONES MANUALES:
+SELECT restablecer_interacciones('session_001');
 SELECT * FROM obtener_botones_no_explorados('session_001');
 
 -- RESTABLECER USUARIO:
 SELECT restablecer_interacciones('session_001');
-
--- USO DE FUNCIÓN JSON:
-SELECT obtener_botones_json('session_001');
 */
